@@ -24,7 +24,7 @@ public class ReplayActivity extends BaseActivity {
     protected PlayerView video_view;
 
     private ReplayBoardFragment replayBoardFragment;
-    private String url, uuid, token;
+    private String url, uuid, roomToken;
     private long startTime, endTime;
     private boolean isInit;
 
@@ -38,7 +38,7 @@ public class ReplayActivity extends BaseActivity {
         Intent intent = getIntent();
         url = intent.getStringExtra(WHITEBOARD_URL);
         uuid = intent.getStringExtra(WHITEBOARD_UID);
-        token = intent.getStringExtra(BaseClassActivity.WHITEBOARD_SDK_TOKEN);
+        roomToken = intent.getStringExtra(BaseClassActivity.WHITEBOARD_ROOM_TOKEN);
         startTime = intent.getLongExtra(WHITEBOARD_START_TIME, 0);
         endTime = intent.getLongExtra(WHITEBOARD_END_TIME, 0);
     }
@@ -63,7 +63,7 @@ public class ReplayActivity extends BaseActivity {
     protected void onResumeFragments() {
         super.onResumeFragments();
         if (!isInit) {
-            replayBoardFragment.initReplay(uuid, token);
+            replayBoardFragment.initReplayWithRoomToken(uuid, roomToken);
             replayBoardFragment.setPlayer(video_view, url);
             isInit = true;
         }
