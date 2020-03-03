@@ -33,7 +33,7 @@ public abstract class BaseClassActivity extends BaseActivity implements ClassEve
     public static final String USER_NAME = "userName";
     public static final String USER_ID = "userId";
     public static final String RTC_TOKEN = "rtcToken";
-    public static final String WHITEBOARD_SDK_TOKEN = "whiteboardSdkToken";
+    public static final String WHITEBOARD_ROOM_TOKEN = "whiteboardRoomToken";
 
     @BindView(R.id.title_view)
     protected TitleView title_view;
@@ -52,7 +52,7 @@ public abstract class BaseClassActivity extends BaseActivity implements ClassEve
     @Override
     protected void initData() {
         Bundle bundle = new Bundle();
-        bundle.putString(WHITEBOARD_SDK_TOKEN, getWhiteboardSdkToken());
+        bundle.putString(WHITEBOARD_ROOM_TOKEN, getWhiteboardRoomToken());
         chatRoomFragment.setArguments(bundle);
 
         initStrategy();
@@ -130,8 +130,8 @@ public abstract class BaseClassActivity extends BaseActivity implements ClassEve
         return getIntent().getStringExtra(RTC_TOKEN);
     }
 
-    public String getWhiteboardSdkToken() {
-        return getIntent().getStringExtra(WHITEBOARD_SDK_TOKEN);
+    public String getWhiteboardRoomToken() {
+        return getIntent().getStringExtra(WHITEBOARD_ROOM_TOKEN);
     }
 
     @Override
@@ -153,7 +153,7 @@ public abstract class BaseClassActivity extends BaseActivity implements ClassEve
 
     @Override
     public void onWhiteboardIdChanged(String id) {
-        whiteboardFragment.initBoard(id, getWhiteboardSdkToken());
+        whiteboardFragment.initBoardWithRoomToken(id, getWhiteboardRoomToken());
     }
 
     @Override

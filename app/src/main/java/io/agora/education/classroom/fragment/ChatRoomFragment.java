@@ -89,7 +89,7 @@ public class ChatRoomFragment extends BaseFragment implements OnItemChildClickLi
     public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
         if (view.getId() == R.id.tv_content) {
             Bundle bundle = getArguments();
-            if (bundle != null && bundle.containsKey(BaseClassActivity.WHITEBOARD_SDK_TOKEN)) {
+            if (bundle != null && bundle.containsKey(BaseClassActivity.WHITEBOARD_ROOM_TOKEN)) {
                 Object object = adapter.getItem(position);
                 if (object instanceof ChannelMsg) {
                     ChannelMsg msg = (ChannelMsg) object;
@@ -100,7 +100,7 @@ public class ChatRoomFragment extends BaseFragment implements OnItemChildClickLi
                         long endTime = Long.parseLong(strings[4]);
                         Intent intent = new Intent(context, ReplayActivity.class);
                         intent.putExtra(ReplayActivity.WHITEBOARD_UID, uuid);
-                        intent.putExtra(BaseClassActivity.WHITEBOARD_SDK_TOKEN, bundle.getString(BaseClassActivity.WHITEBOARD_SDK_TOKEN));
+                        intent.putExtra(BaseClassActivity.WHITEBOARD_ROOM_TOKEN, bundle.getString(BaseClassActivity.WHITEBOARD_ROOM_TOKEN));
                         intent.putExtra(ReplayActivity.WHITEBOARD_START_TIME, startTime);
                         intent.putExtra(ReplayActivity.WHITEBOARD_END_TIME, endTime);
                         intent.putExtra(ReplayActivity.WHITEBOARD_URL, msg.url);
