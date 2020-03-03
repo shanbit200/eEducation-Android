@@ -222,7 +222,7 @@ public class MainActivity extends BaseActivity {
                 .putExtra(BaseClassActivity.USER_NAME, user.userName)
                 .putExtra(BaseClassActivity.USER_ID, user.uid)
                 .putExtra(BaseClassActivity.CLASS_TYPE, room.type)
-                .putExtra(BaseClassActivity.WHITEBOARD_SDK_TOKEN, getString(R.string.whiteboard_sdk_token));
+                .putExtra(BaseClassActivity.WHITEBOARD_ROOM_TOKEN, room.boardToken);
         return intent;
     }
 
