@@ -95,7 +95,7 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onSuccess(ResponseBody<AppVersion> res) {
                 AppVersion version = res.data;
-                if (version.forcedUpgrade != 0) {
+                if (version != null && version.forcedUpgrade != 0) {
                     showAppUpgradeDialog(version.upgradeUrl, version.forcedUpgrade == 2);
                 }
             }
@@ -155,14 +155,14 @@ public class MainActivity extends BaseActivity {
     private void joinRoom() {
         if (isJoining) return;
 
-        String yourName = et_your_name.getText().toString();
-        if (TextUtils.isEmpty(yourName)) {
+        String yourNameStr = et_your_name.getText().toString();
+        if (TextUtils.isEmpty(yourNameStr)) {
             ToastManager.showShort(R.string.your_name_should_not_be_empty);
             return;
         }
 
-        String pwd = et_password.getText().toString();
-        if (TextUtils.isEmpty(pwd)) {
+        String passwordStr = et_password.getText().toString();
+        if (TextUtils.isEmpty(passwordStr)) {
             ToastManager.showShort(R.string.password_should_not_be_empty);
             return;
         }
@@ -176,8 +176,8 @@ public class MainActivity extends BaseActivity {
         isJoining = true;
         RetrofitManager.instance().getService(BuildConfig.API_BASE_URL, RoomService.class)
                 .roomEntry(ChannelInfo.CONFIG.authorization, ChannelInfo.CONFIG.appId, new RoomEntryReq() {{
-                    userName = yourName;
-                    password = pwd;
+                    userName = yourNameStr;
+                    password = passwordStr;
                     uuid = UUIDUtil.getUUID();
                 }})
                 .enqueue(new RetrofitManager.Callback<>(0, new Callback<ResponseBody<RoomEntryRes>>() {
