@@ -31,14 +31,20 @@ import io.agora.education.classroom.bean.user.Student;
 import io.agora.education.classroom.strategy.context.ClassContext;
 import io.agora.education.classroom.strategy.context.ClassContextFactory;
 import io.agora.education.service.CommonService;
+import io.agora.education.service.RoomService;
 import io.agora.education.service.bean.ResponseBody;
+import io.agora.education.service.bean.request.RoomEntryReq;
 import io.agora.education.service.bean.response.AppConfig;
 import io.agora.education.service.bean.response.AppVersion;
+import io.agora.education.service.bean.response.RoomEntryRes;
+import io.agora.education.service.bean.response.RoomInfo;
+import io.agora.education.service.bean.response.UserInfo;
 import io.agora.education.util.AppUtil;
-import io.agora.education.util.CryptoUtil;
+import io.agora.education.util.UUIDUtil;
 import io.agora.education.widget.ConfirmDialog;
 import io.agora.education.widget.PolicyDialog;
 import io.agora.rtc.Constants;
+import io.agora.sdk.manager.RtcManager;
 import io.agora.sdk.manager.RtmManager;
 
 public class MainActivity extends BaseActivity {
@@ -57,7 +63,6 @@ public class MainActivity extends BaseActivity {
 
     private DownloadReceiver receiver;
     private CommonService service;
-    private int myUserId;
     private String url;
     private boolean isJoining;
 
@@ -76,14 +81,7 @@ public class MainActivity extends BaseActivity {
 
         service = RetrofitManager.instance().getService(BuildConfig.API_BASE_URL, CommonService.class);
         checkVersion();
-        // set default config
-        ChannelInfo.CONFIG = new AppConfig() {{
-            one2OneStudentLimit = 1;
-            smallClassStudentLimit = 16;
-        }};
-
-        myUserId = (int) (System.currentTimeMillis() * 1000 % 1000000);
-        RtmManager.instance().login(getString(R.string.agora_rtm_token), myUserId, null);
+        getConfig();
     }
 
     @Override
@@ -94,6 +92,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         unregisterReceiver(receiver);
+        ChannelInfo.CONFIG = null;
         RtmManager.instance().reset();
         super.onDestroy();
     }
@@ -103,7 +102,7 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onSuccess(ResponseBody<AppVersion> res) {
                 AppVersion version = res.data;
-                if (version.forcedUpgrade != 0) {
+                if (version != null && version.forcedUpgrade != 0) {
                     showAppUpgradeDialog(version.upgradeUrl, version.forcedUpgrade == 2);
                 }
             }
@@ -143,56 +142,109 @@ public class MainActivity extends BaseActivity {
         dialog.show(getSupportFragmentManager(), null);
     }
 
+    private void getConfig() {
+        service.config().enqueue(new RetrofitManager.Callback<>(0, new Callback<ResponseBody<AppConfig>>() {
+            @Override
+            public void onSuccess(ResponseBody<AppConfig> res) {
+                AppConfig config = res.data;
+                RtcManager.instance().init(getApplicationContext(), config.appId);
+                RtmManager.instance().init(getApplicationContext(), config.appId);
+                ChannelInfo.CONFIG = config;
+            }
+
+            @Override
+            public void onFailure(Throwable throwable) {
+
+            }
+        }));
+    }
+
     private void joinRoom() {
         if (isJoining) return;
 
-        String roomName = et_room_name.getText().toString();
-        if (TextUtils.isEmpty(roomName)) {
+        String roomNameStr = et_room_name.getText().toString();
+        if (TextUtils.isEmpty(roomNameStr)) {
             ToastManager.showShort(R.string.room_name_should_not_be_empty);
             return;
         }
 
-        String yourName = et_your_name.getText().toString();
-        if (TextUtils.isEmpty(yourName)) {
+        String yourNameStr = et_your_name.getText().toString();
+        if (TextUtils.isEmpty(yourNameStr)) {
             ToastManager.showShort(R.string.your_name_should_not_be_empty);
             return;
         }
 
-        String roomType = et_room_type.getText().toString();
-        if (TextUtils.isEmpty(roomType)) {
+        String roomTypeStr = et_room_type.getText().toString();
+        if (TextUtils.isEmpty(roomTypeStr)) {
             ToastManager.showShort(R.string.room_type_should_not_be_empty);
             return;
         }
 
-        if (!RtmManager.instance().isConnected()) {
-            ToastManager.showShort(R.string.rtm_not_login);
-            RtmManager.instance().login(getString(R.string.agora_rtm_token), myUserId, null);
+        int classType;
+        if (roomTypeStr.equals(getString(R.string.one2one_class))) {
+            classType = ClassType.ONE2ONE;
+        } else if (roomTypeStr.equals(getString(R.string.small_class))) {
+            classType = ClassType.SMALL;
+        } else {
+            classType = ClassType.LARGE;
+        }
+
+        if (ChannelInfo.CONFIG == null) {
+            ToastManager.showShort(R.string.configuration_load_failed);
+            getConfig();
             return;
         }
 
-        Intent intent = createIntent(roomName, yourName, roomType);
-        checkChannelEnterable(intent);
+        isJoining = true;
+        RetrofitManager.instance().getService(BuildConfig.API_BASE_URL, RoomService.class)
+                .roomEntry(ChannelInfo.CONFIG.authorization, ChannelInfo.CONFIG.appId, new RoomEntryReq() {{
+                    userName = yourNameStr;
+                    roomName = roomNameStr;
+                    type = classType;
+                    uuid = UUIDUtil.getUUID();
+                }})
+                .enqueue(new RetrofitManager.Callback<>(0, new Callback<ResponseBody<RoomEntryRes>>() {
+                    @Override
+                    public void onSuccess(ResponseBody<RoomEntryRes> res) {
+                        UserInfo user = res.data.user;
+                        RoomInfo room = res.data.room;
+                        RtmManager.instance().login(user.rtmToken, user.uid, new Callback<Void>() {
+                            @Override
+                            public void onSuccess(Void res) {
+                                Intent intent = createIntent(room, user);
+                                checkChannelEnterable(intent);
+                            }
+
+                            @Override
+                            public void onFailure(Throwable throwable) {
+                                ToastManager.showShort(throwable.getMessage());
+                                isJoining = false;
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onFailure(Throwable throwable) {
+                        ToastManager.showShort(throwable.getMessage());
+                        isJoining = false;
+                    }
+                }));
     }
 
-    private Intent createIntent(String roomName, String yourName, String roomType) {
+    private Intent createIntent(RoomInfo room, UserInfo user) {
         Intent intent = new Intent();
-        int classType;
-        if (roomType.equals(getString(R.string.one2one_class))) {
+        if (room.type == ClassType.ONE2ONE) {
             intent.setClass(this, OneToOneClassActivity.class);
-            classType = ClassType.ONE2ONE;
-        } else if (roomType.equals(getString(R.string.small_class))) {
+        } else if (room.type == ClassType.SMALL) {
             intent.setClass(this, SmallClassActivity.class);
-            classType = ClassType.SMALL;
         } else {
             intent.setClass(this, LargeClassActivity.class);
-            classType = ClassType.LARGE;
         }
-        intent.putExtra(BaseClassActivity.ROOM_NAME, roomName)
-                .putExtra(BaseClassActivity.CHANNEL_ID, classType + CryptoUtil.md5(roomName))
-                .putExtra(BaseClassActivity.USER_NAME, yourName)
-                .putExtra(BaseClassActivity.USER_ID, myUserId)
-                .putExtra(BaseClassActivity.CLASS_TYPE, classType)
-                .putExtra(BaseClassActivity.RTC_TOKEN, getString(R.string.agora_rtc_token))
+        intent.putExtra(BaseClassActivity.ROOM_NAME, room.roomName)
+                .putExtra(BaseClassActivity.CHANNEL_ID, room.channelName)
+                .putExtra(BaseClassActivity.USER_NAME, user.userName)
+                .putExtra(BaseClassActivity.USER_ID, user.uid)
+                .putExtra(BaseClassActivity.CLASS_TYPE, room.type)
                 .putExtra(BaseClassActivity.WHITEBOARD_SDK_TOKEN, getString(R.string.whiteboard_sdk_token));
         return intent;
     }
