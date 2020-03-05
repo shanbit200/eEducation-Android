@@ -172,7 +172,7 @@ public abstract class BaseClassActivity extends BaseActivity implements ClassEve
     }
 
     @Override
-    public void onChannelMsgReceived(ChannelMsg msg) {
+    public void onChatMsgReceived(ChannelMsg.ChatMsg msg) {
         chatRoomFragment.addMessage(msg);
     }
 

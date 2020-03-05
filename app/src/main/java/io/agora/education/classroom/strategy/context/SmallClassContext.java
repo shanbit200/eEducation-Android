@@ -1,5 +1,6 @@
 package io.agora.education.classroom.strategy.context;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
@@ -11,14 +12,16 @@ import io.agora.base.Callback;
 import io.agora.base.ToastManager;
 import io.agora.education.R;
 import io.agora.education.classroom.bean.channel.ChannelInfo;
-import io.agora.education.classroom.bean.msg.Cmd;
-import io.agora.education.classroom.bean.msg.PeerMsg;
+import io.agora.education.classroom.bean.msg.ChannelMsg;
 import io.agora.education.classroom.bean.user.Student;
 import io.agora.education.classroom.bean.user.Teacher;
 import io.agora.education.classroom.bean.user.User;
 import io.agora.education.classroom.strategy.ChannelStrategy;
 import io.agora.rtc.Constants;
 import io.agora.sdk.manager.RtcManager;
+
+import static io.agora.education.classroom.bean.msg.ChannelMsg.UpdateMsg.Cmd.MUTE_BOARD;
+import static io.agora.education.classroom.bean.msg.ChannelMsg.UpdateMsg.Cmd.UNMUTE_BOARD;
 
 public class SmallClassContext extends ClassContext {
 
@@ -61,17 +64,19 @@ public class SmallClassContext extends ClassContext {
     }
 
     @Override
-    public void onPeerMsgReceived(PeerMsg msg) {
-        super.onPeerMsgReceived(msg);
-        Cmd cmd = msg.getCmd();
-        if (cmd == null) return;
-        switch (cmd) {
-            case MUTE_BOARD:
-                muteBoard(true);
-                break;
-            case UNMUTE_BOARD:
-                muteBoard(false);
-                break;
+    @SuppressLint("SwitchIntDef")
+    public void onChannelMsgReceived(ChannelMsg msg) {
+        super.onChannelMsgReceived(msg);
+        if (msg.type == ChannelMsg.Type.UPDATE) {
+            ChannelMsg.UpdateMsg updateMsg = msg.getMsg();
+            switch (updateMsg.cmd) {
+                case MUTE_BOARD:
+                    muteBoard(true);
+                    break;
+                case UNMUTE_BOARD:
+                    muteBoard(false);
+                    break;
+            }
         }
     }
 

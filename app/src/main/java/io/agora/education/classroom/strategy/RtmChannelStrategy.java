@@ -169,7 +169,6 @@ public class RtmChannelStrategy extends ChannelStrategy<List<RtmChannelAttribute
         public void onMessageReceived(RtmMessage rtmMessage, RtmChannelMember rtmChannelMember) {
             if (channelEventListener != null) {
                 ChannelMsg msg = ChannelMsg.fromJson(rtmMessage.getText(), ChannelMsg.class);
-                msg.isMe = TextUtils.equals(rtmChannelMember.getUserId(), getLocal().getUserId());
                 channelEventListener.onChannelMsgReceived(msg);
             }
         }

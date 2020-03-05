@@ -1,8 +1,6 @@
 package io.agora.education.classroom.fragment;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
@@ -17,7 +15,6 @@ import butterknife.BindView;
 import io.agora.education.R;
 import io.agora.education.base.BaseFragment;
 import io.agora.education.classroom.BaseClassActivity;
-import io.agora.education.classroom.ReplayActivity;
 import io.agora.education.classroom.adapter.MessageListAdapter;
 import io.agora.education.classroom.bean.msg.ChannelMsg;
 import io.agora.education.classroom.mediator.MsgMediator;
@@ -76,11 +73,11 @@ public class ChatRoomFragment extends BaseFragment implements OnItemChildClickLi
         });
     }
 
-    public void addMessage(ChannelMsg channelMsg) {
+    public void addMessage(ChannelMsg.ChatMsg chatMsg) {
         runOnUiThread(() -> {
             if (rcv_msg != null) {
-                adapter.addData(channelMsg);
-                rcv_msg.scrollToPosition(adapter.getItemPosition(channelMsg));
+                adapter.addData(chatMsg);
+                rcv_msg.scrollToPosition(adapter.getItemPosition(chatMsg));
             }
         });
     }
@@ -91,21 +88,22 @@ public class ChatRoomFragment extends BaseFragment implements OnItemChildClickLi
             Bundle bundle = getArguments();
             if (bundle != null && bundle.containsKey(BaseClassActivity.WHITEBOARD_ROOM_TOKEN)) {
                 Object object = adapter.getItem(position);
-                if (object instanceof ChannelMsg) {
-                    ChannelMsg msg = (ChannelMsg) object;
-                    if (!TextUtils.isEmpty(msg.link)) {
-                        String[] strings = msg.link.split("/");
-                        String uuid = strings[2];
-                        long startTime = Long.parseLong(strings[3]);
-                        long endTime = Long.parseLong(strings[4]);
-                        Intent intent = new Intent(context, ReplayActivity.class);
-                        intent.putExtra(ReplayActivity.WHITEBOARD_UID, uuid);
-                        intent.putExtra(BaseClassActivity.WHITEBOARD_ROOM_TOKEN, bundle.getString(BaseClassActivity.WHITEBOARD_ROOM_TOKEN));
-                        intent.putExtra(ReplayActivity.WHITEBOARD_START_TIME, startTime);
-                        intent.putExtra(ReplayActivity.WHITEBOARD_END_TIME, endTime);
-                        intent.putExtra(ReplayActivity.WHITEBOARD_URL, msg.url);
-                        startActivity(intent);
-                    }
+                if (object instanceof ChannelMsg.ReplayMsg) {
+                    ChannelMsg.ReplayMsg msg = (ChannelMsg.ReplayMsg) object;
+                    // TODO
+//                    if (!TextUtils.isEmpty(msg.link)) {
+//                        String[] strings = msg.link.split("/");
+//                        String uuid = strings[2];
+//                        long startTime = Long.parseLong(strings[3]);
+//                        long endTime = Long.parseLong(strings[4]);
+//                        Intent intent = new Intent(context, ReplayActivity.class);
+//                        intent.putExtra(ReplayActivity.WHITEBOARD_UID, uuid);
+//                        intent.putExtra(BaseClassActivity.WHITEBOARD_ROOM_TOKEN, bundle.getString(BaseClassActivity.WHITEBOARD_ROOM_TOKEN));
+//                        intent.putExtra(ReplayActivity.WHITEBOARD_START_TIME, startTime);
+//                        intent.putExtra(ReplayActivity.WHITEBOARD_END_TIME, endTime);
+//                        intent.putExtra(ReplayActivity.WHITEBOARD_URL, msg.url);
+//                        startActivity(intent);
+//                    }
                 }
             }
         }
@@ -119,9 +117,10 @@ public class ChatRoomFragment extends BaseFragment implements OnItemChildClickLi
         String text = edit_send_msg.getText().toString();
         if (KeyEvent.KEYCODE_ENTER == keyCode && KeyEvent.ACTION_DOWN == event.getAction() && text.trim().length() > 0) {
             if (context instanceof BaseClassActivity) {
-                ChannelMsg msg = new ChannelMsg(((BaseClassActivity) context).getMyUserName(), text);
+                ChannelMsg.ChatMsg chatMsg = new ChannelMsg.ChatMsg(((BaseClassActivity) context).getMyUserName(), text);
+                ChannelMsg msg = new ChannelMsg(chatMsg);
                 MsgMediator.sendMessage(msg);
-                addMessage(msg);
+                addMessage(chatMsg);
                 edit_send_msg.setText("");
             }
             return true;

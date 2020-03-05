@@ -1,8 +1,6 @@
 package io.agora.education.classroom.bean.user;
 
 import io.agora.education.classroom.bean.JsonBean;
-import io.agora.education.classroom.bean.msg.Cmd;
-import io.agora.education.classroom.mediator.MsgMediator;
 
 public class User extends JsonBean {
 
@@ -14,10 +12,6 @@ public class User extends JsonBean {
 
     public String getUserId() {
         return String.valueOf(uid);
-    }
-
-    public void sendMessageTo(Cmd cmd) {
-        MsgMediator.sendMessageToPeer(this, cmd);
     }
 
 }

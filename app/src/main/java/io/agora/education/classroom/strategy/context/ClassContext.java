@@ -1,5 +1,6 @@
 package io.agora.education.classroom.strategy.context;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 
@@ -10,7 +11,6 @@ import java.util.List;
 import io.agora.base.Callback;
 import io.agora.education.classroom.bean.channel.ChannelInfo;
 import io.agora.education.classroom.bean.msg.ChannelMsg;
-import io.agora.education.classroom.bean.msg.Cmd;
 import io.agora.education.classroom.bean.msg.PeerMsg;
 import io.agora.education.classroom.bean.user.Student;
 import io.agora.education.classroom.bean.user.Teacher;
@@ -137,34 +137,49 @@ public abstract class ClassContext implements ChannelEventListener {
     }
 
     @Override
+    @SuppressLint("SwitchIntDef")
     public void onChannelMsgReceived(ChannelMsg msg) {
-        runListener(() -> classEventListener.onChannelMsgReceived(msg));
+        switch (msg.type) {
+            case ChannelMsg.Type.CHAT:
+                ChannelMsg.ChatMsg chatMsg = msg.getMsg();
+                runListener(() -> classEventListener.onChatMsgReceived(chatMsg));
+                break;
+            case ChannelMsg.Type.UPDATE:
+                ChannelMsg.UpdateMsg updateMsg = msg.getMsg();
+                switch (updateMsg.cmd) {
+                    case ChannelMsg.UpdateMsg.Cmd.MUTE_AUDIO:
+                        muteLocalAudio(true);
+                        break;
+                    case ChannelMsg.UpdateMsg.Cmd.UNMUTE_AUDIO:
+                        muteLocalAudio(false);
+                        break;
+                    case ChannelMsg.UpdateMsg.Cmd.MUTE_VIDEO:
+                        muteLocalVideo(true);
+                        break;
+                    case ChannelMsg.UpdateMsg.Cmd.UNMUTE_VIDEO:
+                        muteLocalVideo(false);
+                        break;
+                    case ChannelMsg.UpdateMsg.Cmd.MUTE_CHAT:
+                        muteLocalChat(true);
+                        break;
+                    case ChannelMsg.UpdateMsg.Cmd.UNMUTE_CAHT:
+                        muteLocalChat(false);
+                        break;
+                }
+                break;
+            case ChannelMsg.Type.REPLAY:
+                ChannelMsg.ReplayMsg replayMsg = msg.getMsg();
+                runListener(() -> classEventListener.onChatMsgReceived(replayMsg));
+                break;
+            case ChannelMsg.Type.COURSE:
+                // TODO
+                break;
+        }
+
     }
 
     @Override
     public void onPeerMsgReceived(PeerMsg msg) {
-        Cmd cmd = msg.getCmd();
-        if (cmd == null) return;
-        switch (cmd) {
-            case MUTE_AUDIO:
-                muteLocalAudio(true);
-                break;
-            case UNMUTE_AUDIO:
-                muteLocalAudio(false);
-                break;
-            case MUTE_VIDEO:
-                muteLocalVideo(true);
-                break;
-            case UNMUTE_VIDEO:
-                muteLocalVideo(false);
-                break;
-            case MUTE_CHAT:
-                muteLocalChat(true);
-                break;
-            case UNMUTE_CAHT:
-                muteLocalChat(false);
-                break;
-        }
     }
 
     @Override

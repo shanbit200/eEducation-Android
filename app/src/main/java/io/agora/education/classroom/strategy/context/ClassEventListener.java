@@ -20,7 +20,7 @@ public interface ClassEventListener {
 
     void onMuteAllChat(boolean muted);
 
-    void onChannelMsgReceived(ChannelMsg msg);
+    void onChatMsgReceived(ChannelMsg.ChatMsg msg);
 
     void onScreenShareJoined(int uid);
 
