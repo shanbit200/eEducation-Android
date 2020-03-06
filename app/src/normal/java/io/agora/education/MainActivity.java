@@ -25,25 +25,21 @@ import io.agora.education.classroom.BaseClassActivity;
 import io.agora.education.classroom.LargeClassActivity;
 import io.agora.education.classroom.OneToOneClassActivity;
 import io.agora.education.classroom.SmallClassActivity;
-import io.agora.education.classroom.annotation.ClassType;
 import io.agora.education.classroom.bean.channel.ChannelInfo;
-import io.agora.education.classroom.bean.user.Student;
-import io.agora.education.classroom.strategy.context.ClassContext;
-import io.agora.education.classroom.strategy.context.ClassContextFactory;
+import io.agora.education.classroom.bean.channel.Room;
+import io.agora.education.classroom.bean.channel.User;
 import io.agora.education.service.CommonService;
 import io.agora.education.service.RoomService;
 import io.agora.education.service.bean.ResponseBody;
 import io.agora.education.service.bean.request.RoomEntryReq;
-import io.agora.education.service.bean.response.AppConfig;
-import io.agora.education.service.bean.response.AppVersion;
+import io.agora.education.service.bean.response.AppConfigRes;
+import io.agora.education.service.bean.response.AppVersionRes;
 import io.agora.education.service.bean.response.RoomEntryRes;
-import io.agora.education.service.bean.response.RoomInfo;
-import io.agora.education.service.bean.response.UserInfo;
+import io.agora.education.service.bean.response.RoomRes;
 import io.agora.education.util.AppUtil;
 import io.agora.education.util.UUIDUtil;
 import io.agora.education.widget.ConfirmDialog;
 import io.agora.education.widget.PolicyDialog;
-import io.agora.rtc.Constants;
 import io.agora.sdk.manager.RtcManager;
 import io.agora.sdk.manager.RtmManager;
 
@@ -62,7 +58,8 @@ public class MainActivity extends BaseActivity {
     protected CardView card_room_type;
 
     private DownloadReceiver receiver;
-    private CommonService service;
+    private CommonService commonService;
+    private RoomService roomService;
     private String url;
     private boolean isJoining;
 
@@ -79,7 +76,8 @@ public class MainActivity extends BaseActivity {
         filter.setPriority(IntentFilter.SYSTEM_LOW_PRIORITY);
         registerReceiver(receiver, filter);
 
-        service = RetrofitManager.instance().getService(BuildConfig.API_BASE_URL, CommonService.class);
+        commonService = RetrofitManager.instance().getService(BuildConfig.API_BASE_URL, CommonService.class);
+        roomService = RetrofitManager.instance().getService(BuildConfig.API_BASE_URL, RoomService.class);
         checkVersion();
         getConfig();
     }
@@ -87,6 +85,10 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void initView() {
         new PolicyDialog().show(getSupportFragmentManager(), null);
+        if (BuildConfig.DEBUG) {
+            et_room_name.setText("123");
+            et_your_name.setText("123");
+        }
     }
 
     @Override
@@ -98,10 +100,10 @@ public class MainActivity extends BaseActivity {
     }
 
     private void checkVersion() {
-        service.appVersion("edu-demo").enqueue(new RetrofitManager.Callback<>(0, new Callback<ResponseBody<AppVersion>>() {
+        commonService.appVersion("edu-demo").enqueue(new RetrofitManager.Callback<>(0, new Callback<ResponseBody<AppVersionRes>>() {
             @Override
-            public void onSuccess(ResponseBody<AppVersion> res) {
-                AppVersion version = res.data;
+            public void onSuccess(ResponseBody<AppVersionRes> res) {
+                AppVersionRes version = res.data;
                 if (version != null && version.forcedUpgrade != 0) {
                     showAppUpgradeDialog(version.upgradeUrl, version.forcedUpgrade == 2);
                 }
@@ -109,7 +111,6 @@ public class MainActivity extends BaseActivity {
 
             @Override
             public void onFailure(Throwable throwable) {
-
             }
         }));
     }
@@ -129,7 +130,6 @@ public class MainActivity extends BaseActivity {
 
             @Override
             public void clickCancel() {
-
             }
         };
         ConfirmDialog dialog;
@@ -143,10 +143,11 @@ public class MainActivity extends BaseActivity {
     }
 
     private void getConfig() {
-        service.config().enqueue(new RetrofitManager.Callback<>(0, new Callback<ResponseBody<AppConfig>>() {
+        commonService.config().enqueue(new RetrofitManager.Callback<>(0, new Callback<ResponseBody<AppConfigRes>>() {
             @Override
-            public void onSuccess(ResponseBody<AppConfig> res) {
-                AppConfig config = res.data;
+            public void onSuccess(ResponseBody<AppConfigRes> res) {
+                AppConfigRes config = res.data;
+                RetrofitManager.instance().addHeader("Authorization", config.authorization);
                 RtcManager.instance().init(getApplicationContext(), config.appId);
                 RtmManager.instance().init(getApplicationContext(), config.appId);
                 ChannelInfo.CONFIG = config;
@@ -154,14 +155,11 @@ public class MainActivity extends BaseActivity {
 
             @Override
             public void onFailure(Throwable throwable) {
-
             }
         }));
     }
 
     private void joinRoom() {
-        if (isJoining) return;
-
         String roomNameStr = et_room_name.getText().toString();
         if (TextUtils.isEmpty(roomNameStr)) {
             ToastManager.showShort(R.string.room_name_should_not_be_empty);
@@ -180,47 +178,61 @@ public class MainActivity extends BaseActivity {
             return;
         }
 
-        int classType;
-        if (roomTypeStr.equals(getString(R.string.one2one_class))) {
-            classType = ClassType.ONE2ONE;
-        } else if (roomTypeStr.equals(getString(R.string.small_class))) {
-            classType = ClassType.SMALL;
-        } else {
-            classType = ClassType.LARGE;
-        }
-
         if (ChannelInfo.CONFIG == null) {
             ToastManager.showShort(R.string.configuration_load_failed);
             getConfig();
             return;
         }
 
-        isJoining = true;
-        RetrofitManager.instance().getService(BuildConfig.API_BASE_URL, RoomService.class)
-                .roomEntry(ChannelInfo.CONFIG.authorization, ChannelInfo.CONFIG.appId, new RoomEntryReq() {{
-                    userName = yourNameStr;
-                    roomName = roomNameStr;
-                    type = classType;
-                    uuid = UUIDUtil.getUUID();
-                }})
-                .enqueue(new RetrofitManager.Callback<>(0, new Callback<ResponseBody<RoomEntryRes>>() {
-                    @Override
-                    public void onSuccess(ResponseBody<RoomEntryRes> res) {
-                        UserInfo user = res.data.user;
-                        RoomInfo room = res.data.room;
-                        RtmManager.instance().login(user.rtmToken, user.uid, new Callback<Void>() {
-                            @Override
-                            public void onSuccess(Void res) {
-                                Intent intent = createIntent(room, user);
-                                checkChannelEnterable(intent);
-                            }
+        roomEntry(yourNameStr, roomNameStr, getClassType(roomTypeStr));
+    }
 
-                            @Override
-                            public void onFailure(Throwable throwable) {
-                                ToastManager.showShort(throwable.getMessage());
-                                isJoining = false;
-                            }
-                        });
+    @Room.Type
+    private int getClassType(String roomTypeStr) {
+        if (roomTypeStr.equals(getString(R.string.one2one_class))) {
+            return Room.Type.ONE2ONE;
+        } else if (roomTypeStr.equals(getString(R.string.small_class))) {
+            return Room.Type.SMALL;
+        } else {
+            return Room.Type.LARGE;
+        }
+    }
+
+    private void roomEntry(String yourNameStr, String roomNameStr, @Room.Type int classType) {
+        if (isJoining) return;
+        isJoining = true;
+        roomService.roomEntry(ChannelInfo.CONFIG.appId, new RoomEntryReq() {{
+            userName = yourNameStr;
+            roomName = roomNameStr;
+            type = classType;
+            uuid = UUIDUtil.getUUID();
+        }}).enqueue(new RetrofitManager.Callback<>(0, new Callback<ResponseBody<RoomEntryRes>>() {
+            @Override
+            public void onSuccess(ResponseBody<RoomEntryRes> res) {
+                RoomEntryRes roomEntry = res.data;
+                RetrofitManager.instance().addHeader("token", roomEntry.userToken);
+                room(roomEntry.roomId);
+            }
+
+            @Override
+            public void onFailure(Throwable throwable) {
+                ToastManager.showShort(throwable.getMessage());
+                isJoining = false;
+            }
+        }));
+    }
+
+    private void room(String roomId) {
+        roomService.room(ChannelInfo.CONFIG.appId, roomId).enqueue(new RetrofitManager.Callback<>(0, new Callback<ResponseBody<RoomRes>>() {
+            @Override
+            public void onSuccess(ResponseBody<RoomRes> res) {
+                User user = res.data.user;
+                Room room = res.data.room;
+                RtmManager.instance().login(user.rtmToken, user.uid, new Callback<Void>() {
+                    @Override
+                    public void onSuccess(Void res) {
+                        startActivity(createIntent(room, user));
+                        isJoining = false;
                     }
 
                     @Override
@@ -228,53 +240,30 @@ public class MainActivity extends BaseActivity {
                         ToastManager.showShort(throwable.getMessage());
                         isJoining = false;
                     }
-                }));
+                });
+            }
+
+            @Override
+            public void onFailure(Throwable throwable) {
+            }
+        }));
     }
 
-    private Intent createIntent(RoomInfo room, UserInfo user) {
+    private Intent createIntent(Room room, User user) {
         Intent intent = new Intent();
-        if (room.type == ClassType.ONE2ONE) {
+        if (room.type == Room.Type.ONE2ONE) {
             intent.setClass(this, OneToOneClassActivity.class);
-        } else if (room.type == ClassType.SMALL) {
+        } else if (room.type == Room.Type.SMALL) {
             intent.setClass(this, SmallClassActivity.class);
         } else {
             intent.setClass(this, LargeClassActivity.class);
         }
         intent.putExtra(BaseClassActivity.ROOM_NAME, room.roomName)
-                .putExtra(BaseClassActivity.CHANNEL_ID, room.channelName)
+                .putExtra(BaseClassActivity.CHANNEL_ID, room.roomId)
                 .putExtra(BaseClassActivity.USER_NAME, user.userName)
                 .putExtra(BaseClassActivity.USER_ID, user.uid)
-                .putExtra(BaseClassActivity.CLASS_TYPE, room.type)
-                .putExtra(BaseClassActivity.WHITEBOARD_ROOM_TOKEN, room.boardToken);
+                .putExtra(BaseClassActivity.CLASS_TYPE, room.type);
         return intent;
-    }
-
-    private void checkChannelEnterable(Intent intent) {
-        int classType = intent.getIntExtra(BaseClassActivity.CLASS_TYPE, 0);
-        String channelId = intent.getStringExtra(BaseClassActivity.CHANNEL_ID);
-        String userName = intent.getStringExtra(BaseClassActivity.USER_NAME);
-        int userId = intent.getIntExtra(BaseClassActivity.USER_ID, 0);
-        ClassContext classContext = new ClassContextFactory(this)
-                .getClassContext(classType, channelId, new Student(userId, userName, Constants.CLIENT_ROLE_AUDIENCE));
-        classContext.checkChannelEnterable(new Callback<Boolean>() {
-            @Override
-            public void onSuccess(Boolean aBoolean) {
-                classContext.release();
-                if (aBoolean) {
-                    startActivity(intent);
-                } else {
-                    ToastManager.showShort(R.string.the_room_is_full);
-                }
-                isJoining = false;
-            }
-
-            @Override
-            public void onFailure(Throwable throwable) {
-                classContext.release();
-                ToastManager.showShort(R.string.get_channel_attr_failed);
-                isJoining = false;
-            }
-        });
     }
 
     @Override

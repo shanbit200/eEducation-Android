@@ -15,7 +15,7 @@ import io.agora.education.R;
 import io.agora.education.base.BaseFragment;
 import io.agora.education.classroom.BaseClassActivity;
 import io.agora.education.classroom.adapter.UserListAdapter;
-import io.agora.education.classroom.bean.user.User;
+import io.agora.education.classroom.bean.channel.User;
 
 public class UserListFragment extends BaseFragment implements OnItemChildClickListener {
 

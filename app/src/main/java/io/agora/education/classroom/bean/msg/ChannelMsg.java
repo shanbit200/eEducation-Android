@@ -36,6 +36,10 @@ public class ChannelMsg extends JsonBean {
     public static abstract class SubMsg extends JsonBean {
         @Type
         public transient int type;
+
+        public ChannelMsg superMsg() {
+            return new ChannelMsg(this);
+        }
     }
 
     public static class ChatMsg extends SubMsg {

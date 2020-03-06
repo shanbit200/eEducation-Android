@@ -12,10 +12,8 @@ import io.agora.base.Callback;
 import io.agora.base.ToastManager;
 import io.agora.education.R;
 import io.agora.education.classroom.bean.channel.ChannelInfo;
+import io.agora.education.classroom.bean.channel.User;
 import io.agora.education.classroom.bean.msg.ChannelMsg;
-import io.agora.education.classroom.bean.user.Student;
-import io.agora.education.classroom.bean.user.Teacher;
-import io.agora.education.classroom.bean.user.User;
 import io.agora.education.classroom.strategy.ChannelStrategy;
 import io.agora.rtc.Constants;
 import io.agora.sdk.manager.RtcManager;
@@ -81,8 +79,8 @@ public class SmallClassContext extends ClassContext {
     }
 
     private void muteBoard(boolean muted) {
-        Student local = channelStrategy.getLocal();
-        local.grant_board = muted ? 0 : 1;
+        User local = channelStrategy.getLocal();
+        local.disableBoard(muted);
         channelStrategy.updateLocalAttribute(local, new Callback<Void>() {
             @Override
             public void onSuccess(Void res) {
@@ -105,7 +103,7 @@ public class SmallClassContext extends ClassContext {
     }
 
     @Override
-    public void onTeacherChanged(Teacher teacher) {
+    public void onTeacherChanged(User teacher) {
         super.onTeacherChanged(teacher);
         // teacher need set high stream type
         RtcManager.instance().setRemoteVideoStreamType(teacher.uid, Constants.VIDEO_STREAM_HIGH);
@@ -113,16 +111,16 @@ public class SmallClassContext extends ClassContext {
     }
 
     @Override
-    public void onLocalChanged(Student local) {
+    public void onLocalChanged(User local) {
         super.onLocalChanged(local);
         onUsersMediaChanged();
         if (classEventListener instanceof SmallClassEventListener) {
-            runListener(() -> ((SmallClassEventListener) classEventListener).onGrantWhiteboard(local.grant_board == 0));
+            runListener(() -> ((SmallClassEventListener) classEventListener).onGrantWhiteboard(local.isBoardGrant()));
         }
     }
 
     @Override
-    public void onStudentsChanged(List<Student> students) {
+    public void onStudentsChanged(List<User> students) {
         super.onStudentsChanged(students);
         onUsersMediaChanged();
     }

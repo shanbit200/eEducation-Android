@@ -11,11 +11,9 @@ import java.util.List;
 import io.agora.base.Callback;
 import io.agora.base.ToastManager;
 import io.agora.education.R;
+import io.agora.education.classroom.bean.channel.User;
 import io.agora.education.classroom.bean.msg.ChannelMsg;
 import io.agora.education.classroom.bean.msg.PeerMsg;
-import io.agora.education.classroom.bean.user.Student;
-import io.agora.education.classroom.bean.user.Teacher;
-import io.agora.education.classroom.bean.user.User;
 import io.agora.education.classroom.strategy.ChannelStrategy;
 import io.agora.rtc.Constants;
 import io.agora.sdk.manager.RtcManager;
@@ -46,24 +44,15 @@ public class LargeClassContext extends ClassContext {
     }
 
     @Override
-    public void onTeacherChanged(Teacher teacher) {
+    public void onTeacherChanged(User teacher) {
         super.onTeacherChanged(teacher);
         if (classEventListener instanceof LargeClassEventListener) {
-            runListener(() -> {
-                LargeClassEventListener listener = (LargeClassEventListener) classEventListener;
-                listener.onLinkUidChanged(teacher.link_uid);
-                listener.onTeacherMediaChanged(teacher);
-            });
-            if (teacher.link_uid == 0) {
-                runListener(() -> ((LargeClassEventListener) classEventListener).onLinkMediaChanged(null));
-            } else {
-                onLinkMediaChanged(channelStrategy.getAllStudents());
-            }
+            runListener(() -> ((LargeClassEventListener) classEventListener).onTeacherMediaChanged(teacher));
         }
     }
 
     @Override
-    public void onLocalChanged(Student local) {
+    public void onLocalChanged(User local) {
         super.onLocalChanged(local);
         if (local.isGenerate) return;
         if (applying) {
@@ -75,23 +64,18 @@ public class LargeClassContext extends ClassContext {
     }
 
     @Override
-    public void onStudentsChanged(List<Student> students) {
+    public void onStudentsChanged(List<User> students) {
         super.onStudentsChanged(students);
         onLinkMediaChanged(students);
     }
 
-    private void onLinkMediaChanged(List users) {
-        Teacher teacher = channelStrategy.getTeacher();
-        if (teacher == null) return;
-        for (Object object : users) {
-            if (object instanceof User) {
-                User user = (User) object;
-                if (user.uid == teacher.link_uid) {
-                    if (classEventListener instanceof LargeClassEventListener) {
-                        runListener(() -> ((LargeClassEventListener) classEventListener).onLinkMediaChanged(user));
-                    }
-                    break;
+    private void onLinkMediaChanged(List<User> users) {
+        for (User user : users) {
+            if (user.isCoVideoEnable()) {
+                if (classEventListener instanceof LargeClassEventListener) {
+                    runListener(() -> ((LargeClassEventListener) classEventListener).onLinkMediaChanged(user));
                 }
+                break;
             }
         }
     }
@@ -118,16 +102,14 @@ public class LargeClassContext extends ClassContext {
         super.onPeerMsgReceived(msg);
         if (msg.type == PeerMsg.Type.CO_VIDEO) {
             PeerMsg.CoVideoMsg coVideoMsg = msg.getMsg();
-            switch (coVideoMsg.cmd) {
-                case REJECT_CO_VIDEO:
-                    reject();
-                    break;
+            if (coVideoMsg.cmd == REJECT_CO_VIDEO) {
+                reject();
             }
         }
     }
 
     public void apply(boolean isPrepare) {
-        Student local = channelStrategy.getLocal();
+        User local = channelStrategy.getLocal();
         if (isPrepare) {
             channelStrategy.clearLocalAttribute(new Callback<Void>() {
                 @Override
@@ -151,7 +133,7 @@ public class LargeClassContext extends ClassContext {
                 }
             });
         } else {
-            local.sendCoVideoMsgToTeacher(APPLY_CO_VIDEO, channelStrategy.getTeacher());
+            local.sendCoVideoMsg(APPLY_CO_VIDEO, channelStrategy.getTeacher());
         }
     }
 
@@ -185,9 +167,9 @@ public class LargeClassContext extends ClassContext {
     }
 
     private void accept() {
-        Student local = channelStrategy.getLocal();
-        local.audio = 1;
-        local.video = 1;
+        User local = channelStrategy.getLocal();
+        local.disableAudio(false);
+        local.disableVideo(false);
         channelStrategy.updateLocalAttribute(local, new Callback<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
@@ -223,8 +205,6 @@ public class LargeClassContext extends ClassContext {
         void onTeacherMediaChanged(User user);
 
         void onLinkMediaChanged(User user);
-
-        void onLinkUidChanged(int uid);
 
         void onHandUpCanceled();
     }

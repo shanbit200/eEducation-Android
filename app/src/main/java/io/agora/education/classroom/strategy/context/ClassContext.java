@@ -10,10 +10,10 @@ import java.util.List;
 
 import io.agora.base.Callback;
 import io.agora.education.classroom.bean.channel.ChannelInfo;
+import io.agora.education.classroom.bean.channel.Room;
+import io.agora.education.classroom.bean.channel.User;
 import io.agora.education.classroom.bean.msg.ChannelMsg;
 import io.agora.education.classroom.bean.msg.PeerMsg;
-import io.agora.education.classroom.bean.user.Student;
-import io.agora.education.classroom.bean.user.Teacher;
 import io.agora.education.classroom.strategy.ChannelEventListener;
 import io.agora.education.classroom.strategy.ChannelStrategy;
 import io.agora.sdk.listener.RtcEventListener;
@@ -39,9 +39,9 @@ public abstract class ClassContext implements ChannelEventListener {
 
     public abstract void checkChannelEnterable(@NonNull Callback<Boolean> callback);
 
-    public void joinChannel(String rtcToken) {
+    public void joinChannel() {
         preConfig();
-        channelStrategy.joinChannel(rtcToken);
+        channelStrategy.joinChannel();
     }
 
     public void leaveChannel() {
@@ -51,8 +51,8 @@ public abstract class ClassContext implements ChannelEventListener {
     abstract void preConfig();
 
     public void muteLocalAudio(boolean isMute) {
-        Student local = channelStrategy.getLocal();
-        local.audio = isMute ? 0 : 1;
+        User local = channelStrategy.getLocal();
+        local.disableAudio(isMute);
         channelStrategy.updateLocalAttribute(local, new Callback<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
@@ -67,8 +67,8 @@ public abstract class ClassContext implements ChannelEventListener {
     }
 
     public void muteLocalVideo(boolean isMute) {
-        Student local = channelStrategy.getLocal();
-        local.video = isMute ? 0 : 1;
+        User local = channelStrategy.getLocal();
+        local.disableVideo(isMute);
         channelStrategy.updateLocalAttribute(local, new Callback<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
@@ -83,8 +83,8 @@ public abstract class ClassContext implements ChannelEventListener {
     }
 
     public void muteLocalChat(boolean isMute) {
-        Student local = channelStrategy.getLocal();
-        local.chat = isMute ? 0 : 1;
+        User local = channelStrategy.getLocal();
+        local.disableChat(isMute);
         channelStrategy.updateLocalAttribute(local, new Callback<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
@@ -118,22 +118,26 @@ public abstract class ClassContext implements ChannelEventListener {
     }
 
     @Override
-    public void onLocalChanged(Student local) {
-        runListener(() -> classEventListener.onMuteLocalChat(local.chat == 0));
-    }
-
-    @Override
-    public void onTeacherChanged(Teacher teacher) {
+    public void onRoomChanged(Room room) {
         runListener(() -> {
-            classEventListener.onClassStateChanged(teacher.class_state == 1);
-            classEventListener.onWhiteboardIdChanged(teacher.whiteboard_uid);
-            classEventListener.onLockWhiteboard(teacher.lock_board == 1);
-            classEventListener.onMuteAllChat(teacher.mute_chat == 1);
+            classEventListener.onClassStateChanged(room.isCourseBegin());
+            classEventListener.onWhiteboardChanged(room.boardId, room.boardToken);
+            classEventListener.onLockWhiteboard(room.isBoardLock());
+            classEventListener.onMuteAllChat(!room.isChatEnable());
         });
     }
 
     @Override
-    public void onStudentsChanged(List<Student> students) {
+    public void onTeacherChanged(User teacher) {
+    }
+
+    @Override
+    public void onLocalChanged(User local) {
+        runListener(() -> classEventListener.onMuteLocalChat(!local.isChatEnable()));
+    }
+
+    @Override
+    public void onStudentsChanged(List<User> students) {
     }
 
     @Override
@@ -172,7 +176,7 @@ public abstract class ClassContext implements ChannelEventListener {
                 runListener(() -> classEventListener.onChatMsgReceived(replayMsg));
                 break;
             case ChannelMsg.Type.COURSE:
-                // TODO
+                channelStrategy.queryChannelInfo(null);
                 break;
         }
 

@@ -1,6 +1,6 @@
 package io.agora.education.classroom.fragment;
 
-import android.os.Bundle;
+import android.content.Intent;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
@@ -12,12 +12,20 @@ import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.listener.OnItemChildClickListener;
 
 import butterknife.BindView;
+import io.agora.base.Callback;
+import io.agora.base.network.RetrofitManager;
+import io.agora.education.BuildConfig;
 import io.agora.education.R;
 import io.agora.education.base.BaseFragment;
 import io.agora.education.classroom.BaseClassActivity;
+import io.agora.education.classroom.ReplayActivity;
 import io.agora.education.classroom.adapter.MessageListAdapter;
+import io.agora.education.classroom.bean.channel.ChannelInfo;
 import io.agora.education.classroom.bean.msg.ChannelMsg;
 import io.agora.education.classroom.mediator.MsgMediator;
+import io.agora.education.service.RecordService;
+import io.agora.education.service.bean.ResponseBody;
+import io.agora.education.service.bean.response.RecordRes;
 
 public class ChatRoomFragment extends BaseFragment implements OnItemChildClickListener, View.OnKeyListener {
 
@@ -85,25 +93,29 @@ public class ChatRoomFragment extends BaseFragment implements OnItemChildClickLi
     @Override
     public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
         if (view.getId() == R.id.tv_content) {
-            Bundle bundle = getArguments();
-            if (bundle != null && bundle.containsKey(BaseClassActivity.WHITEBOARD_ROOM_TOKEN)) {
-                Object object = adapter.getItem(position);
-                if (object instanceof ChannelMsg.ReplayMsg) {
-                    ChannelMsg.ReplayMsg msg = (ChannelMsg.ReplayMsg) object;
-                    // TODO
-//                    if (!TextUtils.isEmpty(msg.link)) {
-//                        String[] strings = msg.link.split("/");
-//                        String uuid = strings[2];
-//                        long startTime = Long.parseLong(strings[3]);
-//                        long endTime = Long.parseLong(strings[4]);
-//                        Intent intent = new Intent(context, ReplayActivity.class);
-//                        intent.putExtra(ReplayActivity.WHITEBOARD_UID, uuid);
-//                        intent.putExtra(BaseClassActivity.WHITEBOARD_ROOM_TOKEN, bundle.getString(BaseClassActivity.WHITEBOARD_ROOM_TOKEN));
-//                        intent.putExtra(ReplayActivity.WHITEBOARD_START_TIME, startTime);
-//                        intent.putExtra(ReplayActivity.WHITEBOARD_END_TIME, endTime);
-//                        intent.putExtra(ReplayActivity.WHITEBOARD_URL, msg.url);
-//                        startActivity(intent);
-//                    }
+            Object object = adapter.getItem(position);
+            if (object instanceof ChannelMsg.ReplayMsg) {
+                ChannelMsg.ReplayMsg msg = (ChannelMsg.ReplayMsg) object;
+                if (context instanceof BaseClassActivity) {
+                    RetrofitManager.instance().getService(BuildConfig.API_BASE_URL, RecordService.class)
+                            .record(ChannelInfo.CONFIG.appId, ((BaseClassActivity) context).getChannelId(), msg.recordId)
+                            .enqueue(new RetrofitManager.Callback<>(0, new Callback<ResponseBody<RecordRes>>() {
+                                @Override
+                                public void onSuccess(ResponseBody<RecordRes> res) {
+                                    RecordRes record = res.data;
+                                    Intent intent = new Intent(context, ReplayActivity.class);
+                                    intent.putExtra(ReplayActivity.WHITEBOARD_UID, record.boardId);
+                                    intent.putExtra(ReplayActivity.WHITEBOARD_ROOM_TOKEN, record.boardToken);
+                                    intent.putExtra(ReplayActivity.WHITEBOARD_START_TIME, record.startTime);
+                                    intent.putExtra(ReplayActivity.WHITEBOARD_END_TIME, record.endTime);
+                                    intent.putExtra(ReplayActivity.WHITEBOARD_URL, record.recordDetails.get(0).url);
+                                    startActivity(intent);
+                                }
+
+                                @Override
+                                public void onFailure(Throwable throwable) {
+                                }
+                            }));
                 }
             }
         }
@@ -117,10 +129,7 @@ public class ChatRoomFragment extends BaseFragment implements OnItemChildClickLi
         String text = edit_send_msg.getText().toString();
         if (KeyEvent.KEYCODE_ENTER == keyCode && KeyEvent.ACTION_DOWN == event.getAction() && text.trim().length() > 0) {
             if (context instanceof BaseClassActivity) {
-                ChannelMsg.ChatMsg chatMsg = new ChannelMsg.ChatMsg(((BaseClassActivity) context).getMyUserName(), text);
-                ChannelMsg msg = new ChannelMsg(chatMsg);
-                MsgMediator.sendMessage(msg);
-                addMessage(chatMsg);
+                addMessage(MsgMediator.sendChatMsg(((BaseClassActivity) context).getLocal(), text));
                 edit_send_msg.setText("");
             }
             return true;

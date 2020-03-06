@@ -13,9 +13,8 @@ import java.util.List;
 import io.agora.base.Callback;
 import io.agora.base.LogManager;
 import io.agora.education.classroom.bean.channel.ChannelInfo;
-import io.agora.education.classroom.bean.user.Student;
-import io.agora.education.classroom.bean.user.Teacher;
-import io.agora.education.classroom.bean.user.User;
+import io.agora.education.classroom.bean.channel.Room;
+import io.agora.education.classroom.bean.channel.User;
 import io.agora.sdk.listener.RtcEventListener;
 import io.agora.sdk.manager.RtcManager;
 
@@ -28,10 +27,10 @@ public abstract class ChannelStrategy<T> {
     private List<Integer> rtcUsers;
     ChannelEventListener channelEventListener;
 
-    ChannelStrategy(String channelId, Student local) {
+    ChannelStrategy(String channelId, User local) {
         this.channelId = channelId;
-        channelInfo = new ChannelInfo(local);
-        rtcUsers = new ArrayList<>();
+        this.channelInfo = new ChannelInfo(local);
+        this.rtcUsers = new ArrayList<>();
         RtcManager.instance().registerListener(rtcEventListener);
     }
 
@@ -39,15 +38,31 @@ public abstract class ChannelStrategy<T> {
         return channelId;
     }
 
-    public Student getLocal() {
-        try {
-            return channelInfo.local.clone();
-        } catch (Exception e) {
-            return new Student(true);
+    public Room getRoom() {
+        return channelInfo.room;
+    }
+
+    public void setRoom(Room room) {
+        String json = room.toJsonString();
+        if (TextUtils.equals(json, new Gson().toJson(getRoom()))) {
+            return;
+        }
+        log.d("setRoom %s", json);
+        channelInfo.room = room;
+        if (channelEventListener != null) {
+            channelEventListener.onRoomChanged(getRoom());
         }
     }
 
-    void setLocal(Student local) {
+    public User getLocal() {
+        try {
+            return channelInfo.local.clone();
+        } catch (CloneNotSupportedException e) {
+            return new User(true);
+        }
+    }
+
+    void setLocal(User local) {
         String json = local.toJsonString();
         if (getLocal().isGenerate == local.isGenerate && TextUtils.equals(json, getLocal().toJsonString())) {
             return;
@@ -59,11 +74,11 @@ public abstract class ChannelStrategy<T> {
         }
     }
 
-    public Teacher getTeacher() {
+    public User getTeacher() {
         return channelInfo.teacher;
     }
 
-    protected void setTeacher(Teacher teacher) {
+    protected void setTeacher(User teacher) {
         String json = teacher.toJsonString();
         if (TextUtils.equals(json, new Gson().toJson(getTeacher()))) {
             return;
@@ -85,19 +100,19 @@ public abstract class ChannelStrategy<T> {
         return users;
     }
 
-    public List<Student> getAllStudents() {
-        List<Student> students = new ArrayList<>();
+    public List<User> getAllStudents() {
+        List<User> students = new ArrayList<>();
         if (!getLocal().isGenerate)
             students.add(0, getLocal());
         students.addAll(getStudents());
         return students;
     }
 
-    public List<Student> getStudents() {
+    public List<User> getStudents() {
         return channelInfo.students;
     }
 
-    void setStudents(List<Student> students) {
+    void setStudents(List<User> students) {
         Gson gson = new Gson();
         String json = gson.toJson(students);
         if (TextUtils.equals(json, gson.toJson(getStudents()))) {
@@ -110,11 +125,11 @@ public abstract class ChannelStrategy<T> {
     }
 
     private void checkRtcOnline(User user) {
-        user.isRtcOnline = rtcUsers.contains(user.uid);
+        user.disableCoVideo(!rtcUsers.contains(user.uid));
     }
 
     private void checkStudentsRtcOnline() {
-        for (Student student : getStudents()) {
+        for (User student : getStudents()) {
             checkRtcOnline(student);
         }
         if (channelEventListener != null) {
@@ -131,7 +146,7 @@ public abstract class ChannelStrategy<T> {
         RtcManager.instance().unregisterListener(rtcEventListener);
     }
 
-    public abstract void joinChannel(String rtcToken);
+    public abstract void joinChannel();
 
     public abstract void leaveChannel();
 
@@ -141,7 +156,7 @@ public abstract class ChannelStrategy<T> {
 
     public abstract void parseChannelInfo(T data);
 
-    public abstract void updateLocalAttribute(Student local, @Nullable Callback<Void> callback);
+    public abstract void updateLocalAttribute(User local, @Nullable Callback<Void> callback);
 
     public abstract void clearLocalAttribute(@Nullable Callback<Void> callback);
 

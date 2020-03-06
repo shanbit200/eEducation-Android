@@ -31,8 +31,12 @@ public class PeerMsg extends JsonBean {
     }
 
     public static abstract class SubMsg extends JsonBean {
-        @ChannelMsg.Type
+        @Type
         public transient int type;
+
+        public PeerMsg superMsg() {
+            return new PeerMsg(this);
+        }
     }
 
     public static class CoVideoMsg extends SubMsg {

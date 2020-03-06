@@ -26,6 +26,7 @@ public class BoardManager extends NetlessManager<Room> implements RoomCallbacks 
     private int[] strokeColor;
     private Boolean disableDeviceInputs;
     private Boolean disableCameraTransform;
+    private Boolean writable;
 
     private Handler handler = new Handler(Looper.getMainLooper());
     private BoardEventListener listener;
@@ -132,6 +133,10 @@ public class BoardManager extends NetlessManager<Room> implements RoomCallbacks 
         }
     }
 
+    public boolean isDisableDeviceInputs() {
+        return disableDeviceInputs == null ? false : disableDeviceInputs;
+    }
+
     public void disableCameraTransform(boolean disabled) {
         if (t != null) {
             t.disableCameraTransform(disabled);
@@ -140,8 +145,12 @@ public class BoardManager extends NetlessManager<Room> implements RoomCallbacks 
         }
     }
 
-    public boolean isDisableDeviceInputs() {
-        return disableDeviceInputs == null ? false : disableDeviceInputs;
+    public void setWritable(boolean writable) {
+        if (t != null) {
+            t.setWritable(writable, null);
+        } else {
+            this.writable = writable;
+        }
     }
 
     public void disconnect() {
@@ -205,6 +214,9 @@ public class BoardManager extends NetlessManager<Room> implements RoomCallbacks 
         }
         if (disableCameraTransform != null) {
             disableCameraTransform(disableCameraTransform);
+        }
+        if (writable != null) {
+            setWritable(writable);
         }
         if (listener != null) {
             listener.onSceneStateChanged(room.getSceneState());

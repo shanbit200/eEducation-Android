@@ -1,6 +1,6 @@
 package io.agora.education.service.bean.response;
 
-public class AppVersion {
+public class AppVersionRes {
 
     public String appCode;
     public int osType;
