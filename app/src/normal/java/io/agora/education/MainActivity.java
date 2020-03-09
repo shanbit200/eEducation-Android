@@ -91,7 +91,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void checkVersion() {
-        service.appVersion("edu-saas").enqueue(new BaseCallback<>(data -> {
+        service.appVersion("edu-demo").enqueue(new BaseCallback<>(data -> {
             if (data != null && data.forcedUpgrade != 0) {
                 showAppUpgradeDialog(data.upgradeUrl, data.forcedUpgrade == 2);
             }
