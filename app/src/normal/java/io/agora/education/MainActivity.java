@@ -20,6 +20,7 @@ import io.agora.base.Callback;
 import io.agora.base.ToastManager;
 import io.agora.base.network.RetrofitManager;
 import io.agora.education.base.BaseActivity;
+import io.agora.education.base.BaseCallback;
 import io.agora.education.broadcast.DownloadReceiver;
 import io.agora.education.classroom.BaseClassActivity;
 import io.agora.education.classroom.LargeClassActivity;
@@ -94,23 +95,14 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         unregisterReceiver(receiver);
-        ChannelInfo.CONFIG = null;
         RtmManager.instance().reset();
         super.onDestroy();
     }
 
     private void checkVersion() {
-        commonService.appVersion("edu-demo").enqueue(new RetrofitManager.Callback<>(0, new Callback<ResponseBody<AppVersionRes>>() {
-            @Override
-            public void onSuccess(ResponseBody<AppVersionRes> res) {
-                AppVersionRes version = res.data;
-                if (version != null && version.forcedUpgrade != 0) {
-                    showAppUpgradeDialog(version.upgradeUrl, version.forcedUpgrade == 2);
-                }
-            }
-
-            @Override
-            public void onFailure(Throwable throwable) {
+        commonService.appVersion("edu-demo").enqueue(new BaseCallback<>(data -> {
+            if (data != null && data.forcedUpgrade != 0) {
+                showAppUpgradeDialog(data.upgradeUrl, data.forcedUpgrade == 2);
             }
         }));
     }
@@ -118,18 +110,13 @@ public class MainActivity extends BaseActivity {
     private void showAppUpgradeDialog(String url, boolean isForce) {
         this.url = url;
         String content = getString(R.string.app_upgrade);
-        ConfirmDialog.DialogClickListener listener = new ConfirmDialog.DialogClickListener() {
-            @Override
-            public void clickConfirm() {
+        ConfirmDialog.DialogClickListener listener = confirm -> {
+            if (confirm) {
                 if (AppUtil.checkAndRequestAppPermission(MainActivity.this, new String[]{
                         Manifest.permission.WRITE_EXTERNAL_STORAGE
                 }, REQUEST_CODE_DOWNLOAD)) {
                     receiver.downloadApk(MainActivity.this, url);
                 }
-            }
-
-            @Override
-            public void clickCancel() {
             }
         };
         ConfirmDialog dialog;

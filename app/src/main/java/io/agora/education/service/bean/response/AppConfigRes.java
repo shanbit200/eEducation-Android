@@ -2,6 +2,8 @@ package io.agora.education.service.bean.response;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Map;
+
 public class AppConfigRes {
 
     public int version;
@@ -14,5 +16,6 @@ public class AppConfigRes {
     public int smallClassTeacherLimit;
     public int smallClassStudentLimit;
     public int largeClassTeacherLimit;
+    public Map<String, Map<Integer, String>> multiLanguage;
 
 }

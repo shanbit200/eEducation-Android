@@ -10,6 +10,7 @@ import java.util.List;
 
 import io.agora.base.Callback;
 import io.agora.base.ToastManager;
+import io.agora.education.EduApplication;
 import io.agora.education.R;
 import io.agora.education.classroom.bean.channel.ChannelInfo;
 import io.agora.education.classroom.bean.channel.User;
@@ -35,7 +36,7 @@ public class SmallClassContext extends ClassContext {
                 channelStrategy.queryOnlineStudentNum(new Callback<Integer>() {
                     @Override
                     public void onSuccess(Integer integer) {
-                        callback.onSuccess(integer < ChannelInfo.CONFIG.smallClassStudentLimit);
+                        callback.onSuccess(integer < EduApplication.instance.config.smallClassStudentLimit);
                     }
 
                     @Override

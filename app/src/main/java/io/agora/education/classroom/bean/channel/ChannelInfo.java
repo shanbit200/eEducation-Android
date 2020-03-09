@@ -9,7 +9,6 @@ import io.agora.education.service.bean.response.AppConfigRes;
 public class ChannelInfo extends JsonBean {
 
     public static int SHARE_UID = 7;
-    public static AppConfigRes CONFIG;
 
     public volatile Room room;
     public volatile User local;
