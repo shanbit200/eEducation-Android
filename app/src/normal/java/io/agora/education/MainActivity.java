@@ -26,17 +26,11 @@ import io.agora.education.classroom.BaseClassActivity;
 import io.agora.education.classroom.LargeClassActivity;
 import io.agora.education.classroom.OneToOneClassActivity;
 import io.agora.education.classroom.SmallClassActivity;
-import io.agora.education.classroom.bean.channel.ChannelInfo;
 import io.agora.education.classroom.bean.channel.Room;
 import io.agora.education.classroom.bean.channel.User;
 import io.agora.education.service.CommonService;
 import io.agora.education.service.RoomService;
-import io.agora.education.service.bean.ResponseBody;
 import io.agora.education.service.bean.request.RoomEntryReq;
-import io.agora.education.service.bean.response.AppConfigRes;
-import io.agora.education.service.bean.response.AppVersionRes;
-import io.agora.education.service.bean.response.RoomEntryRes;
-import io.agora.education.service.bean.response.RoomRes;
 import io.agora.education.util.AppUtil;
 import io.agora.education.util.UUIDUtil;
 import io.agora.education.widget.ConfirmDialog;
@@ -130,19 +124,11 @@ public class MainActivity extends BaseActivity {
     }
 
     private void getConfig() {
-        commonService.config().enqueue(new RetrofitManager.Callback<>(0, new Callback<ResponseBody<AppConfigRes>>() {
-            @Override
-            public void onSuccess(ResponseBody<AppConfigRes> res) {
-                AppConfigRes config = res.data;
-                RetrofitManager.instance().addHeader("Authorization", config.authorization);
-                RtcManager.instance().init(getApplicationContext(), config.appId);
-                RtmManager.instance().init(getApplicationContext(), config.appId);
-                ChannelInfo.CONFIG = config;
-            }
-
-            @Override
-            public void onFailure(Throwable throwable) {
-            }
+        commonService.config().enqueue(new BaseCallback<>(data -> {
+            RetrofitManager.instance().addHeader("Authorization", data.authorization);
+            RtcManager.instance().init(getApplicationContext(), data.appId);
+            RtmManager.instance().init(getApplicationContext(), data.appId);
+            EduApplication.instance.config = data;
         }));
     }
 
@@ -165,7 +151,7 @@ public class MainActivity extends BaseActivity {
             return;
         }
 
-        if (ChannelInfo.CONFIG == null) {
+        if (EduApplication.instance.config == null) {
             ToastManager.showShort(R.string.configuration_load_failed);
             getConfig();
             return;
@@ -188,52 +174,35 @@ public class MainActivity extends BaseActivity {
     private void roomEntry(String yourNameStr, String roomNameStr, @Room.Type int classType) {
         if (isJoining) return;
         isJoining = true;
-        roomService.roomEntry(ChannelInfo.CONFIG.appId, new RoomEntryReq() {{
+        roomService.roomEntry(EduApplication.instance.config.appId, new RoomEntryReq() {{
             userName = yourNameStr;
             roomName = roomNameStr;
             type = classType;
             uuid = UUIDUtil.getUUID();
-        }}).enqueue(new RetrofitManager.Callback<>(0, new Callback<ResponseBody<RoomEntryRes>>() {
-            @Override
-            public void onSuccess(ResponseBody<RoomEntryRes> res) {
-                RoomEntryRes roomEntry = res.data;
-                RetrofitManager.instance().addHeader("token", roomEntry.userToken);
-                room(roomEntry.roomId);
-            }
-
-            @Override
-            public void onFailure(Throwable throwable) {
-                ToastManager.showShort(throwable.getMessage());
-                isJoining = false;
-            }
-        }));
+        }}).enqueue(new BaseCallback<>(data -> {
+            RetrofitManager.instance().addHeader("token", data.userToken);
+            room(data.roomId);
+        }, throwable -> isJoining = false));
     }
 
     private void room(String roomId) {
-        roomService.room(ChannelInfo.CONFIG.appId, roomId).enqueue(new RetrofitManager.Callback<>(0, new Callback<ResponseBody<RoomRes>>() {
-            @Override
-            public void onSuccess(ResponseBody<RoomRes> res) {
-                User user = res.data.user;
-                Room room = res.data.room;
-                RtmManager.instance().login(user.rtmToken, user.uid, new Callback<Void>() {
-                    @Override
-                    public void onSuccess(Void res) {
-                        startActivity(createIntent(room, user));
-                        isJoining = false;
-                    }
+        roomService.room(EduApplication.instance.config.appId, roomId).enqueue(new BaseCallback<>(data -> {
+            User user = data.user;
+            Room room = data.room;
+            RtmManager.instance().login(user.rtmToken, user.uid, new Callback<Void>() {
+                @Override
+                public void onSuccess(Void res) {
+                    startActivity(createIntent(room, user));
+                    isJoining = false;
+                }
 
-                    @Override
-                    public void onFailure(Throwable throwable) {
-                        ToastManager.showShort(throwable.getMessage());
-                        isJoining = false;
-                    }
-                });
-            }
-
-            @Override
-            public void onFailure(Throwable throwable) {
-            }
-        }));
+                @Override
+                public void onFailure(Throwable throwable) {
+                    ToastManager.showShort(throwable.getMessage());
+                    isJoining = false;
+                }
+            });
+        }, throwable -> isJoining = false));
     }
 
     private Intent createIntent(Room room, User user) {

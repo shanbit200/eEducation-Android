@@ -12,20 +12,18 @@ import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.listener.OnItemChildClickListener;
 
 import butterknife.BindView;
-import io.agora.base.Callback;
 import io.agora.base.network.RetrofitManager;
 import io.agora.education.BuildConfig;
+import io.agora.education.EduApplication;
 import io.agora.education.R;
+import io.agora.education.base.BaseCallback;
 import io.agora.education.base.BaseFragment;
 import io.agora.education.classroom.BaseClassActivity;
 import io.agora.education.classroom.ReplayActivity;
 import io.agora.education.classroom.adapter.MessageListAdapter;
-import io.agora.education.classroom.bean.channel.ChannelInfo;
 import io.agora.education.classroom.bean.msg.ChannelMsg;
 import io.agora.education.classroom.mediator.MsgMediator;
 import io.agora.education.service.RecordService;
-import io.agora.education.service.bean.ResponseBody;
-import io.agora.education.service.bean.response.RecordRes;
 
 public class ChatRoomFragment extends BaseFragment implements OnItemChildClickListener, View.OnKeyListener {
 
@@ -98,23 +96,15 @@ public class ChatRoomFragment extends BaseFragment implements OnItemChildClickLi
                 ChannelMsg.ReplayMsg msg = (ChannelMsg.ReplayMsg) object;
                 if (context instanceof BaseClassActivity) {
                     RetrofitManager.instance().getService(BuildConfig.API_BASE_URL, RecordService.class)
-                            .record(ChannelInfo.CONFIG.appId, ((BaseClassActivity) context).getChannelId(), msg.recordId)
-                            .enqueue(new RetrofitManager.Callback<>(0, new Callback<ResponseBody<RecordRes>>() {
-                                @Override
-                                public void onSuccess(ResponseBody<RecordRes> res) {
-                                    RecordRes record = res.data;
-                                    Intent intent = new Intent(context, ReplayActivity.class);
-                                    intent.putExtra(ReplayActivity.WHITEBOARD_UID, record.boardId);
-                                    intent.putExtra(ReplayActivity.WHITEBOARD_ROOM_TOKEN, record.boardToken);
-                                    intent.putExtra(ReplayActivity.WHITEBOARD_START_TIME, record.startTime);
-                                    intent.putExtra(ReplayActivity.WHITEBOARD_END_TIME, record.endTime);
-                                    intent.putExtra(ReplayActivity.WHITEBOARD_URL, record.recordDetails.get(0).url);
-                                    startActivity(intent);
-                                }
-
-                                @Override
-                                public void onFailure(Throwable throwable) {
-                                }
+                            .record(EduApplication.instance.config.appId, ((BaseClassActivity) context).getChannelId(), msg.recordId)
+                            .enqueue(new BaseCallback<>(data -> {
+                                Intent intent = new Intent(context, ReplayActivity.class);
+                                intent.putExtra(ReplayActivity.WHITEBOARD_UID, data.boardId);
+                                intent.putExtra(ReplayActivity.WHITEBOARD_ROOM_TOKEN, data.boardToken);
+                                intent.putExtra(ReplayActivity.WHITEBOARD_START_TIME, data.startTime);
+                                intent.putExtra(ReplayActivity.WHITEBOARD_END_TIME, data.endTime);
+                                intent.putExtra(ReplayActivity.WHITEBOARD_URL, data.recordDetails.get(0).url);
+                                startActivity(intent);
                             }));
                 }
             }

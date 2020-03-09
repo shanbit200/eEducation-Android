@@ -10,15 +10,14 @@ import java.util.List;
 import io.agora.base.Callback;
 import io.agora.base.network.RetrofitManager;
 import io.agora.education.BuildConfig;
-import io.agora.education.classroom.bean.channel.ChannelInfo;
+import io.agora.education.EduApplication;
+import io.agora.education.base.BaseCallback;
 import io.agora.education.classroom.bean.channel.Room;
 import io.agora.education.classroom.bean.channel.User;
 import io.agora.education.classroom.bean.msg.ChannelMsg;
 import io.agora.education.classroom.bean.msg.PeerMsg;
 import io.agora.education.service.RoomService;
-import io.agora.education.service.bean.ResponseBody;
 import io.agora.education.service.bean.request.UserReq;
-import io.agora.education.service.bean.response.RoomRes;
 import io.agora.rtm.RtmChannelMember;
 import io.agora.rtm.RtmMessage;
 import io.agora.sdk.listener.RtmEventListener;
@@ -44,24 +43,17 @@ public class HttpChannelStrategy extends ChannelStrategy<Room> {
 
     @Override
     public void joinChannel() {
-        roomService.room(ChannelInfo.CONFIG.appId, getChannelId()).enqueue(new RetrofitManager.Callback<>(0, new Callback<ResponseBody<RoomRes>>() {
-            @Override
-            public void onSuccess(ResponseBody<RoomRes> res) {
-                Room room = res.data.room;
-                User user = res.data.user;
-                RtmManager.instance().joinChannel(new HashMap<String, String>() {{
-                    put(SdkManager.CHANNEL_ID, room.channelName);
-                }});
-                RtcManager.instance().joinChannel(new HashMap<String, String>() {{
-                    put(SdkManager.TOKEN, user.rtcToken);
-                    put(SdkManager.CHANNEL_ID, room.channelName);
-                    put(SdkManager.USER_ID, user.getUid());
-                }});
-            }
-
-            @Override
-            public void onFailure(Throwable throwable) {
-            }
+        roomService.room(EduApplication.instance.config.appId, getChannelId()).enqueue(new BaseCallback<>(data -> {
+            Room room = data.room;
+            User user = data.user;
+            RtmManager.instance().joinChannel(new HashMap<String, String>() {{
+                put(SdkManager.CHANNEL_ID, room.channelName);
+            }});
+            RtcManager.instance().joinChannel(new HashMap<String, String>() {{
+                put(SdkManager.TOKEN, user.rtcToken);
+                put(SdkManager.CHANNEL_ID, room.channelName);
+                put(SdkManager.USER_ID, user.getUid());
+            }});
         }));
     }
 
@@ -78,20 +70,17 @@ public class HttpChannelStrategy extends ChannelStrategy<Room> {
 
     @Override
     public void queryChannelInfo(@Nullable Callback<Void> callback) {
-        roomService.room(ChannelInfo.CONFIG.appId, getChannelId()).enqueue(new RetrofitManager.Callback<>(0, new Callback<ResponseBody<RoomRes>>() {
-            @Override
-            public void onSuccess(ResponseBody<RoomRes> res) {
-                parseChannelInfo(res.data.room);
-                if (callback != null)
-                    callback.onSuccess(null);
-            }
-
-            @Override
-            public void onFailure(Throwable throwable) {
-                if (callback != null)
-                    callback.onFailure(throwable);
-            }
-        }));
+        roomService.room(EduApplication.instance.config.appId, getChannelId())
+                .enqueue(new BaseCallback<>(data -> {
+                    parseChannelInfo(data.room);
+                    if (callback != null) {
+                        callback.onSuccess(null);
+                    }
+                }, throwable -> {
+                    if (callback != null) {
+                        callback.onFailure(throwable);
+                    }
+                }));
     }
 
     @Override
@@ -115,22 +104,17 @@ public class HttpChannelStrategy extends ChannelStrategy<Room> {
 
     @Override
     public void updateLocalAttribute(User local, @Nullable Callback<Void> callback) {
-        roomService.user(ChannelInfo.CONFIG.appId, getChannelId(), local.userId, new UserReq(local)).enqueue(new RetrofitManager.Callback<>(0, new Callback<ResponseBody<Boolean>>() {
-            @Override
-            public void onSuccess(ResponseBody<Boolean> res) {
-                if (callback != null) {
-                    callback.onSuccess(null);
-                }
-                queryChannelInfo(null);
-            }
-
-            @Override
-            public void onFailure(Throwable throwable) {
-                if (callback != null) {
-                    callback.onFailure(throwable);
-                }
-            }
-        }));
+        roomService.user(EduApplication.instance.config.appId, getChannelId(), local.userId, new UserReq(local))
+                .enqueue(new BaseCallback<>(data -> {
+                    if (callback != null) {
+                        callback.onSuccess(null);
+                    }
+                    queryChannelInfo(null);
+                }, throwable -> {
+                    if (callback != null) {
+                        callback.onFailure(throwable);
+                    }
+                }));
     }
 
     @Override
