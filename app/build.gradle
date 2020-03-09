@@ -12,7 +12,7 @@ android {
         applicationId "io.agora.education"
         minSdkVersion 19
         targetSdkVersion 29
-        versionCode 3
+        versionCode 4
         versionName "5.2.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -50,9 +50,9 @@ android {
             dimension "app"
             applicationId "io.agora.education"
         }
-        wuhan {
+        welfare {
             dimension "app"
-            applicationId "io.agora.education.wuhan"
+            applicationId "io.agora.education.welfare"
         }
     }
 
