@@ -103,7 +103,7 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onSuccess(ResponseBody<AppVersion> res) {
                 AppVersion version = res.data;
-                if (version.forcedUpgrade != 0) {
+                if (version != null && version.forcedUpgrade != 0) {
                     showAppUpgradeDialog(version.upgradeUrl, version.forcedUpgrade == 2);
                 }
             }
