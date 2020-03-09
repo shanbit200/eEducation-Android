@@ -14,9 +14,8 @@ import butterknife.BindView;
 import butterknife.OnClick;
 import io.agora.education.R;
 import io.agora.education.classroom.adapter.ClassVideoAdapter;
-import io.agora.education.classroom.annotation.ClassType;
-import io.agora.education.classroom.bean.user.Student;
-import io.agora.education.classroom.bean.user.User;
+import io.agora.education.classroom.bean.channel.Room;
+import io.agora.education.classroom.bean.channel.User;
 import io.agora.education.classroom.fragment.UserListFragment;
 import io.agora.education.classroom.strategy.context.SmallClassContext;
 import io.agora.rtc.Constants;
@@ -61,13 +60,13 @@ public class SmallClassActivity extends BaseClassActivity implements SmallClassC
     }
 
     @Override
-    protected Student getLocal() {
-        return new Student(getMyUserId(), getMyUserName(), Constants.CLIENT_ROLE_BROADCASTER);
+    public User getLocal() {
+        return new User(getMyUserId(), getMyUserName(), Constants.CLIENT_ROLE_BROADCASTER);
     }
 
     @Override
     protected int getClassType() {
-        return ClassType.SMALL;
+        return Room.Type.SMALL;
     }
 
     @OnClick(R.id.iv_float)
@@ -85,7 +84,7 @@ public class SmallClassActivity extends BaseClassActivity implements SmallClassC
 
     @Override
     public void onGrantWhiteboard(boolean granted) {
-        whiteboardFragment.disableDeviceInputs(granted);
+        whiteboardFragment.disableDeviceInputs(!granted);
     }
 
     @Override

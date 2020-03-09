@@ -102,6 +102,10 @@ public class WhiteBoardFragment extends BaseFragment implements RadioGroup.OnChe
         boardManager.disableCameraTransform(disabled);
     }
 
+    public void setWritable(boolean writable) {
+        boardManager.setWritable(writable);
+    }
+
     public void releaseBoard() {
         boardManager.disconnect();
     }

@@ -2,7 +2,7 @@ package io.agora.education.service.bean.response;
 
 public class RoomEntryRes {
 
-    public RoomInfo room;
-    public UserInfo user;
+    public String roomId;
+    public String userToken;
 
 }

@@ -1,5 +1,6 @@
 package io.agora.education.classroom.strategy.context;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 
@@ -9,11 +10,10 @@ import java.util.List;
 
 import io.agora.base.Callback;
 import io.agora.education.classroom.bean.channel.ChannelInfo;
+import io.agora.education.classroom.bean.channel.Room;
+import io.agora.education.classroom.bean.channel.User;
 import io.agora.education.classroom.bean.msg.ChannelMsg;
-import io.agora.education.classroom.bean.msg.Cmd;
 import io.agora.education.classroom.bean.msg.PeerMsg;
-import io.agora.education.classroom.bean.user.Student;
-import io.agora.education.classroom.bean.user.Teacher;
 import io.agora.education.classroom.strategy.ChannelEventListener;
 import io.agora.education.classroom.strategy.ChannelStrategy;
 import io.agora.sdk.listener.RtcEventListener;
@@ -39,9 +39,9 @@ public abstract class ClassContext implements ChannelEventListener {
 
     public abstract void checkChannelEnterable(@NonNull Callback<Boolean> callback);
 
-    public void joinChannel(String rtcToken) {
+    public void joinChannel() {
         preConfig();
-        channelStrategy.joinChannel(rtcToken);
+        channelStrategy.joinChannel();
     }
 
     public void leaveChannel() {
@@ -51,8 +51,8 @@ public abstract class ClassContext implements ChannelEventListener {
     abstract void preConfig();
 
     public void muteLocalAudio(boolean isMute) {
-        Student local = channelStrategy.getLocal();
-        local.audio = isMute ? 0 : 1;
+        User local = channelStrategy.getLocal();
+        local.disableAudio(isMute);
         channelStrategy.updateLocalAttribute(local, new Callback<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
@@ -67,8 +67,8 @@ public abstract class ClassContext implements ChannelEventListener {
     }
 
     public void muteLocalVideo(boolean isMute) {
-        Student local = channelStrategy.getLocal();
-        local.video = isMute ? 0 : 1;
+        User local = channelStrategy.getLocal();
+        local.disableVideo(isMute);
         channelStrategy.updateLocalAttribute(local, new Callback<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
@@ -83,8 +83,8 @@ public abstract class ClassContext implements ChannelEventListener {
     }
 
     public void muteLocalChat(boolean isMute) {
-        Student local = channelStrategy.getLocal();
-        local.chat = isMute ? 0 : 1;
+        User local = channelStrategy.getLocal();
+        local.disableChat(isMute);
         channelStrategy.updateLocalAttribute(local, new Callback<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
@@ -118,53 +118,72 @@ public abstract class ClassContext implements ChannelEventListener {
     }
 
     @Override
-    public void onLocalChanged(Student local) {
-        runListener(() -> classEventListener.onMuteLocalChat(local.chat == 0));
-    }
-
-    @Override
-    public void onTeacherChanged(Teacher teacher) {
+    public void onRoomChanged(Room room) {
         runListener(() -> {
-            classEventListener.onClassStateChanged(teacher.class_state == 1);
-            classEventListener.onWhiteboardIdChanged(teacher.whiteboard_uid);
-            classEventListener.onLockWhiteboard(teacher.lock_board == 1);
-            classEventListener.onMuteAllChat(teacher.mute_chat == 1);
+            classEventListener.onClassStateChanged(room.isCourseBegin());
+            classEventListener.onWhiteboardChanged(room.boardId, room.boardToken);
+            classEventListener.onLockWhiteboard(room.isBoardLock());
+            classEventListener.onMuteAllChat(!room.isChatEnable());
         });
     }
 
     @Override
-    public void onStudentsChanged(List<Student> students) {
+    public void onTeacherChanged(User teacher) {
     }
 
     @Override
+    public void onLocalChanged(User local) {
+        runListener(() -> classEventListener.onMuteLocalChat(!local.isChatEnable()));
+    }
+
+    @Override
+    public void onStudentsChanged(List<User> students) {
+    }
+
+    @Override
+    @SuppressLint("SwitchIntDef")
     public void onChannelMsgReceived(ChannelMsg msg) {
-        runListener(() -> classEventListener.onChannelMsgReceived(msg));
+        switch (msg.type) {
+            case ChannelMsg.Type.CHAT:
+                ChannelMsg.ChatMsg chatMsg = msg.getMsg();
+                runListener(() -> classEventListener.onChatMsgReceived(chatMsg));
+                break;
+            case ChannelMsg.Type.UPDATE:
+                ChannelMsg.UpdateMsg updateMsg = msg.getMsg();
+                switch (updateMsg.cmd) {
+                    case ChannelMsg.UpdateMsg.Cmd.MUTE_AUDIO:
+                        muteLocalAudio(true);
+                        break;
+                    case ChannelMsg.UpdateMsg.Cmd.UNMUTE_AUDIO:
+                        muteLocalAudio(false);
+                        break;
+                    case ChannelMsg.UpdateMsg.Cmd.MUTE_VIDEO:
+                        muteLocalVideo(true);
+                        break;
+                    case ChannelMsg.UpdateMsg.Cmd.UNMUTE_VIDEO:
+                        muteLocalVideo(false);
+                        break;
+                    case ChannelMsg.UpdateMsg.Cmd.MUTE_CHAT:
+                        muteLocalChat(true);
+                        break;
+                    case ChannelMsg.UpdateMsg.Cmd.UNMUTE_CAHT:
+                        muteLocalChat(false);
+                        break;
+                }
+                break;
+            case ChannelMsg.Type.REPLAY:
+                ChannelMsg.ReplayMsg replayMsg = msg.getMsg();
+                runListener(() -> classEventListener.onChatMsgReceived(replayMsg));
+                break;
+            case ChannelMsg.Type.COURSE:
+                channelStrategy.queryChannelInfo(null);
+                break;
+        }
+
     }
 
     @Override
     public void onPeerMsgReceived(PeerMsg msg) {
-        Cmd cmd = msg.getCmd();
-        if (cmd == null) return;
-        switch (cmd) {
-            case MUTE_AUDIO:
-                muteLocalAudio(true);
-                break;
-            case UNMUTE_AUDIO:
-                muteLocalAudio(false);
-                break;
-            case MUTE_VIDEO:
-                muteLocalVideo(true);
-                break;
-            case UNMUTE_VIDEO:
-                muteLocalVideo(false);
-                break;
-            case MUTE_CHAT:
-                muteLocalChat(true);
-                break;
-            case UNMUTE_CAHT:
-                muteLocalChat(false);
-                break;
-        }
     }
 
     @Override

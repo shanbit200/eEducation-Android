@@ -16,6 +16,7 @@ import io.agora.education.classroom.fragment.ReplayBoardFragment;
 public class ReplayActivity extends BaseActivity {
 
     public static final String WHITEBOARD_UID = "whiteboardUid";
+    public static final String WHITEBOARD_ROOM_TOKEN = "whiteboardRoomToken";
     public static final String WHITEBOARD_START_TIME = "whiteboardStartTime";
     public static final String WHITEBOARD_END_TIME = "whiteboardEndTime";
     public static final String WHITEBOARD_URL = "whiteboardUrl";
@@ -38,7 +39,7 @@ public class ReplayActivity extends BaseActivity {
         Intent intent = getIntent();
         url = intent.getStringExtra(WHITEBOARD_URL);
         uuid = intent.getStringExtra(WHITEBOARD_UID);
-        roomToken = intent.getStringExtra(BaseClassActivity.WHITEBOARD_ROOM_TOKEN);
+        roomToken = intent.getStringExtra(WHITEBOARD_ROOM_TOKEN);
         startTime = intent.getLongExtra(WHITEBOARD_START_TIME, 0);
         endTime = intent.getLongExtra(WHITEBOARD_END_TIME, 0);
     }

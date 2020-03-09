@@ -1,6 +1,5 @@
 package io.agora.education.classroom;
 
-import android.os.Bundle;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,10 +9,9 @@ import butterknife.BindView;
 import io.agora.base.ToastManager;
 import io.agora.education.R;
 import io.agora.education.base.BaseActivity;
-import io.agora.education.classroom.annotation.ClassType;
+import io.agora.education.classroom.bean.channel.Room;
+import io.agora.education.classroom.bean.channel.User;
 import io.agora.education.classroom.bean.msg.ChannelMsg;
-import io.agora.education.classroom.bean.user.Student;
-import io.agora.education.classroom.bean.user.Teacher;
 import io.agora.education.classroom.fragment.ChatRoomFragment;
 import io.agora.education.classroom.fragment.WhiteBoardFragment;
 import io.agora.education.classroom.strategy.context.ClassContext;
@@ -32,8 +30,6 @@ public abstract class BaseClassActivity extends BaseActivity implements ClassEve
     public static final String CLASS_TYPE = "classType";
     public static final String USER_NAME = "userName";
     public static final String USER_ID = "userId";
-    public static final String RTC_TOKEN = "rtcToken";
-    public static final String WHITEBOARD_ROOM_TOKEN = "whiteboardRoomToken";
 
     @BindView(R.id.title_view)
     protected TitleView title_view;
@@ -51,10 +47,6 @@ public abstract class BaseClassActivity extends BaseActivity implements ClassEve
 
     @Override
     protected void initData() {
-        Bundle bundle = new Bundle();
-        bundle.putString(WHITEBOARD_ROOM_TOKEN, getWhiteboardRoomToken());
-        chatRoomFragment.setArguments(bundle);
-
         initStrategy();
     }
 
@@ -76,12 +68,12 @@ public abstract class BaseClassActivity extends BaseActivity implements ClassEve
     protected final void initStrategy() {
         classContext = new ClassContextFactory(this).getClassContext(getClassType(), getChannelId(), getLocal());
         classContext.setClassEventListener(this);
-        classContext.joinChannel(getRtcToken());
+        classContext.joinChannel();
     }
 
-    protected abstract Student getLocal();
+    public abstract User getLocal();
 
-    @ClassType
+    @Room.Type
     protected abstract int getClassType();
 
     @Override
@@ -97,16 +89,8 @@ public abstract class BaseClassActivity extends BaseActivity implements ClassEve
     }
 
     public void showLeaveDialog() {
-        ConfirmDialog.normal(getString(R.string.confirm_leave_room_content), new ConfirmDialog.DialogClickListener() {
-            @Override
-            public void clickConfirm() {
-                finish();
-            }
-
-            @Override
-            public void clickCancel() {
-
-            }
+        ConfirmDialog.normal(getString(R.string.confirm_leave_room_content), confirm -> {
+            if (confirm) finish();
         }).show(getSupportFragmentManager(), null);
     }
 
@@ -126,16 +110,8 @@ public abstract class BaseClassActivity extends BaseActivity implements ClassEve
         return getIntent().getStringExtra(USER_NAME);
     }
 
-    public String getRtcToken() {
-        return getIntent().getStringExtra(RTC_TOKEN);
-    }
-
-    public String getWhiteboardRoomToken() {
-        return getIntent().getStringExtra(WHITEBOARD_ROOM_TOKEN);
-    }
-
     @Override
-    public void onTeacherInit(Teacher teacher) {
+    public void onTeacherInit(User teacher) {
         if (teacher == null) {
             ToastManager.showShort(R.string.there_is_no_teacher_in_this_classroom);
         }
@@ -147,13 +123,13 @@ public abstract class BaseClassActivity extends BaseActivity implements ClassEve
     }
 
     @Override
-    public void onClassStateChanged(boolean isStart) {
-        title_view.setTimeState(isStart);
+    public void onClassStateChanged(boolean isBegin) {
+        title_view.setTimeState(isBegin);
     }
 
     @Override
-    public void onWhiteboardIdChanged(String id) {
-        whiteboardFragment.initBoardWithRoomToken(id, getWhiteboardRoomToken());
+    public void onWhiteboardChanged(String uuid, String roomToken) {
+        whiteboardFragment.initBoardWithRoomToken(uuid, roomToken);
     }
 
     @Override
@@ -172,7 +148,7 @@ public abstract class BaseClassActivity extends BaseActivity implements ClassEve
     }
 
     @Override
-    public void onChannelMsgReceived(ChannelMsg msg) {
+    public void onChatMsgReceived(ChannelMsg.ChatMsg msg) {
         chatRoomFragment.addMessage(msg);
     }
 
