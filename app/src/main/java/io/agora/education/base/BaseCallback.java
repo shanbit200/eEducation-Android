@@ -1,5 +1,7 @@
 package io.agora.education.base;
 
+import android.text.TextUtils;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -11,6 +13,7 @@ import io.agora.base.ToastManager;
 import io.agora.base.network.BusinessException;
 import io.agora.base.network.RetrofitManager;
 import io.agora.education.EduApplication;
+import io.agora.education.R;
 import io.agora.education.service.bean.ResponseBody;
 
 public class BaseCallback<T> extends RetrofitManager.Callback<ResponseBody<T>> {
@@ -47,20 +50,30 @@ public class BaseCallback<T> extends RetrofitManager.Callback<ResponseBody<T>> {
     }
 
     private static void checkError(Throwable throwable) {
+        String message = throwable.getMessage();
         if (throwable instanceof BusinessException) {
-            Locale locale = Locale.getDefault();
-            if (!Locale.SIMPLIFIED_CHINESE.toString().equals(locale.toString())) {
-                locale = Locale.US;
-            }
+            int code = ((BusinessException) throwable).getCode();
             Map<String, Map<Integer, String>> languages = EduApplication.instance.config.multiLanguage;
             if (languages != null) {
+                Locale locale = Locale.getDefault();
+                if (!Locale.SIMPLIFIED_CHINESE.toString().equals(locale.toString())) {
+                    locale = Locale.US;
+                }
                 String key = String.format("%s-%s", locale.getLanguage(), locale.getCountry()).toLowerCase();
                 Map<Integer, String> stringMap = languages.get(key);
                 if (stringMap != null) {
-                    String message = stringMap.get(((BusinessException) throwable).getCode());
-                    ToastManager.showShort(message);
+                    String string = stringMap.get(code);
+                    if (!TextUtils.isEmpty(string)) {
+                        message = string;
+                    }
                 }
             }
+            if (TextUtils.isEmpty(message)) {
+                message = EduApplication.instance.getString(R.string.request_error, code);
+            }
+        }
+        if (!TextUtils.isEmpty(message)) {
+            ToastManager.showShort(message);
         }
     }
 
