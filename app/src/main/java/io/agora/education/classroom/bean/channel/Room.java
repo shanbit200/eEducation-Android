@@ -17,7 +17,7 @@ public class Room extends JsonBean {
     public int type;
     @State
     public int courseState;
-    public long startTIme;
+    public long startTime;
     @Chat
     public int muteAllChat;
     public int isRecording;

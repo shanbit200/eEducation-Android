@@ -10,7 +10,7 @@ public interface ClassEventListener {
 
     void onNetworkQualityChanged(@NetworkQuality int quality);
 
-    void onClassStateChanged(boolean isBegin);
+    void onClassStateChanged(boolean isBegin, long time);
 
     void onWhiteboardChanged(String uuid, String roomToken);
 
