@@ -1,6 +1,7 @@
 package io.agora.education.classroom.fragment;
 
 import android.content.Intent;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
@@ -12,6 +13,7 @@ import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.listener.OnItemChildClickListener;
 
 import butterknife.BindView;
+import io.agora.base.ToastManager;
 import io.agora.base.network.RetrofitManager;
 import io.agora.education.BuildConfig;
 import io.agora.education.EduApplication;
@@ -98,13 +100,20 @@ public class ChatRoomFragment extends BaseFragment implements OnItemChildClickLi
                     RetrofitManager.instance().getService(BuildConfig.API_BASE_URL, RecordService.class)
                             .record(EduApplication.instance.config.appId, ((BaseClassActivity) context).getRoomId(), msg.recordId)
                             .enqueue(new BaseCallback<>(data -> {
-                                Intent intent = new Intent(context, ReplayActivity.class);
-                                intent.putExtra(ReplayActivity.WHITEBOARD_UID, data.boardId);
-                                intent.putExtra(ReplayActivity.WHITEBOARD_ROOM_TOKEN, data.boardToken);
-                                intent.putExtra(ReplayActivity.WHITEBOARD_START_TIME, data.startTime);
-                                intent.putExtra(ReplayActivity.WHITEBOARD_END_TIME, data.endTime);
-                                intent.putExtra(ReplayActivity.WHITEBOARD_URL, data.recordDetails.get(0).url);
-                                startActivity(intent);
+                                if (data.isFinished()) {
+                                    String url = data.getTeacherRecordUrl();
+                                    if (!TextUtils.isEmpty(url)) {
+                                        Intent intent = new Intent(context, ReplayActivity.class);
+                                        intent.putExtra(ReplayActivity.WHITEBOARD_UID, data.boardId);
+                                        intent.putExtra(ReplayActivity.WHITEBOARD_ROOM_TOKEN, data.boardToken);
+                                        intent.putExtra(ReplayActivity.WHITEBOARD_START_TIME, data.startTime);
+                                        intent.putExtra(ReplayActivity.WHITEBOARD_END_TIME, data.endTime);
+                                        intent.putExtra(ReplayActivity.WHITEBOARD_URL, url);
+                                        startActivity(intent);
+                                    }
+                                } else {
+                                    ToastManager.showShort(R.string.wait_record);
+                                }
                             }));
                 }
             }
