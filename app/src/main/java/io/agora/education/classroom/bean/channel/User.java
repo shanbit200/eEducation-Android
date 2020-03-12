@@ -2,6 +2,7 @@ package io.agora.education.classroom.bean.channel;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -148,7 +149,7 @@ public class User extends JsonBean implements Cloneable {
         return (User) super.clone();
     }
 
-    public void sendCoVideoMsg(@PeerMsg.CoVideoMsg.Cmd int cmd, User teacher) {
+    public void sendCoVideoMsg(@PeerMsg.CoVideoMsg.Cmd int cmd, @Nullable User teacher) {
         MsgMediator.sendCoVideoMsg(this, cmd, teacher);
     }
 

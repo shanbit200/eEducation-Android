@@ -22,7 +22,6 @@ import io.agora.education.classroom.bean.channel.Room;
 import io.agora.education.classroom.bean.channel.User;
 import io.agora.education.classroom.strategy.context.LargeClassContext;
 import io.agora.education.classroom.widget.RtcVideoView;
-import io.agora.rtc.Constants;
 
 public class LargeClassActivity extends BaseClassActivity implements LargeClassContext.LargeClassEventListener, TabLayout.OnTabSelectedListener {
 
@@ -72,12 +71,12 @@ public class LargeClassActivity extends BaseClassActivity implements LargeClassC
             video_student.init(R.layout.layout_video_small_class, true);
             video_student.setOnClickAudioListener(v -> {
                 if (isMineLink()) {
-                    classContext.muteLocalAudio(!video_student.isAudioMuted());
+                    muteLocalAudio(!video_student.isAudioMuted());
                 }
             });
             video_student.setOnClickVideoListener(v -> {
                 if (isMineLink()) {
-                    classContext.muteLocalVideo(!video_student.isVideoMuted());
+                    muteLocalVideo(!video_student.isVideoMuted());
                 }
             });
         }
@@ -100,11 +99,6 @@ public class LargeClassActivity extends BaseClassActivity implements LargeClassC
     }
 
     @Override
-    public User getLocal() {
-        return new User(getMyUserId(), getMyUserName(), Constants.CLIENT_ROLE_AUDIENCE);
-    }
-
-    @Override
     protected int getClassType() {
         return Room.Type.LARGE;
     }
@@ -123,8 +117,7 @@ public class LargeClassActivity extends BaseClassActivity implements LargeClassC
         if (isSelected) {
             ((LargeClassContext) classContext).cancel(false);
         } else {
-            // update local attributes
-            ((LargeClassContext) classContext).apply(true);
+            ((LargeClassContext) classContext).apply();
         }
     }
 
@@ -150,21 +143,21 @@ public class LargeClassActivity extends BaseClassActivity implements LargeClassC
             video_student.setSurfaceView(null);
         } else {
             video_student.setName(user.userName);
-            if (getMyUserId() == user.uid) {
+            if (user.uid == getLocal().uid) {
                 video_student.showLocal();
             } else {
                 video_student.showRemote(user.uid);
             }
             // make sure the student video always on the top
             video_student.getSurfaceView().setZOrderMediaOverlay(true);
-            video_teacher.muteVideo(!user.isVideoEnable());
-            video_teacher.muteAudio(!user.isAudioEnable());
+            video_student.muteVideo(!user.isVideoEnable());
+            video_student.muteAudio(!user.isAudioEnable());
             video_student.setVisibility(View.VISIBLE);
         }
     }
 
     private boolean isMineLink() {
-        return linkUser != null && linkUser.uid == getMyUserId();
+        return linkUser != null && linkUser.uid == getLocal().uid;
     }
 
     @Override

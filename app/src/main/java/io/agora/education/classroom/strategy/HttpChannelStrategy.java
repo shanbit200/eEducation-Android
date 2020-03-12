@@ -18,6 +18,7 @@ import io.agora.education.classroom.bean.msg.ChannelMsg;
 import io.agora.education.classroom.bean.msg.PeerMsg;
 import io.agora.education.service.RoomService;
 import io.agora.education.service.bean.request.UserReq;
+import io.agora.education.service.bean.response.RoomRes;
 import io.agora.rtm.RtmChannelMember;
 import io.agora.rtm.RtmMessage;
 import io.agora.sdk.listener.RtmEventListener;
@@ -25,7 +26,7 @@ import io.agora.sdk.manager.RtcManager;
 import io.agora.sdk.manager.RtmManager;
 import io.agora.sdk.manager.SdkManager;
 
-public class HttpChannelStrategy extends ChannelStrategy<Room> {
+public class HttpChannelStrategy extends ChannelStrategy<RoomRes> {
 
     private RoomService roomService;
 
@@ -72,7 +73,7 @@ public class HttpChannelStrategy extends ChannelStrategy<Room> {
     public void queryChannelInfo(@Nullable Callback<Void> callback) {
         roomService.room(EduApplication.instance.config.appId, getChannelId())
                 .enqueue(new BaseCallback<>(data -> {
-                    parseChannelInfo(data.room);
+                    parseChannelInfo(data);
                     if (callback != null) {
                         callback.onSuccess(null);
                     }
@@ -84,22 +85,22 @@ public class HttpChannelStrategy extends ChannelStrategy<Room> {
     }
 
     @Override
-    public void parseChannelInfo(Room data) {
-        if (data.coVideoUsers != null) {
+    public void parseChannelInfo(RoomRes data) {
+        Room room = data.room;
+        if (room.coVideoUsers != null) {
             List<User> students = new ArrayList<>();
-            for (User user : data.coVideoUsers) {
+            for (User user : room.coVideoUsers) {
                 if (user.isTeacher()) {
                     setTeacher(user);
-                } else if (user.uid == getLocal().uid) {
-                    setLocal(user);
-                } else {
+                } else if (user.uid != getLocal().uid) {
                     students.add(user);
                 }
             }
             setStudents(students);
         }
-        data.coVideoUsers = null;
-        setRoom(data);
+        room.coVideoUsers = null;
+        setRoom(room);
+        setLocal(data.user);
     }
 
     @Override
@@ -119,9 +120,17 @@ public class HttpChannelStrategy extends ChannelStrategy<Room> {
 
     @Override
     public void clearLocalAttribute(@Nullable Callback<Void> callback) {
-        if (callback != null) {
-            callback.onSuccess(null);
-        }
+        roomService.user(EduApplication.instance.config.appId, getChannelId(), getLocal().userId, new UserReq(getLocal()) {{
+            coVideo = User.CoVideo.DISABLE;
+        }}).enqueue(new BaseCallback<>(data -> {
+            if (callback != null) {
+                callback.onSuccess(null);
+            }
+        }, throwable -> {
+            if (callback != null) {
+                callback.onFailure(throwable);
+            }
+        }));
     }
 
     private RtmEventListener rtmEventListener = new RtmEventListener() {

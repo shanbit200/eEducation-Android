@@ -4,8 +4,9 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.annotations.SerializedName;
-import com.google.gson.reflect.TypeToken;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -17,11 +18,11 @@ public class ChannelMsg extends JsonBean {
     @Type
     @SerializedName("cmd")
     public int type;
-    public String data;
+    public JsonObject data;
 
     public ChannelMsg(@NonNull SubMsg data) {
         this.type = data.type;
-        this.data = data.toJsonString();
+        this.data = new JsonParser().parse(data.toJsonString()).getAsJsonObject();
     }
 
     @IntDef({Type.CHAT, Type.UPDATE, Type.REPLAY, Type.COURSE})
@@ -46,6 +47,9 @@ public class ChannelMsg extends JsonBean {
         public String account;
         public String content;
         public transient boolean isMe;
+
+        ChatMsg() {
+        }
 
         public ChatMsg(String account, String content) {
             this.type = Type.CHAT;
@@ -94,8 +98,12 @@ public class ChannelMsg extends JsonBean {
     public static class ReplayMsg extends ChatMsg {
         public String recordId;
 
+        public ReplayMsg() {
+            this.content = "replay recording";
+        }
+
         public ReplayMsg(String account, String recordId) {
-            super(account, "replay recording");
+            super(account, null);
             this.type = Type.REPLAY;
             this.recordId = recordId;
         }
@@ -127,10 +135,8 @@ public class ChannelMsg extends JsonBean {
         }
     }
 
-    public <T extends SubMsg> T getMsg() {
-        TypeToken<T> typeToken = new TypeToken<T>() {
-        };
-        return new Gson().fromJson(data, typeToken.getType());
+    public <T extends SubMsg> T getMsg(Class<T> tClass) {
+        return new Gson().fromJson(data.toString(), tClass);
     }
 
 }

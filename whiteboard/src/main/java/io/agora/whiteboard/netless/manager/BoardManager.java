@@ -79,12 +79,10 @@ public class BoardManager extends NetlessManager<Room> implements RoomCallbacks 
             t.setSceneIndex(index, new Promise<Boolean>() {
                 @Override
                 public void then(Boolean aBoolean) {
-
                 }
 
                 @Override
                 public void catchEx(SDKError t) {
-
                 }
             });
         }
@@ -147,7 +145,15 @@ public class BoardManager extends NetlessManager<Room> implements RoomCallbacks 
 
     public void setWritable(boolean writable) {
         if (t != null) {
-            t.setWritable(writable, null);
+            t.setWritable(writable, new Promise<Boolean>() {
+                @Override
+                public void then(Boolean aBoolean) {
+                }
+
+                @Override
+                public void catchEx(SDKError t) {
+                }
+            });
         } else {
             this.writable = writable;
         }

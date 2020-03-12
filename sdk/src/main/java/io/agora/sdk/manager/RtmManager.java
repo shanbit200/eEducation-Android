@@ -85,7 +85,6 @@ public final class RtmManager extends SdkManager<RtmClient> implements RtmClient
 
             @Override
             public void onFailure(ErrorInfo errorInfo) {
-
             }
         });
     }
@@ -199,7 +198,6 @@ public final class RtmManager extends SdkManager<RtmClient> implements RtmClient
 
             @Override
             public void onFailure(ErrorInfo errorInfo) {
-
             }
         });
     }
@@ -214,7 +212,6 @@ public final class RtmManager extends SdkManager<RtmClient> implements RtmClient
 
                 @Override
                 public void onFailure(ErrorInfo errorInfo) {
-
                 }
             });
         }

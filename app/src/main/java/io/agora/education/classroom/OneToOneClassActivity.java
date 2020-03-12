@@ -9,7 +9,6 @@ import io.agora.education.classroom.bean.channel.Room;
 import io.agora.education.classroom.bean.channel.User;
 import io.agora.education.classroom.strategy.context.OneToOneClassContext;
 import io.agora.education.classroom.widget.RtcVideoView;
-import io.agora.rtc.Constants;
 
 public class OneToOneClassActivity extends BaseClassActivity implements OneToOneClassContext.OneToOneClassEventListener {
 
@@ -30,13 +29,8 @@ public class OneToOneClassActivity extends BaseClassActivity implements OneToOne
         super.initView();
         video_teacher.init(R.layout.layout_video_one2one_class, false);
         video_student.init(R.layout.layout_video_one2one_class, true);
-        video_student.setOnClickAudioListener(v -> classContext.muteLocalAudio(!video_student.isAudioMuted()));
-        video_student.setOnClickVideoListener(v -> classContext.muteLocalVideo(!video_student.isVideoMuted()));
-    }
-
-    @Override
-    public User getLocal() {
-        return new User(getMyUserId(), getMyUserName(), Constants.CLIENT_ROLE_BROADCASTER);
+        video_student.setOnClickAudioListener(v -> muteLocalAudio(!video_student.isAudioMuted()));
+        video_student.setOnClickVideoListener(v -> muteLocalVideo(!video_student.isVideoMuted()));
     }
 
     @Override
