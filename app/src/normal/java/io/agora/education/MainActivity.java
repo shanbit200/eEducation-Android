@@ -214,11 +214,8 @@ public class MainActivity extends BaseActivity {
         } else {
             intent.setClass(this, LargeClassActivity.class);
         }
-        intent.putExtra(BaseClassActivity.ROOM_NAME, room.roomName)
-                .putExtra(BaseClassActivity.CHANNEL_ID, room.roomId)
-                .putExtra(BaseClassActivity.USER_NAME, user.userName)
-                .putExtra(BaseClassActivity.USER_ID, user.uid)
-                .putExtra(BaseClassActivity.CLASS_TYPE, room.type);
+        intent.putExtra(BaseClassActivity.ROOM, room)
+                .putExtra(BaseClassActivity.USER, user);
         return intent;
     }
 

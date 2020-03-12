@@ -19,6 +19,13 @@ import io.agora.education.classroom.strategy.ChannelStrategy;
 import io.agora.sdk.listener.RtcEventListener;
 import io.agora.sdk.manager.RtcManager;
 
+import static io.agora.education.classroom.bean.msg.ChannelMsg.UpdateMsg.Cmd.MUTE_AUDIO;
+import static io.agora.education.classroom.bean.msg.ChannelMsg.UpdateMsg.Cmd.MUTE_CHAT;
+import static io.agora.education.classroom.bean.msg.ChannelMsg.UpdateMsg.Cmd.MUTE_VIDEO;
+import static io.agora.education.classroom.bean.msg.ChannelMsg.UpdateMsg.Cmd.UNMUTE_AUDIO;
+import static io.agora.education.classroom.bean.msg.ChannelMsg.UpdateMsg.Cmd.UNMUTE_CAHT;
+import static io.agora.education.classroom.bean.msg.ChannelMsg.UpdateMsg.Cmd.UNMUTE_VIDEO;
+
 public abstract class ClassContext implements ChannelEventListener {
 
     private Context context;
@@ -57,11 +64,11 @@ public abstract class ClassContext implements ChannelEventListener {
             @Override
             public void onSuccess(Void aVoid) {
                 RtcManager.instance().muteLocalAudioStream(isMute);
+                channelStrategy.getLocal().sendUpdateMsg(isMute ? MUTE_AUDIO : UNMUTE_AUDIO);
             }
 
             @Override
             public void onFailure(Throwable throwable) {
-
             }
         });
     }
@@ -73,11 +80,11 @@ public abstract class ClassContext implements ChannelEventListener {
             @Override
             public void onSuccess(Void aVoid) {
                 RtcManager.instance().muteLocalVideoStream(isMute);
+                channelStrategy.getLocal().sendUpdateMsg(isMute ? MUTE_VIDEO : UNMUTE_VIDEO);
             }
 
             @Override
             public void onFailure(Throwable throwable) {
-
             }
         });
     }
@@ -88,11 +95,11 @@ public abstract class ClassContext implements ChannelEventListener {
         channelStrategy.updateLocalAttribute(local, new Callback<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
+                channelStrategy.getLocal().sendUpdateMsg(isMute ? MUTE_CHAT : UNMUTE_CAHT);
             }
 
             @Override
             public void onFailure(Throwable throwable) {
-
             }
         });
     }
@@ -145,41 +152,18 @@ public abstract class ClassContext implements ChannelEventListener {
     public void onChannelMsgReceived(ChannelMsg msg) {
         switch (msg.type) {
             case ChannelMsg.Type.CHAT:
-                ChannelMsg.ChatMsg chatMsg = msg.getMsg();
+                ChannelMsg.ChatMsg chatMsg = msg.getMsg(ChannelMsg.ChatMsg.class);
                 runListener(() -> classEventListener.onChatMsgReceived(chatMsg));
                 break;
-            case ChannelMsg.Type.UPDATE:
-                ChannelMsg.UpdateMsg updateMsg = msg.getMsg();
-                switch (updateMsg.cmd) {
-                    case ChannelMsg.UpdateMsg.Cmd.MUTE_AUDIO:
-                        muteLocalAudio(true);
-                        break;
-                    case ChannelMsg.UpdateMsg.Cmd.UNMUTE_AUDIO:
-                        muteLocalAudio(false);
-                        break;
-                    case ChannelMsg.UpdateMsg.Cmd.MUTE_VIDEO:
-                        muteLocalVideo(true);
-                        break;
-                    case ChannelMsg.UpdateMsg.Cmd.UNMUTE_VIDEO:
-                        muteLocalVideo(false);
-                        break;
-                    case ChannelMsg.UpdateMsg.Cmd.MUTE_CHAT:
-                        muteLocalChat(true);
-                        break;
-                    case ChannelMsg.UpdateMsg.Cmd.UNMUTE_CAHT:
-                        muteLocalChat(false);
-                        break;
-                }
-                break;
             case ChannelMsg.Type.REPLAY:
-                ChannelMsg.ReplayMsg replayMsg = msg.getMsg();
+                ChannelMsg.ReplayMsg replayMsg = msg.getMsg(ChannelMsg.ReplayMsg.class);
                 runListener(() -> classEventListener.onChatMsgReceived(replayMsg));
                 break;
+            case ChannelMsg.Type.UPDATE:
             case ChannelMsg.Type.COURSE:
                 channelStrategy.queryChannelInfo(null);
                 break;
         }
-
     }
 
     @Override

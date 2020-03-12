@@ -25,11 +25,8 @@ import io.agora.sdk.manager.RtcManager;
 
 public abstract class BaseClassActivity extends BaseActivity implements ClassEventListener {
 
-    public static final String ROOM_NAME = "roomName";
-    public static final String CHANNEL_ID = "channelId";
-    public static final String CLASS_TYPE = "classType";
-    public static final String USER_NAME = "userName";
-    public static final String USER_ID = "userId";
+    public static final String ROOM = "room";
+    public static final String USER = "user";
 
     @BindView(R.id.title_view)
     protected TitleView title_view;
@@ -43,7 +40,7 @@ public abstract class BaseClassActivity extends BaseActivity implements ClassEve
     protected WhiteBoardFragment whiteboardFragment = new WhiteBoardFragment();
     protected ChatRoomFragment chatRoomFragment = new ChatRoomFragment();
 
-    public ClassContext classContext;
+    protected ClassContext classContext;
 
     @Override
     protected void initData() {
@@ -66,12 +63,24 @@ public abstract class BaseClassActivity extends BaseActivity implements ClassEve
     }
 
     protected final void initStrategy() {
-        classContext = new ClassContextFactory(this).getClassContext(getClassType(), getChannelId(), getLocal());
+        classContext = new ClassContextFactory(this).getClassContext(getClassType(), getRoomId(), getLocal());
         classContext.setClassEventListener(this);
         classContext.joinChannel();
     }
 
-    public abstract User getLocal();
+    public final void muteLocalAudio(boolean isMute) {
+        classContext.muteLocalAudio(isMute);
+    }
+
+    public final void muteLocalVideo(boolean isMute) {
+        classContext.muteLocalVideo(isMute);
+    }
+
+    public final User getLocal() {
+        User local = getUserFromIntent();
+        local.isGenerate = true;
+        return local;
+    }
 
     @Room.Type
     protected abstract int getClassType();
@@ -88,26 +97,26 @@ public abstract class BaseClassActivity extends BaseActivity implements ClassEve
         showLeaveDialog();
     }
 
-    public void showLeaveDialog() {
+    public final void showLeaveDialog() {
         ConfirmDialog.normal(getString(R.string.confirm_leave_room_content), confirm -> {
             if (confirm) finish();
         }).show(getSupportFragmentManager(), null);
     }
 
-    public String getRoomName() {
-        return getIntent().getStringExtra(ROOM_NAME);
+    private Room getRoomFromIntent() {
+        return (Room) getIntent().getSerializableExtra(ROOM);
     }
 
-    public String getChannelId() {
-        return getIntent().getStringExtra(CHANNEL_ID);
+    public final String getRoomId() {
+        return getRoomFromIntent().roomId;
     }
 
-    public int getMyUserId() {
-        return getIntent().getIntExtra(USER_ID, 0);
+    public final String getRoomName() {
+        return getRoomFromIntent().roomName;
     }
 
-    public String getMyUserName() {
-        return getIntent().getStringExtra(USER_NAME);
+    private User getUserFromIntent() {
+        return (User) getIntent().getSerializableExtra(USER);
     }
 
     @Override

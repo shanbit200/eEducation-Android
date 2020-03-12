@@ -5,7 +5,6 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
-import java.util.Collections;
 import java.util.List;
 
 import io.agora.base.Callback;
@@ -24,8 +23,6 @@ import static io.agora.education.classroom.bean.msg.PeerMsg.CoVideoMsg.Cmd.APPLY
 import static io.agora.education.classroom.bean.msg.PeerMsg.CoVideoMsg.Cmd.REJECT_CO_VIDEO;
 
 public class LargeClassContext extends ClassContext {
-
-    private boolean applying;
 
     LargeClassContext(Context context, ChannelStrategy strategy) {
         super(context, strategy);
@@ -55,28 +52,29 @@ public class LargeClassContext extends ClassContext {
     public void onLocalChanged(User local) {
         super.onLocalChanged(local);
         if (local.isGenerate) return;
-        if (applying) {
-            applying = false;
-            // send apply order to the teacher when local attributes updated
-            apply(false);
-        }
-        onLinkMediaChanged(Collections.singletonList(local));
+        onLinkMediaChanged();
     }
 
     @Override
     public void onStudentsChanged(List<User> students) {
         super.onStudentsChanged(students);
-        onLinkMediaChanged(students);
+        onLinkMediaChanged();
     }
 
-    private void onLinkMediaChanged(List<User> users) {
-        for (User user : users) {
-            if (user.isCoVideoEnable()) {
-                if (classEventListener instanceof LargeClassEventListener) {
-                    runListener(() -> ((LargeClassEventListener) classEventListener).onLinkMediaChanged(user));
+    private void onLinkMediaChanged() {
+        User linkUser = null;
+        for (Object object : channelStrategy.getAllStudents()) {
+            if (object instanceof User) {
+                User user = (User) object;
+                if (user.isCoVideoEnable()) {
+                    linkUser = user;
+                    break;
                 }
-                break;
             }
+        }
+        if (classEventListener instanceof LargeClassEventListener) {
+            User finalLinkUser = linkUser;
+            runListener(() -> ((LargeClassEventListener) classEventListener).onLinkMediaChanged(finalLinkUser));
         }
     }
 
@@ -85,14 +83,16 @@ public class LargeClassContext extends ClassContext {
     public void onChannelMsgReceived(ChannelMsg msg) {
         super.onChannelMsgReceived(msg);
         if (msg.type == ChannelMsg.Type.UPDATE) {
-            ChannelMsg.UpdateMsg updateMsg = msg.getMsg();
-            switch (updateMsg.cmd) {
-                case ACCEPT_CO_VIDEO:
-                    accept();
-                    break;
-                case CANCEL_CO_VIDEO:
-                    cancel(true);
-                    break;
+            ChannelMsg.UpdateMsg updateMsg = msg.getMsg(ChannelMsg.UpdateMsg.class);
+            if (updateMsg.uid == channelStrategy.getLocal().uid) {
+                switch (updateMsg.cmd) {
+                    case ACCEPT_CO_VIDEO:
+                        accept();
+                        break;
+                    case CANCEL_CO_VIDEO:
+                        cancel(true);
+                        break;
+                }
             }
         }
     }
@@ -101,39 +101,10 @@ public class LargeClassContext extends ClassContext {
     public void onPeerMsgReceived(PeerMsg msg) {
         super.onPeerMsgReceived(msg);
         if (msg.type == PeerMsg.Type.CO_VIDEO) {
-            PeerMsg.CoVideoMsg coVideoMsg = msg.getMsg();
+            PeerMsg.CoVideoMsg coVideoMsg = msg.getMsg(PeerMsg.CoVideoMsg.class);
             if (coVideoMsg.cmd == REJECT_CO_VIDEO) {
                 reject();
             }
-        }
-    }
-
-    public void apply(boolean isPrepare) {
-        User local = channelStrategy.getLocal();
-        if (isPrepare) {
-            channelStrategy.clearLocalAttribute(new Callback<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
-                    channelStrategy.updateLocalAttribute(local, new Callback<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            applying = true;
-                        }
-
-                        @Override
-                        public void onFailure(Throwable throwable) {
-                            applying = false;
-                        }
-                    });
-                }
-
-                @Override
-                public void onFailure(Throwable throwable) {
-
-                }
-            });
-        } else {
-            local.sendCoVideoMsg(APPLY_CO_VIDEO, channelStrategy.getTeacher());
         }
     }
 
@@ -143,6 +114,10 @@ public class LargeClassContext extends ClassContext {
         if (classEventListener instanceof LargeClassEventListener) {
             runListener(() -> ((LargeClassEventListener) classEventListener).onUserCountChanged(count));
         }
+    }
+
+    public void apply() {
+        channelStrategy.getLocal().sendCoVideoMsg(APPLY_CO_VIDEO, channelStrategy.getTeacher());
     }
 
     public void cancel(boolean isRemote) {
@@ -157,46 +132,44 @@ public class LargeClassContext extends ClassContext {
                 } else {
                     channelStrategy.getLocal().sendUpdateMsg(CANCEL_CO_VIDEO);
                 }
+                channelStrategy.queryChannelInfo(null);
             }
 
             @Override
             public void onFailure(Throwable throwable) {
-
             }
         });
     }
 
     private void accept() {
         User local = channelStrategy.getLocal();
+        local.disableCoVideo(false);
         local.disableAudio(false);
         local.disableVideo(false);
         channelStrategy.updateLocalAttribute(local, new Callback<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 RtcManager.instance().setClientRole(Constants.CLIENT_ROLE_BROADCASTER);
+                ToastManager.showShort(R.string.accept_interactive);
             }
 
             @Override
             public void onFailure(Throwable throwable) {
-
             }
         });
-        ToastManager.showShort(R.string.accept_interactive);
     }
 
     private void reject() {
         channelStrategy.clearLocalAttribute(new Callback<Void>() {
             @Override
-            public void onSuccess(Void aVoid) {
-                applying = false;
+            public void onSuccess(Void res) {
+                ToastManager.showShort(R.string.reject_interactive);
             }
 
             @Override
             public void onFailure(Throwable throwable) {
-
             }
         });
-        ToastManager.showShort(R.string.reject_interactive);
     }
 
     public interface LargeClassEventListener extends ClassEventListener {

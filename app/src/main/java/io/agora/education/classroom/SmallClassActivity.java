@@ -18,7 +18,6 @@ import io.agora.education.classroom.bean.channel.Room;
 import io.agora.education.classroom.bean.channel.User;
 import io.agora.education.classroom.fragment.UserListFragment;
 import io.agora.education.classroom.strategy.context.SmallClassContext;
-import io.agora.rtc.Constants;
 
 public class SmallClassActivity extends BaseClassActivity implements SmallClassContext.SmallClassEventListener, TabLayout.OnTabSelectedListener {
 
@@ -40,7 +39,7 @@ public class SmallClassActivity extends BaseClassActivity implements SmallClassC
     @Override
     protected void initData() {
         super.initData();
-        adapter = new ClassVideoAdapter(getMyUserId());
+        adapter = new ClassVideoAdapter(getLocal().uid);
     }
 
     @Override
@@ -57,11 +56,6 @@ public class SmallClassActivity extends BaseClassActivity implements SmallClassC
                 .add(R.id.layout_chat_room, userListFragment)
                 .hide(userListFragment)
                 .commit();
-    }
-
-    @Override
-    public User getLocal() {
-        return new User(getMyUserId(), getMyUserName(), Constants.CLIENT_ROLE_BROADCASTER);
     }
 
     @Override

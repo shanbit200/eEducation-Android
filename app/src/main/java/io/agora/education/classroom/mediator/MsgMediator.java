@@ -1,6 +1,7 @@
 package io.agora.education.classroom.mediator;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import io.agora.education.classroom.bean.channel.User;
 import io.agora.education.classroom.bean.msg.ChannelMsg;
@@ -17,9 +18,9 @@ public class MsgMediator {
         RtmManager.instance().sendMessage(msg.toJsonString());
     }
 
-    public static void sendCoVideoMsg(@NonNull User user, @PeerMsg.CoVideoMsg.Cmd int cmd, User teacher) {
-        if (!teacher.isTeacher()) return;
-        sendMessageToPeer(teacher, new PeerMsg.CoVideoMsg(cmd, user.userName).superMsg());
+    public static void sendCoVideoMsg(@NonNull User user, @PeerMsg.CoVideoMsg.Cmd int cmd, @Nullable User teacher) {
+        if (teacher == null || !teacher.isTeacher()) return;
+        sendMessageToPeer(teacher, new PeerMsg.CoVideoMsg(cmd, user.userId, user.userName).superMsg());
     }
 
     public static ChannelMsg.ChatMsg sendChatMsg(@NonNull User user, String content) {

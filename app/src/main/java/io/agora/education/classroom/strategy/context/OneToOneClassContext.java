@@ -11,6 +11,8 @@ import io.agora.education.classroom.strategy.ChannelStrategy;
 import io.agora.rtc.Constants;
 import io.agora.sdk.manager.RtcManager;
 
+import static io.agora.education.classroom.bean.msg.ChannelMsg.UpdateMsg.Cmd.ACCEPT_CO_VIDEO;
+
 public class OneToOneClassContext extends ClassContext {
 
     OneToOneClassContext(Context context, ChannelStrategy strategy) {
@@ -53,7 +55,18 @@ public class OneToOneClassContext extends ClassContext {
     public void onChannelInfoInit() {
         super.onChannelInfoInit();
         if (channelStrategy.getLocal().isGenerate) {
-            channelStrategy.updateLocalAttribute(channelStrategy.getLocal(), null);
+            channelStrategy.updateLocalAttribute(channelStrategy.getLocal(), new Callback<Void>() {
+                @Override
+                public void onSuccess(Void res) {
+                    channelStrategy.getLocal().sendUpdateMsg(ACCEPT_CO_VIDEO);
+                }
+
+                @Override
+                public void onFailure(Throwable throwable) {
+                }
+            });
+        } else {
+            channelStrategy.getLocal().sendUpdateMsg(ACCEPT_CO_VIDEO);
         }
     }
 
