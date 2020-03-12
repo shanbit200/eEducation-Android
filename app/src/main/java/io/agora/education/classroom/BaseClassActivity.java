@@ -132,8 +132,8 @@ public abstract class BaseClassActivity extends BaseActivity implements ClassEve
     }
 
     @Override
-    public void onClassStateChanged(boolean isBegin) {
-        title_view.setTimeState(isBegin);
+    public void onClassStateChanged(boolean isBegin, long time) {
+        title_view.setTimeState(isBegin, time);
     }
 
     @Override

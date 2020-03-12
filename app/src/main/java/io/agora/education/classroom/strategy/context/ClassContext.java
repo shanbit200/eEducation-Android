@@ -6,6 +6,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
+import java.util.Date;
 import java.util.List;
 
 import io.agora.base.Callback;
@@ -127,7 +128,7 @@ public abstract class ClassContext implements ChannelEventListener {
     @Override
     public void onRoomChanged(Room room) {
         runListener(() -> {
-            classEventListener.onClassStateChanged(room.isCourseBegin());
+            classEventListener.onClassStateChanged(room.isCourseBegin(), new Date().getTime() - room.startTime);
             classEventListener.onWhiteboardChanged(room.boardId, room.boardToken);
             classEventListener.onLockWhiteboard(room.isBoardLock());
             classEventListener.onMuteAllChat(!room.isChatEnable());
