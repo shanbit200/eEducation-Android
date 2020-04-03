@@ -33,4 +33,10 @@ public interface RoomService {
             @Path("roomId") String roomId
     );
 
+    @POST("/edu/v1/apps/{appId}/room/{roomId}/exit")
+    Call<ResponseBody<RoomRes>> roomExit(
+            @Path("appId") String appId,
+            @Path("roomId") String roomId
+    );
+
 }

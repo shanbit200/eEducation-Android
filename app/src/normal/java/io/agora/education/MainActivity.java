@@ -31,6 +31,7 @@ import io.agora.education.classroom.bean.channel.User;
 import io.agora.education.service.CommonService;
 import io.agora.education.service.RoomService;
 import io.agora.education.service.bean.request.RoomEntryReq;
+import io.agora.education.service.bean.response.AppConfigRes;
 import io.agora.education.util.AppUtil;
 import io.agora.education.util.UUIDUtil;
 import io.agora.education.widget.ConfirmDialog;
@@ -94,7 +95,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void checkVersion() {
-        commonService.appVersion("edu-demo").enqueue(new BaseCallback<>(data -> {
+        commonService.appVersion(BuildConfig.CODE).enqueue(new BaseCallback<>(data -> {
             if (data != null && data.forcedUpgrade != 0) {
                 showAppUpgradeDialog(data.upgradeUrl, data.forcedUpgrade == 2);
             }
@@ -124,11 +125,15 @@ public class MainActivity extends BaseActivity {
     }
 
     private void getConfig() {
-        commonService.config().enqueue(new BaseCallback<>(data -> {
-            RetrofitManager.instance().addHeader("Authorization", data.authorization);
-            RtcManager.instance().init(getApplicationContext(), data.appId);
-            RtmManager.instance().init(getApplicationContext(), data.appId);
-            EduApplication.instance.config = data;
+        commonService.language().enqueue(new BaseCallback<>(data -> {
+            if (EduApplication.instance.config == null) {
+                EduApplication.instance.config = new AppConfigRes();
+            }
+            EduApplication.instance.config.appId = getString(R.string.agora_app_id);
+            EduApplication.instance.config.multiLanguage = data;
+
+            RtcManager.instance().init(getApplicationContext(), EduApplication.instance.config.appId);
+            RtmManager.instance().init(getApplicationContext(), EduApplication.instance.config.appId);
         }));
     }
 

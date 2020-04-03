@@ -54,12 +54,14 @@ public class HttpChannelStrategy extends ChannelStrategy<RoomRes> {
                 put(SdkManager.TOKEN, user.rtcToken);
                 put(SdkManager.CHANNEL_ID, room.channelName);
                 put(SdkManager.USER_ID, user.getUid());
+                put(SdkManager.USER_EXTRA, BuildConfig.EXTRA);
             }});
         }));
     }
 
     @Override
     public void leaveChannel() {
+        roomService.roomExit(EduApplication.instance.config.appId, getChannelId());
         RtmManager.instance().leaveChannel();
         RtcManager.instance().leaveChannel();
     }

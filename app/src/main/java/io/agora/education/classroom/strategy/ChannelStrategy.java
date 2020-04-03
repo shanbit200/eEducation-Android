@@ -11,16 +11,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.agora.base.Callback;
-import io.agora.base.LogManager;
 import io.agora.education.classroom.bean.channel.ChannelInfo;
 import io.agora.education.classroom.bean.channel.Room;
 import io.agora.education.classroom.bean.channel.User;
+import io.agora.log.LogManager;
 import io.agora.sdk.listener.RtcEventListener;
 import io.agora.sdk.manager.RtcManager;
 
 public abstract class ChannelStrategy<T> {
 
-    private final LogManager log = new LogManager(this.getClass().getName());
+    private final LogManager log = new LogManager(this.getClass().getSimpleName());
 
     private String channelId;
     private ChannelInfo channelInfo;
