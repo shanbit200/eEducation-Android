@@ -5,7 +5,6 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 
 import io.agora.base.Callback;
-import io.agora.education.EduApplication;
 import io.agora.education.classroom.bean.channel.User;
 import io.agora.education.classroom.strategy.ChannelStrategy;
 import io.agora.rtc.Constants;
@@ -14,6 +13,8 @@ import io.agora.sdk.manager.RtcManager;
 import static io.agora.education.classroom.bean.msg.ChannelMsg.UpdateMsg.Cmd.ACCEPT_CO_VIDEO;
 
 public class OneToOneClassContext extends ClassContext {
+
+    private final static int MAX_STUDENT_NUM = 16;
 
     OneToOneClassContext(Context context, ChannelStrategy strategy) {
         super(context, strategy);
@@ -27,7 +28,7 @@ public class OneToOneClassContext extends ClassContext {
                 channelStrategy.queryOnlineStudentNum(new Callback<Integer>() {
                     @Override
                     public void onSuccess(Integer integer) {
-                        callback.onSuccess(integer < EduApplication.instance.config.one2OneStudentLimit);
+                        callback.onSuccess(integer < MAX_STUDENT_NUM);
                     }
 
                     @Override

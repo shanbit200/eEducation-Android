@@ -14,13 +14,13 @@ import com.herewhite.sdk.domain.RoomState;
 import com.herewhite.sdk.domain.SDKError;
 import com.herewhite.sdk.domain.SceneState;
 
-import io.agora.base.LogManager;
+import io.agora.log.LogManager;
 import io.agora.whiteboard.netless.annotation.Appliance;
 import io.agora.whiteboard.netless.listener.BoardEventListener;
 
 public class BoardManager extends NetlessManager<Room> implements RoomCallbacks {
 
-    private final LogManager log = new LogManager(this.getClass().getName());
+    private final LogManager log = new LogManager(this.getClass().getSimpleName());
 
     private String appliance;
     private int[] strokeColor;

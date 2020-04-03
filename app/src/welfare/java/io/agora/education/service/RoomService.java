@@ -13,9 +13,8 @@ import retrofit2.http.Path;
 
 public interface RoomService {
 
-    @POST("/edu/v2/apps/{appId}/room/entry")
+    @POST("/edu/v2/room/entry")
     Call<ResponseBody<RoomEntryRes>> roomEntry(
-            @Path("appId") String appId,
             @Body RoomEntryReq body
     );
 
@@ -29,6 +28,12 @@ public interface RoomService {
 
     @GET("/edu/v1/apps/{appId}/room/{roomId}")
     Call<ResponseBody<RoomRes>> room(
+            @Path("appId") String appId,
+            @Path("roomId") String roomId
+    );
+
+    @POST("/edu/v1/apps/{appId}/room/{roomId}/exit")
+    Call<ResponseBody<RoomRes>> roomExit(
             @Path("appId") String appId,
             @Path("roomId") String roomId
     );

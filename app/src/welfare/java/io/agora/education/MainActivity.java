@@ -28,6 +28,7 @@ import io.agora.education.classroom.bean.channel.User;
 import io.agora.education.service.CommonService;
 import io.agora.education.service.RoomService;
 import io.agora.education.service.bean.request.RoomEntryReq;
+import io.agora.education.service.bean.response.AppConfigRes;
 import io.agora.education.service.bean.response.RoomEntryRes;
 import io.agora.education.util.AppUtil;
 import io.agora.education.util.UUIDUtil;
@@ -74,6 +75,10 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void initView() {
         new PolicyDialog().show(getSupportFragmentManager(), null);
+        if (BuildConfig.DEBUG) {
+            et_your_name.setText("123");
+            et_password.setText("2Rn98F");
+        }
     }
 
     @Override
@@ -84,7 +89,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void checkVersion() {
-        commonService.appVersion("edu-saas").enqueue(new BaseCallback<>(data -> {
+        commonService.appVersion(BuildConfig.CODE).enqueue(new BaseCallback<>(data -> {
             if (data != null && data.forcedUpgrade != 0) {
                 showAppUpgradeDialog(data.upgradeUrl, data.forcedUpgrade == 2);
             }
@@ -114,11 +119,11 @@ public class MainActivity extends BaseActivity {
     }
 
     private void getConfig() {
-        commonService.config().enqueue(new BaseCallback<>(data -> {
-            RetrofitManager.instance().addHeader("Authorization", data.authorization);
-            RtcManager.instance().init(getApplicationContext(), data.appId);
-            RtmManager.instance().init(getApplicationContext(), data.appId);
-            EduApplication.instance.config = data;
+        commonService.language().enqueue(new BaseCallback<>(data -> {
+            if (EduApplication.instance.config == null) {
+                EduApplication.instance.config = new AppConfigRes();
+            }
+            EduApplication.instance.config.multiLanguage = data;
         }));
     }
 
@@ -147,12 +152,17 @@ public class MainActivity extends BaseActivity {
     private void roomEntry(String yourNameStr, String passwordStr) {
         if (isJoining) return;
         isJoining = true;
-        roomService.roomEntry(EduApplication.instance.config.appId, new RoomEntryReq() {{
+        roomService.roomEntry(new RoomEntryReq() {{
             userName = yourNameStr;
             password = passwordStr;
             uuid = UUIDUtil.getUUID();
         }}).enqueue(new BaseCallback<>(data -> {
             RetrofitManager.instance().addHeader("token", data.user.userToken);
+            if (!TextUtils.equals(EduApplication.instance.config.appId, data.room.appId)) {
+                EduApplication.instance.config.appId = data.room.appId;
+                RtcManager.instance().init(getApplicationContext(), data.room.appId);
+                RtmManager.instance().init(getApplicationContext(), data.room.appId);
+            }
             room(data);
         }, throwable -> isJoining = false));
     }
