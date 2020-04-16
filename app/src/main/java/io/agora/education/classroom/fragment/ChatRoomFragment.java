@@ -98,14 +98,13 @@ public class ChatRoomFragment extends BaseFragment implements OnItemChildClickLi
                 ChannelMsg.ReplayMsg msg = (ChannelMsg.ReplayMsg) object;
                 if (context instanceof BaseClassActivity) {
                     RetrofitManager.instance().getService(BuildConfig.API_BASE_URL, RecordService.class)
-                            .record(EduApplication.instance.config.appId, ((BaseClassActivity) context).getRoomId(), msg.recordId)
+                            .record(EduApplication.getAppId(), ((BaseClassActivity) context).getRoomId(), msg.recordId)
                             .enqueue(new BaseCallback<>(data -> {
                                 if (data.isFinished()) {
                                     String url = data.getTeacherRecordUrl();
                                     if (!TextUtils.isEmpty(url)) {
                                         Intent intent = new Intent(context, ReplayActivity.class);
-                                        intent.putExtra(ReplayActivity.WHITEBOARD_UID, data.boardId);
-                                        intent.putExtra(ReplayActivity.WHITEBOARD_ROOM_TOKEN, data.boardToken);
+                                        intent.putExtra(ReplayActivity.WHITEBOARD_ROOM_ID, data.roomId);
                                         intent.putExtra(ReplayActivity.WHITEBOARD_START_TIME, data.startTime);
                                         intent.putExtra(ReplayActivity.WHITEBOARD_END_TIME, data.endTime);
                                         intent.putExtra(ReplayActivity.WHITEBOARD_URL, url);

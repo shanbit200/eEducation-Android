@@ -10,12 +10,17 @@ import java.util.Date;
 import java.util.List;
 
 import io.agora.base.Callback;
+import io.agora.base.network.RetrofitManager;
+import io.agora.education.EduApplication;
+import io.agora.education.R;
+import io.agora.education.base.BaseCallback;
 import io.agora.education.classroom.bean.channel.Room;
 import io.agora.education.classroom.bean.channel.User;
 import io.agora.education.classroom.bean.msg.ChannelMsg;
 import io.agora.education.classroom.bean.msg.PeerMsg;
 import io.agora.education.classroom.strategy.ChannelEventListener;
 import io.agora.education.classroom.strategy.ChannelStrategy;
+import io.agora.education.service.RoomService;
 import io.agora.sdk.listener.RtcEventListener;
 import io.agora.sdk.manager.RtcManager;
 
@@ -128,7 +133,9 @@ public abstract class ClassContext implements ChannelEventListener {
     public void onRoomChanged(Room room) {
         runListener(() -> {
             classEventListener.onClassStateChanged(room.isCourseBegin(), new Date().getTime() - room.startTime);
-            classEventListener.onWhiteboardChanged(room.boardId, room.boardToken);
+            RetrofitManager.instance().getService(context.getString(R.string.netless_board_host), RoomService.class)
+                    .roomBoard(EduApplication.getAppId(), room.roomId)
+                    .enqueue(new BaseCallback<>(data -> classEventListener.onWhiteboardChanged(data.boardId, data.boardToken)));
             classEventListener.onLockWhiteboard(room.isBoardLock());
             classEventListener.onMuteAllChat(!room.isChatEnable());
         });
