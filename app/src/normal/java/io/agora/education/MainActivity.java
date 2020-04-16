@@ -177,9 +177,10 @@ public class MainActivity extends BaseActivity {
         isJoining = true;
         roomService.roomEntry(EduApplication.getAppId(), new RoomEntryReq() {{
             userName = yourNameStr;
+            userUuid = UUIDUtil.getUUID();
             roomName = roomNameStr;
+            roomUuid = roomNameStr;
             type = classType;
-            uuid = UUIDUtil.getUUID();
         }}).enqueue(new BaseCallback<>(data -> {
             RetrofitManager.instance().addHeader("token", data.userToken);
             room(data.roomId);

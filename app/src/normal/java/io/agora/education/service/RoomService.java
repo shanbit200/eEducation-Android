@@ -35,7 +35,7 @@ public interface RoomService {
     );
 
     @POST("/edu/v1/apps/{appId}/room/{roomId}/exit")
-    Call<ResponseBody<RoomRes>> roomExit(
+    Call<ResponseBody<Boolean>> roomExit(
             @Path("appId") String appId,
             @Path("roomId") String roomId
     );
