@@ -149,7 +149,7 @@ public class MainActivity extends BaseActivity {
         roomService.roomEntry(new RoomEntryReq() {{
             userName = yourNameStr;
             password = passwordStr;
-            uuid = UUIDUtil.getUUID();
+            userUuid = UUIDUtil.getUUID();
         }}).enqueue(new BaseCallback<>(data -> {
             RetrofitManager.instance().addHeader("x-agora-token", data.user.rtmToken);
             RetrofitManager.instance().addHeader("x-agora-uid", String.valueOf(data.user.uid));
