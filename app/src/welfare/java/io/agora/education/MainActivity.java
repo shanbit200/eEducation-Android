@@ -28,7 +28,6 @@ import io.agora.education.classroom.bean.channel.User;
 import io.agora.education.service.CommonService;
 import io.agora.education.service.RoomService;
 import io.agora.education.service.bean.request.RoomEntryReq;
-import io.agora.education.service.bean.response.AppConfigRes;
 import io.agora.education.service.bean.response.RoomEntryRes;
 import io.agora.education.util.AppUtil;
 import io.agora.education.util.UUIDUtil;
@@ -119,12 +118,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void getConfig() {
-        commonService.language().enqueue(new BaseCallback<>(data -> {
-            if (EduApplication.instance.config == null) {
-                EduApplication.instance.config = new AppConfigRes();
-            }
-            EduApplication.instance.config.multiLanguage = data;
-        }));
+        commonService.language().enqueue(new BaseCallback<>(EduApplication::setMultiLanguage));
     }
 
     private void joinRoom() {
@@ -140,7 +134,7 @@ public class MainActivity extends BaseActivity {
             return;
         }
 
-        if (EduApplication.instance.config == null) {
+        if (EduApplication.getMultiLanguage() == null) {
             ToastManager.showShort(R.string.configuration_load_failed);
             getConfig();
             return;
@@ -157,11 +151,14 @@ public class MainActivity extends BaseActivity {
             password = passwordStr;
             uuid = UUIDUtil.getUUID();
         }}).enqueue(new BaseCallback<>(data -> {
+            RetrofitManager.instance().addHeader("x-agora-token", data.user.rtmToken);
+            RetrofitManager.instance().addHeader("x-agora-uid", String.valueOf(data.user.uid));
             RetrofitManager.instance().addHeader("token", data.user.userToken);
-            if (!TextUtils.equals(EduApplication.instance.config.appId, data.room.appId)) {
-                EduApplication.instance.config.appId = data.room.appId;
-                RtcManager.instance().init(getApplicationContext(), data.room.appId);
-                RtmManager.instance().init(getApplicationContext(), data.room.appId);
+            String appId = data.room.appId;
+            if (!TextUtils.equals(EduApplication.getAppId(), appId)) {
+                EduApplication.setAppId(appId);
+                RtcManager.instance().init(getApplicationContext(), appId);
+                RtmManager.instance().init(getApplicationContext(), appId);
             }
             room(data);
         }, throwable -> isJoining = false));

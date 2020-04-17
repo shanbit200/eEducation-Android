@@ -21,10 +21,10 @@ public class LogUtil {
     public static void upload(FragmentActivity context) {
         UploadManager.upload(context, new UploadManager.UploadParam() {{
             host = BuildConfig.API_BASE_URL;
-            if (EduApplication.instance.config != null && !TextUtils.isEmpty(EduApplication.instance.config.appId)) {
-                appId = EduApplication.instance.config.appId;
-            } else {
+            if (TextUtils.isEmpty(EduApplication.getAppId())) {
                 appId = "default";
+            } else {
+                appId = EduApplication.getAppId();
             }
             appCode = BuildConfig.CODE;
             appVersion = BuildConfig.VERSION_NAME;
