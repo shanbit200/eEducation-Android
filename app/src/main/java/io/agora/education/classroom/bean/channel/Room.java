@@ -23,10 +23,9 @@ public class Room extends JsonBean {
     public int isRecording;
     public String recordId;
     public long recordingTime;
-    public String boardId;
-    public String boardToken;
     @Board
     public int lockBoard;
+    public int onlineUsers;
     public List<User> coVideoUsers;
 
     @IntDef({Type.ONE2ONE, Type.SMALL, Type.LARGE})

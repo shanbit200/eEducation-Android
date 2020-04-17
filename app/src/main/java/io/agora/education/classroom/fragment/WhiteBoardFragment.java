@@ -73,7 +73,7 @@ public class WhiteBoardFragment extends BaseFragment implements RadioGroup.OnChe
     }
 
     public void initBoardWithRoomToken(String uuid, String roomToken) {
-        if (TextUtils.isEmpty(uuid)) return;
+        if (TextUtils.isEmpty(uuid) || TextUtils.isEmpty(roomToken)) return;
         boardManager.getRoomPhase(new Promise<RoomPhase>() {
             @Override
             public void then(RoomPhase phase) {

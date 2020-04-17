@@ -31,7 +31,6 @@ import io.agora.education.classroom.bean.channel.User;
 import io.agora.education.service.CommonService;
 import io.agora.education.service.RoomService;
 import io.agora.education.service.bean.request.RoomEntryReq;
-import io.agora.education.service.bean.response.AppConfigRes;
 import io.agora.education.util.AppUtil;
 import io.agora.education.util.UUIDUtil;
 import io.agora.education.widget.ConfirmDialog;
@@ -72,6 +71,12 @@ public class MainActivity extends BaseActivity {
         filter.setPriority(IntentFilter.SYSTEM_LOW_PRIORITY);
         registerReceiver(receiver, filter);
 
+        String appId = getString(R.string.agora_app_id);
+        EduApplication.setAppId(appId);
+        RtcManager.instance().init(getApplicationContext(), appId);
+        RtmManager.instance().init(getApplicationContext(), appId);
+
+        RetrofitManager.instance().addHeader("Authorization", getString(R.string.agora_auth));
         commonService = RetrofitManager.instance().getService(BuildConfig.API_BASE_URL, CommonService.class);
         roomService = RetrofitManager.instance().getService(BuildConfig.API_BASE_URL, RoomService.class);
         checkVersion();
@@ -125,16 +130,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void getConfig() {
-        commonService.language().enqueue(new BaseCallback<>(data -> {
-            if (EduApplication.instance.config == null) {
-                EduApplication.instance.config = new AppConfigRes();
-            }
-            EduApplication.instance.config.appId = getString(R.string.agora_app_id);
-            EduApplication.instance.config.multiLanguage = data;
-
-            RtcManager.instance().init(getApplicationContext(), EduApplication.instance.config.appId);
-            RtmManager.instance().init(getApplicationContext(), EduApplication.instance.config.appId);
-        }));
+        commonService.language().enqueue(new BaseCallback<>(EduApplication::setMultiLanguage));
     }
 
     private void joinRoom() {
@@ -156,7 +152,7 @@ public class MainActivity extends BaseActivity {
             return;
         }
 
-        if (EduApplication.instance.config == null) {
+        if (EduApplication.getMultiLanguage() == null) {
             ToastManager.showShort(R.string.configuration_load_failed);
             getConfig();
             return;
@@ -179,11 +175,12 @@ public class MainActivity extends BaseActivity {
     private void roomEntry(String yourNameStr, String roomNameStr, @Room.Type int classType) {
         if (isJoining) return;
         isJoining = true;
-        roomService.roomEntry(EduApplication.instance.config.appId, new RoomEntryReq() {{
+        roomService.roomEntry(EduApplication.getAppId(), new RoomEntryReq() {{
             userName = yourNameStr;
+            userUuid = UUIDUtil.getUUID();
             roomName = roomNameStr;
+            roomUuid = roomNameStr;
             type = classType;
-            uuid = UUIDUtil.getUUID();
         }}).enqueue(new BaseCallback<>(data -> {
             RetrofitManager.instance().addHeader("token", data.userToken);
             room(data.roomId);
@@ -191,7 +188,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void room(String roomId) {
-        roomService.room(EduApplication.instance.config.appId, roomId).enqueue(new BaseCallback<>(data -> {
+        roomService.room(EduApplication.getAppId(), roomId).enqueue(new BaseCallback<>(data -> {
             User user = data.user;
             Room room = data.room;
             RtmManager.instance().login(user.rtmToken, user.uid, new Callback<Void>() {

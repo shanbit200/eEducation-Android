@@ -12,14 +12,12 @@ import io.agora.education.classroom.bean.msg.PeerMsg;
 public class RecordRes {
 
     public String recordId;
-    @Status
-    public int status;
     public int uid;
     public long startTime;
     public long endTime;
     public String roomId;
-    public String boardId;
-    public String boardToken;
+    @Status
+    public int status;
     public List<RecordDetail> recordDetails;
 
     @IntDef({PeerMsg.CoVideoMsg.Cmd.APPLY_CO_VIDEO, PeerMsg.CoVideoMsg.Cmd.REJECT_CO_VIDEO})

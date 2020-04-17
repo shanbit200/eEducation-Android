@@ -44,7 +44,7 @@ public class HttpChannelStrategy extends ChannelStrategy<RoomRes> {
 
     @Override
     public void joinChannel() {
-        roomService.room(EduApplication.instance.config.appId, getChannelId()).enqueue(new BaseCallback<>(data -> {
+        roomService.room(EduApplication.getAppId(), getChannelId()).enqueue(new BaseCallback<>(data -> {
             Room room = data.room;
             User user = data.user;
             RtmManager.instance().joinChannel(new HashMap<String, String>() {{
@@ -61,7 +61,7 @@ public class HttpChannelStrategy extends ChannelStrategy<RoomRes> {
 
     @Override
     public void leaveChannel() {
-        roomService.roomExit(EduApplication.instance.config.appId, getChannelId());
+        roomService.roomExit(EduApplication.getAppId(), getChannelId());
         RtmManager.instance().leaveChannel();
         RtcManager.instance().leaveChannel();
     }
@@ -73,7 +73,7 @@ public class HttpChannelStrategy extends ChannelStrategy<RoomRes> {
 
     @Override
     public void queryChannelInfo(@Nullable Callback<Void> callback) {
-        roomService.room(EduApplication.instance.config.appId, getChannelId())
+        roomService.room(EduApplication.getAppId(), getChannelId())
                 .enqueue(new BaseCallback<>(data -> {
                     parseChannelInfo(data);
                     if (callback != null) {
@@ -107,7 +107,7 @@ public class HttpChannelStrategy extends ChannelStrategy<RoomRes> {
 
     @Override
     public void updateLocalAttribute(User local, @Nullable Callback<Void> callback) {
-        roomService.user(EduApplication.instance.config.appId, getChannelId(), local.userId, new UserReq(local))
+        roomService.user(EduApplication.getAppId(), getChannelId(), local.userId, new UserReq(local))
                 .enqueue(new BaseCallback<>(data -> {
                     if (callback != null) {
                         callback.onSuccess(null);
@@ -122,7 +122,7 @@ public class HttpChannelStrategy extends ChannelStrategy<RoomRes> {
 
     @Override
     public void clearLocalAttribute(@Nullable Callback<Void> callback) {
-        roomService.user(EduApplication.instance.config.appId, getChannelId(), getLocal().userId, new UserReq(getLocal()) {{
+        roomService.user(EduApplication.getAppId(), getChannelId(), getLocal().userId, new UserReq(getLocal()) {{
             coVideo = User.CoVideo.DISABLE;
         }}).enqueue(new BaseCallback<>(data -> {
             if (callback != null) {
