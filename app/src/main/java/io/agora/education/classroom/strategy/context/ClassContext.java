@@ -13,7 +13,6 @@ import java.util.List;
 import io.agora.base.Callback;
 import io.agora.base.network.RetrofitManager;
 import io.agora.education.EduApplication;
-import io.agora.education.R;
 import io.agora.education.base.BaseCallback;
 import io.agora.education.classroom.bean.channel.Room;
 import io.agora.education.classroom.bean.channel.User;
@@ -100,7 +99,7 @@ public abstract class ClassContext implements ChannelEventListener {
         runListener(() -> {
             classEventListener.onClassStateChanged(room.isCourseBegin(), new Date().getTime() - room.startTime);
             // TODO load white board
-            RetrofitManager.instance().getService(context.getString(R.string.netless_board_host), RoomService.class)
+            RetrofitManager.instance().getService(EduApplication.getApiHost(), RoomService.class)
                     .roomBoard(EduApplication.getAppId(), room.roomId)
                     .enqueue(new BaseCallback<>(data -> classEventListener.onWhiteboardChanged(data.boardId, data.boardToken)));
             classEventListener.onLockWhiteboard(room.isBoardLock());
