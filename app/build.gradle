@@ -16,6 +16,8 @@ android {
         versionName "5.4.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField 'String', 'POLICY_URL', '"https://www.agora.io/privacy-policy"'
     }
 
     signingConfigs {
@@ -31,12 +33,14 @@ android {
         debug {
             minifyEnabled false
             applicationIdSuffix ".debug"
+            buildConfigField 'String', 'API_BASE_URL', '"https://api-solutions-dev.sh.agoralab.co/"'
         }
         release {
             minifyEnabled true
             shrinkResources true
             signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            buildConfigField 'String', 'API_BASE_URL', '"https://solutions-api.sh.agoralab.co/"'
         }
     }
 
@@ -47,8 +51,6 @@ android {
             applicationId "io.agora.education"
             buildConfigField 'String', 'CODE', '"edu-demo"'
             buildConfigField 'String', 'EXTRA', '"AgoraEducation"'
-            buildConfigField 'String', 'API_BASE_URL', '"https://solutions-api.sh.agoralab.co/"'
-            buildConfigField 'String', 'POLICY_URL', '"https://www.agora.io/privacy-policy"'
         }
         welfare {
             dimension "app"

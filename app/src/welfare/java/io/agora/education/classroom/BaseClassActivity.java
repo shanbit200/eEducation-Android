@@ -78,9 +78,7 @@ public abstract class BaseClassActivity extends BaseActivity implements ClassEve
     }
 
     public final User getLocal() {
-        User local = getUserFromIntent();
-        local.isGenerate = true;
-        return local;
+        return getUserFromIntent();
     }
 
     @Room.Type
