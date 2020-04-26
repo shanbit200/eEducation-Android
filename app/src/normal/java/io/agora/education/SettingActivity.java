@@ -10,6 +10,7 @@ import butterknife.BindView;
 import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 import io.agora.education.base.BaseActivity;
+import io.agora.education.util.LogUtil;
 import io.agora.education.widget.EyeProtection;
 
 public class SettingActivity extends BaseActivity {
@@ -31,7 +32,7 @@ public class SettingActivity extends BaseActivity {
         switch_eye_care.setChecked(EyeProtection.isNeedShow());
     }
 
-    @OnClick({R.id.iv_back, R.id.layout_policy})
+    @OnClick({R.id.iv_back, R.id.layout_policy, R.id.layout_log})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.iv_back:
@@ -40,6 +41,9 @@ public class SettingActivity extends BaseActivity {
             case R.id.layout_policy:
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.POLICY_URL));
                 startActivity(intent);
+                break;
+            case R.id.layout_log:
+                LogUtil.upload(this);
                 break;
         }
     }

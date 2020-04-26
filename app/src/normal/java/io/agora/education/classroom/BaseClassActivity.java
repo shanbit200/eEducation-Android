@@ -18,6 +18,7 @@ import io.agora.education.classroom.strategy.context.ClassContext;
 import io.agora.education.classroom.strategy.context.ClassContextFactory;
 import io.agora.education.classroom.strategy.context.ClassEventListener;
 import io.agora.education.classroom.widget.TitleView;
+import io.agora.education.util.LogUtil;
 import io.agora.education.widget.ConfirmDialog;
 import io.agora.rtc.video.VideoCanvas;
 import io.agora.sdk.annotation.NetworkQuality;
@@ -93,6 +94,10 @@ public abstract class BaseClassActivity extends BaseActivity implements ClassEve
     @Override
     public void onBackPressed() {
         showLeaveDialog();
+    }
+
+    public final void uploadLog() {
+        LogUtil.upload(this);
     }
 
     public final void showLeaveDialog() {
