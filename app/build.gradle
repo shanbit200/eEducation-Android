@@ -16,6 +16,9 @@ android {
         versionName "5.4.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField 'String', 'API_BASE_URL', '"https://solutions-api.sh.agoralab.co/"'
+        buildConfigField 'String', 'POLICY_URL', '"https://www.agora.io/privacy-policy"'
     }
 
     signingConfigs {
@@ -47,8 +50,6 @@ android {
             applicationId "io.agora.education"
             buildConfigField 'String', 'CODE', '"edu-demo"'
             buildConfigField 'String', 'EXTRA', '"AgoraEducation"'
-            buildConfigField 'String', 'API_BASE_URL', '"https://solutions-api.sh.agoralab.co/"'
-            buildConfigField 'String', 'POLICY_URL', '"https://www.agora.io/privacy-policy"'
         }
     }
 
