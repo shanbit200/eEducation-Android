@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.DiffUtil;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.viewholder.BaseViewHolder;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import io.agora.education.R;
@@ -49,16 +48,6 @@ public class ClassVideoAdapter extends BaseQuickAdapter<User, ClassVideoAdapter.
                 }
             }
         });
-    }
-
-    public void setUsers(List<User> users) {
-        List<User> userList = new ArrayList<>();
-        for (User user : users) {
-            if (user.isTeacher() || user.uid == localUid || user.isCoVideoEnable()) {
-                userList.add(user);
-            }
-        }
-        setDiffNewData(userList);
     }
 
     @NonNull

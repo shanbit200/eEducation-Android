@@ -3,9 +3,7 @@ package io.agora.education.classroom.strategy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import io.agora.base.Callback;
 import io.agora.base.network.RetrofitManager;
@@ -67,8 +65,11 @@ public class HttpChannelStrategy extends ChannelStrategy<RoomRes> {
     }
 
     @Override
-    public void queryOnlineStudentNum(@NonNull Callback<Integer> callback) {
-        callback.onSuccess(0);
+    public void queryOnlineUserNum(@NonNull Callback<Integer> callback) {
+        roomService.room(EduApplication.getAppId(), getChannelId()).enqueue(new BaseCallback<>(
+                data -> callback.onSuccess(data.room.onlineUsers),
+                callback::onFailure)
+        );
     }
 
     @Override
@@ -89,25 +90,13 @@ public class HttpChannelStrategy extends ChannelStrategy<RoomRes> {
     @Override
     public void parseChannelInfo(RoomRes data) {
         Room room = data.room;
-        if (room.coVideoUsers != null) {
-            List<User> students = new ArrayList<>();
-            for (User user : room.coVideoUsers) {
-                if (user.isTeacher()) {
-                    setTeacher(user);
-                } else if (user.uid != getLocal().uid) {
-                    students.add(user);
-                }
-            }
-            setStudents(students);
-        }
-        room.coVideoUsers = null;
-        setRoom(room);
-        setLocal(data.user);
+        updateRoom(room);
+        updateCoVideoUsers(room.coVideoUsers);
     }
 
     @Override
     public void updateLocalAttribute(User local, @Nullable Callback<Void> callback) {
-        roomService.user(EduApplication.getAppId(), getChannelId(), local.userId, new UserReq(local))
+        roomService.user(EduApplication.getAppId(), getChannelId(), local.userId, UserReq.fromUser(local))
                 .enqueue(new BaseCallback<>(data -> {
                     if (callback != null) {
                         callback.onSuccess(null);
@@ -122,9 +111,9 @@ public class HttpChannelStrategy extends ChannelStrategy<RoomRes> {
 
     @Override
     public void clearLocalAttribute(@Nullable Callback<Void> callback) {
-        roomService.user(EduApplication.getAppId(), getChannelId(), getLocal().userId, new UserReq(getLocal()) {{
-            coVideo = User.CoVideo.DISABLE;
-        }}).enqueue(new BaseCallback<>(data -> {
+        UserReq req = UserReq.fromUser(getLocal());
+        req.coVideo = User.CoVideo.DISABLE;
+        roomService.user(EduApplication.getAppId(), getChannelId(), getLocal().userId, req).enqueue(new BaseCallback<>(data -> {
             if (callback != null) {
                 callback.onSuccess(null);
             }
@@ -169,9 +158,9 @@ public class HttpChannelStrategy extends ChannelStrategy<RoomRes> {
         }
 
         @Override
-        public void onMemberCountUpdated(int i) {
+        public void onMemberCountUpdated(int count) {
             if (channelEventListener != null) {
-                channelEventListener.onMemberCountUpdated(i);
+                channelEventListener.onMemberCountUpdated(count);
             }
         }
     };

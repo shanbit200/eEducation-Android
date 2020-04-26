@@ -126,9 +126,8 @@ public class BoardManager extends NetlessManager<Room> implements RoomCallbacks 
     public void disableDeviceInputs(boolean disabled) {
         if (t != null) {
             t.disableDeviceInputs(disabled);
-        } else {
-            disableDeviceInputs = disabled;
         }
+        disableDeviceInputs = disabled;
     }
 
     public boolean isDisableDeviceInputs() {
@@ -138,9 +137,8 @@ public class BoardManager extends NetlessManager<Room> implements RoomCallbacks 
     public void disableCameraTransform(boolean disabled) {
         if (t != null) {
             t.disableCameraTransform(disabled);
-        } else {
-            disableCameraTransform = disabled;
         }
+        disableCameraTransform = disabled;
     }
 
     public void setWritable(boolean writable) {
@@ -154,9 +152,8 @@ public class BoardManager extends NetlessManager<Room> implements RoomCallbacks 
                 public void catchEx(SDKError t) {
                 }
             });
-        } else {
-            this.writable = writable;
         }
+        this.writable = writable;
     }
 
     public void disconnect() {

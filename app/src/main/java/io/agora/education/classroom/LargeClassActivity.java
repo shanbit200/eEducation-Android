@@ -115,7 +115,7 @@ public class LargeClassActivity extends BaseClassActivity implements LargeClassC
     public void onClick(View view) {
         boolean isSelected = view.isSelected();
         if (isSelected) {
-            ((LargeClassContext) classContext).cancel(false);
+            ((LargeClassContext) classContext).cancel();
         } else {
             ((LargeClassContext) classContext).apply();
         }

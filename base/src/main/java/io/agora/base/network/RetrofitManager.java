@@ -28,8 +28,7 @@ public class RetrofitManager {
         clientBuilder.addInterceptor(chain -> {
             Request request = chain.request();
             Request.Builder requestBuilder = request.newBuilder()
-                    .method(request.method(), request.body())
-                    .addHeader("Content-Type", "application/json;charset=UTF-8");
+                    .method(request.method(), request.body());
             if (headers != null) {
                 for (Map.Entry<String, String> entry : headers.entrySet()) {
                     requestBuilder.addHeader(entry.getKey(), entry.getValue());

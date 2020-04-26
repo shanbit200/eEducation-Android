@@ -2,6 +2,8 @@ package io.agora.education.classroom.bean.channel;
 
 import androidx.annotation.IntDef;
 
+import com.google.gson.Gson;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.List;
@@ -18,7 +20,7 @@ public class Room extends JsonBean {
     @State
     public int courseState;
     public long startTime;
-    @Chat
+    @AllChat
     public int muteAllChat;
     public int isRecording;
     public String recordId;
@@ -43,9 +45,9 @@ public class Room extends JsonBean {
         int BEGIN = 1;
     }
 
-    @IntDef({Chat.ENABLE, Chat.DISABLE})
+    @IntDef({AllChat.ENABLE, AllChat.DISABLE})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface Chat {
+    public @interface AllChat {
         int ENABLE = 0;
         int DISABLE = 1;
     }
@@ -61,12 +63,16 @@ public class Room extends JsonBean {
         return courseState == State.BEGIN;
     }
 
-    public boolean isChatEnable() {
-        return muteAllChat == Chat.ENABLE;
+    public boolean isAllChatEnable() {
+        return muteAllChat == AllChat.ENABLE;
     }
 
     public boolean isBoardLock() {
         return lockBoard == Board.LOCK;
+    }
+
+    public Room copy() {
+        return new Gson().fromJson(toJsonString(), Room.class);
     }
 
 }

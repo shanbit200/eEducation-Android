@@ -1,7 +1,9 @@
 package io.agora.education.classroom;
 
+import android.graphics.Rect;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -47,6 +49,15 @@ public class SmallClassActivity extends BaseClassActivity implements SmallClassC
         super.initView();
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         rcv_videos.setLayoutManager(layoutManager);
+        rcv_videos.addItemDecoration(new RecyclerView.ItemDecoration() {
+            @Override
+            public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
+                super.getItemOffsets(outRect, view, parent, state);
+                if (parent.getChildAdapterPosition(view) > 0) {
+                    outRect.left = getResources().getDimensionPixelSize(R.dimen.dp_2_5);
+                }
+            }
+        });
         rcv_videos.setAdapter(adapter);
 
         layout_tab.addOnTabSelectedListener(this);
@@ -72,7 +83,7 @@ public class SmallClassActivity extends BaseClassActivity implements SmallClassC
 
     @Override
     public void onUsersMediaChanged(List<User> users) {
-        adapter.setUsers(users);
+        adapter.setDiffNewData(users);
         userListFragment.setUserList(users);
     }
 

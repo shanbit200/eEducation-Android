@@ -92,6 +92,10 @@ public class WhiteBoardFragment extends BaseFragment implements RadioGroup.OnChe
     }
 
     public void disableDeviceInputs(boolean disabled) {
+        // TODO alert board permission
+        if (disabled != boardManager.isDisableDeviceInputs()) {
+            ToastManager.showShort(disabled ? R.string.revoke_board : R.string.authorize_board);
+        }
         if (appliance_view != null) {
             appliance_view.setVisibility(disabled ? View.GONE : View.VISIBLE);
         }
