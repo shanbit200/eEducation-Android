@@ -1,22 +1,16 @@
 package io.agora.education.classroom.bean.channel;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+
+import com.google.gson.Gson;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 import io.agora.education.classroom.bean.JsonBean;
-import io.agora.education.classroom.bean.msg.ChannelMsg;
-import io.agora.education.classroom.bean.msg.PeerMsg;
-import io.agora.education.classroom.mediator.MsgMediator;
-import io.agora.rtc.Constants;
-import io.agora.sdk.annotation.ClientRole;
 
-public class User extends JsonBean implements Cloneable {
+public class User extends JsonBean {
 
-    public String userToken;
     public String userId;
     public String userName;
     @Role
@@ -35,8 +29,7 @@ public class User extends JsonBean implements Cloneable {
     @Board
     public int grantBoard;
     @CoVideo
-    public int coVideo;
-    public transient boolean isGenerate; // create by local
+    public int coVideo = CoVideo.ENABLE;
 
     @IntDef({Role.TEACHER, Role.STUDENT})
     @Retention(RetentionPolicy.SOURCE)
@@ -78,21 +71,6 @@ public class User extends JsonBean implements Cloneable {
     public @interface CoVideo {
         int DISABLE = 0;
         int ENABLE = 1;
-    }
-
-    public User(boolean isGenerate) {
-        this.isGenerate = isGenerate;
-    }
-
-    public User(int uid, String userName, @ClientRole int role) {
-        this.uid = uid;
-        this.userName = userName;
-        disableVideo(role == Constants.CLIENT_ROLE_AUDIENCE);
-        disableAudio(role == Constants.CLIENT_ROLE_AUDIENCE);
-        disableChat(true);
-        disableBoard(false);
-        disableCoVideo(role == Constants.CLIENT_ROLE_AUDIENCE);
-        this.isGenerate = true;
     }
 
     public String getUid() {
@@ -143,18 +121,8 @@ public class User extends JsonBean implements Cloneable {
         this.coVideo = disable ? CoVideo.DISABLE : CoVideo.ENABLE;
     }
 
-    @NonNull
-    @Override
-    public User clone() throws CloneNotSupportedException {
-        return (User) super.clone();
-    }
-
-    public void sendCoVideoMsg(@PeerMsg.CoVideoMsg.Cmd int cmd, @Nullable User teacher) {
-        MsgMediator.sendCoVideoMsg(this, cmd, teacher);
-    }
-
-    public void sendUpdateMsg(@ChannelMsg.UpdateMsg.Cmd int cmd) {
-        MsgMediator.sendUpdateMsg(this, cmd);
+    public User copy() {
+        return new Gson().fromJson(toJsonString(), User.class);
     }
 
 }

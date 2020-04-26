@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.Date;
 import java.util.List;
@@ -21,96 +22,61 @@ import io.agora.education.classroom.bean.msg.PeerMsg;
 import io.agora.education.classroom.strategy.ChannelEventListener;
 import io.agora.education.classroom.strategy.ChannelStrategy;
 import io.agora.education.service.RoomService;
+import io.agora.rtc.Constants;
 import io.agora.sdk.listener.RtcEventListener;
 import io.agora.sdk.manager.RtcManager;
 
-import static io.agora.education.classroom.bean.msg.ChannelMsg.UpdateMsg.Cmd.MUTE_AUDIO;
-import static io.agora.education.classroom.bean.msg.ChannelMsg.UpdateMsg.Cmd.MUTE_CHAT;
-import static io.agora.education.classroom.bean.msg.ChannelMsg.UpdateMsg.Cmd.MUTE_VIDEO;
-import static io.agora.education.classroom.bean.msg.ChannelMsg.UpdateMsg.Cmd.UNMUTE_AUDIO;
-import static io.agora.education.classroom.bean.msg.ChannelMsg.UpdateMsg.Cmd.UNMUTE_CAHT;
-import static io.agora.education.classroom.bean.msg.ChannelMsg.UpdateMsg.Cmd.UNMUTE_VIDEO;
+import static io.agora.education.classroom.bean.msg.ChannelMsg.Cmd.CHAT;
+import static io.agora.education.classroom.bean.msg.ChannelMsg.Cmd.REPLAY;
+import static io.agora.education.classroom.bean.msg.ChannelMsg.Cmd.ROOM;
+import static io.agora.education.classroom.bean.msg.ChannelMsg.Cmd.USER;
 
 public abstract class ClassContext implements ChannelEventListener {
 
     private Context context;
 
+    @NonNull
     ChannelStrategy channelStrategy;
     ClassEventListener classEventListener;
 
-    ClassContext(Context context, ChannelStrategy strategy) {
+    ClassContext(Context context, @NonNull ChannelStrategy strategy) {
         this.context = context;
         channelStrategy = strategy;
         channelStrategy.setChannelEventListener(this);
         RtcManager.instance().registerListener(rtcEventListener);
     }
 
-    public void setClassEventListener(ClassEventListener listener) {
+    public final void setClassEventListener(@Nullable ClassEventListener listener) {
         classEventListener = listener;
     }
 
+    @Deprecated
     public abstract void checkChannelEnterable(@NonNull Callback<Boolean> callback);
 
-    public void joinChannel() {
+    public final void joinChannel() {
         preConfig();
         channelStrategy.joinChannel();
     }
 
-    public void leaveChannel() {
+    public final void leaveChannel() {
         channelStrategy.leaveChannel();
     }
 
     abstract void preConfig();
 
-    public void muteLocalAudio(boolean isMute) {
-        User local = channelStrategy.getLocal();
+    public final void muteLocalAudio(boolean isMute) {
+        User local = channelStrategy.getLocal().copy();
         local.disableAudio(isMute);
-        channelStrategy.updateLocalAttribute(local, new Callback<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                RtcManager.instance().muteLocalAudioStream(isMute);
-                channelStrategy.getLocal().sendUpdateMsg(isMute ? MUTE_AUDIO : UNMUTE_AUDIO);
-            }
-
-            @Override
-            public void onFailure(Throwable throwable) {
-            }
-        });
+        channelStrategy.updateLocalAttribute(local, null);
     }
 
-    public void muteLocalVideo(boolean isMute) {
-        User local = channelStrategy.getLocal();
+    public final void muteLocalVideo(boolean isMute) {
+        User local = channelStrategy.getLocal().copy();
         local.disableVideo(isMute);
-        channelStrategy.updateLocalAttribute(local, new Callback<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                RtcManager.instance().muteLocalVideoStream(isMute);
-                channelStrategy.getLocal().sendUpdateMsg(isMute ? MUTE_VIDEO : UNMUTE_VIDEO);
-            }
-
-            @Override
-            public void onFailure(Throwable throwable) {
-            }
-        });
+        channelStrategy.updateLocalAttribute(local, null);
     }
 
-    public void muteLocalChat(boolean isMute) {
-        User local = channelStrategy.getLocal();
-        local.disableChat(isMute);
-        channelStrategy.updateLocalAttribute(local, new Callback<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                channelStrategy.getLocal().sendUpdateMsg(isMute ? MUTE_CHAT : UNMUTE_CAHT);
-            }
-
-            @Override
-            public void onFailure(Throwable throwable) {
-            }
-        });
-    }
-
-    public void release() {
-        channelStrategy.clearLocalAttribute(null);
+    public final void release() {
         channelStrategy.release();
         RtcManager.instance().unregisterListener(rtcEventListener);
         leaveChannel();
@@ -133,42 +99,46 @@ public abstract class ClassContext implements ChannelEventListener {
     public void onRoomChanged(Room room) {
         runListener(() -> {
             classEventListener.onClassStateChanged(room.isCourseBegin(), new Date().getTime() - room.startTime);
+            // TODO load white board
             RetrofitManager.instance().getService(context.getString(R.string.netless_board_host), RoomService.class)
                     .roomBoard(EduApplication.getAppId(), room.roomId)
                     .enqueue(new BaseCallback<>(data -> classEventListener.onWhiteboardChanged(data.boardId, data.boardToken)));
             classEventListener.onLockWhiteboard(room.isBoardLock());
-            classEventListener.onMuteAllChat(!room.isChatEnable());
+            classEventListener.onMuteAllChat(!room.isAllChatEnable());
         });
     }
 
     @Override
-    public void onTeacherChanged(User teacher) {
-    }
-
-    @Override
     public void onLocalChanged(User local) {
+        RtcManager.instance().setClientRole(local.isCoVideoEnable() ? Constants.CLIENT_ROLE_BROADCASTER : Constants.CLIENT_ROLE_AUDIENCE);
+        RtcManager.instance().muteLocalVideoStream(!local.isVideoEnable());
+        RtcManager.instance().muteLocalAudioStream(!local.isAudioEnable());
         runListener(() -> classEventListener.onMuteLocalChat(!local.isChatEnable()));
     }
 
     @Override
-    public void onStudentsChanged(List<User> students) {
+    public void onCoVideoUsersChanged(List<User> users) {
     }
 
     @Override
     @SuppressLint("SwitchIntDef")
     public void onChannelMsgReceived(ChannelMsg msg) {
-        switch (msg.type) {
-            case ChannelMsg.Type.CHAT:
+        switch (msg.cmd) {
+            case CHAT:
                 ChannelMsg.ChatMsg chatMsg = msg.getMsg(ChannelMsg.ChatMsg.class);
                 runListener(() -> classEventListener.onChatMsgReceived(chatMsg));
                 break;
-            case ChannelMsg.Type.REPLAY:
+            case ROOM:
+                ChannelMsg.RoomMsg roomMsg = msg.getMsg(ChannelMsg.RoomMsg.class);
+                channelStrategy.updateRoom(roomMsg);
+                break;
+            case USER:
+                ChannelMsg.CoVideoUserMsg coVideoUserMsg = msg.getMsg(ChannelMsg.CoVideoUserMsg.class);
+                channelStrategy.updateCoVideoUsers(coVideoUserMsg);
+                break;
+            case REPLAY:
                 ChannelMsg.ReplayMsg replayMsg = msg.getMsg(ChannelMsg.ReplayMsg.class);
                 runListener(() -> classEventListener.onChatMsgReceived(replayMsg));
-                break;
-            case ChannelMsg.Type.UPDATE:
-            case ChannelMsg.Type.COURSE:
-                channelStrategy.queryChannelInfo(null);
                 break;
         }
     }

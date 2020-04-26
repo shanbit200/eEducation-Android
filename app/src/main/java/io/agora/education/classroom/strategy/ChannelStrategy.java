@@ -5,8 +5,6 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.gson.Gson;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,9 +12,8 @@ import io.agora.base.Callback;
 import io.agora.education.classroom.bean.channel.ChannelInfo;
 import io.agora.education.classroom.bean.channel.Room;
 import io.agora.education.classroom.bean.channel.User;
+import io.agora.education.classroom.bean.msg.ChannelMsg;
 import io.agora.log.LogManager;
-import io.agora.sdk.listener.RtcEventListener;
-import io.agora.sdk.manager.RtcManager;
 
 public abstract class ChannelStrategy<T> {
 
@@ -24,134 +21,115 @@ public abstract class ChannelStrategy<T> {
 
     private String channelId;
     private ChannelInfo channelInfo;
-    private List<Integer> rtcUsers;
+
+    @Nullable
     ChannelEventListener channelEventListener;
 
     ChannelStrategy(String channelId, User local) {
         this.channelId = channelId;
         this.channelInfo = new ChannelInfo(local);
-        this.rtcUsers = new ArrayList<>();
-        RtcManager.instance().registerListener(rtcEventListener);
     }
 
-    public String getChannelId() {
+    public final String getChannelId() {
         return channelId;
     }
 
-    public Room getRoom() {
-        return channelInfo.room;
+    @Nullable
+    public final Room getRoom() {
+        return channelInfo.getRoom();
     }
 
-    public void setRoom(Room room) {
-        String json = room.toJsonString();
-        if (TextUtils.equals(json, new Gson().toJson(getRoom()))) {
-            return;
-        }
-        log.d("setRoom %s", json);
-        channelInfo.room = room;
-        if (channelEventListener != null) {
-            channelEventListener.onRoomChanged(getRoom());
-        }
-    }
-
-    public User getLocal() {
-        try {
-            return channelInfo.local.clone();
-        } catch (CloneNotSupportedException e) {
-            return new User(true);
-        }
-    }
-
-    void setLocal(User local) {
-        String json = local.toJsonString();
-        if (getLocal().isGenerate == local.isGenerate && TextUtils.equals(json, getLocal().toJsonString())) {
-            return;
-        }
-        log.d("setLocal %s", json);
-        channelInfo.local = local;
-        if (channelEventListener != null) {
-            channelEventListener.onLocalChanged(getLocal());
-        }
+    @NonNull
+    public final User getLocal() {
+        return channelInfo.getLocal();
     }
 
     @Nullable
-    public User getTeacher() {
-        return channelInfo.teacher;
+    public final User getTeacher() {
+        return channelInfo.getTeacher();
     }
 
-    protected void setTeacher(User teacher) {
-        String json = teacher.toJsonString();
-        if (TextUtils.equals(json, new Gson().toJson(getTeacher()))) {
-            return;
-        }
-        log.d("setTeacher %s", json);
-        channelInfo.teacher = teacher;
-        checkRtcOnline(channelInfo.teacher);
-        if (channelEventListener != null) {
-            channelEventListener.onTeacherChanged(getTeacher());
-        }
+    @NonNull
+    public final List<User> getOthers() {
+        return channelInfo.getOthers();
     }
 
-    public List<User> getAllUsers() {
+    public final List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
         if (getTeacher() != null) {
             users.add(getTeacher());
         }
-        users.addAll(getAllStudents());
+        users.add(getLocal());
+        users.addAll(getOthers());
         return users;
     }
 
-    public List<User> getAllStudents() {
-        List<User> students = new ArrayList<>();
-        if (!getLocal().isGenerate)
-            students.add(0, getLocal());
-        students.addAll(getStudents());
-        return students;
-    }
-
-    public List<User> getStudents() {
-        return channelInfo.students;
-    }
-
-    void setStudents(List<User> students) {
-        Gson gson = new Gson();
-        String json = gson.toJson(students);
-        if (TextUtils.equals(json, gson.toJson(getStudents()))) {
-            return;
+    public final void updateRoom(Room room) {
+        if (channelInfo.updateRoom(room)) {
+            if (channelEventListener != null) {
+                channelEventListener.onRoomChanged(getRoom());
+            }
         }
-        log.d("setStudents %s", json);
-        channelInfo.students.clear();
-        channelInfo.students.addAll(students);
-        checkStudentsRtcOnline();
     }
 
-    private void checkRtcOnline(User user) {
-        user.disableCoVideo(!rtcUsers.contains(user.uid));
+    public final void updateRoom(ChannelMsg.RoomMsg roomMsg) {
+        Room room = channelInfo.getRoom();
+        if (room == null) return;
+        room = room.copy();
+        roomMsg.updateTo(room);
+        updateRoom(room);
     }
 
-    private void checkStudentsRtcOnline() {
-        for (User student : getStudents()) {
-            checkRtcOnline(student);
+    public final void updateCoVideoUsers(@NonNull List<User> users) {
+        List<User> others = new ArrayList<>();
+        User local = null;
+        User teacher = null;
+        for (User user : users) {
+            if (user.isTeacher()) {
+                teacher = user;
+            } else if (TextUtils.equals(user.userId, getLocal().userId)) {
+                local = user;
+            } else {
+                others.add(user);
+            }
         }
+
+        if (channelInfo.updateLocal(local)) {
+            if (channelEventListener != null) {
+                channelEventListener.onLocalChanged(getLocal());
+            }
+        }
+        channelInfo.updateTeacher(teacher);
+        channelInfo.updateOthers(others);
+
+        onCoVideoUsersChanged();
+    }
+
+    private void onCoVideoUsersChanged() {
         if (channelEventListener != null) {
-            channelEventListener.onStudentsChanged(getStudents());
+            List<User> coVideoUsers = new ArrayList<>();
+            for (User user : getAllUsers()) {
+                if (user.isCoVideoEnable()) {
+                    coVideoUsers.add(user);
+                }
+            }
+            channelEventListener.onCoVideoUsersChanged(coVideoUsers);
         }
     }
 
-    public void setChannelEventListener(ChannelEventListener listener) {
-        channelEventListener = listener;
+    public final void setChannelEventListener(@Nullable ChannelEventListener listener) {
+        this.channelEventListener = listener;
     }
 
     public void release() {
         channelEventListener = null;
-        RtcManager.instance().unregisterListener(rtcEventListener);
     }
 
     public abstract void joinChannel();
 
     public abstract void leaveChannel();
 
-    public abstract void queryOnlineStudentNum(@NonNull Callback<Integer> callback);
+    public abstract void queryOnlineUserNum(@NonNull Callback<Integer> callback);
 
     public abstract void queryChannelInfo(@Nullable Callback<Void> callback);
 
@@ -160,29 +138,5 @@ public abstract class ChannelStrategy<T> {
     public abstract void updateLocalAttribute(User local, @Nullable Callback<Void> callback);
 
     public abstract void clearLocalAttribute(@Nullable Callback<Void> callback);
-
-    private RtcEventListener rtcEventListener = new RtcEventListener() {
-        @Override
-        public void onUserJoined(int uid, int elapsed) {
-            User teacher = getTeacher();
-            if (teacher != null) {
-                if (uid != teacher.screenId) {
-                    rtcUsers.add(uid);
-                    checkStudentsRtcOnline();
-                }
-            }
-        }
-
-        @Override
-        public void onUserOffline(int uid, int reason) {
-            User teacher = getTeacher();
-            if (teacher != null) {
-                if (uid != teacher.screenId) {
-                    rtcUsers.remove(Integer.valueOf(uid));
-                    checkStudentsRtcOnline();
-                }
-            }
-        }
-    };
 
 }

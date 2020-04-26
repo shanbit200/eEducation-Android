@@ -24,8 +24,11 @@ import io.agora.education.classroom.BaseClassActivity;
 import io.agora.education.classroom.ReplayActivity;
 import io.agora.education.classroom.adapter.MessageListAdapter;
 import io.agora.education.classroom.bean.msg.ChannelMsg;
-import io.agora.education.classroom.mediator.MsgMediator;
 import io.agora.education.service.RecordService;
+import io.agora.education.service.RoomService;
+import io.agora.education.service.bean.request.ChatReq;
+
+import static io.agora.education.classroom.bean.msg.ChannelMsg.ChatMsg.Type.TEXT;
 
 public class ChatRoomFragment extends BaseFragment implements OnItemChildClickListener, View.OnKeyListener {
 
@@ -127,8 +130,9 @@ public class ChatRoomFragment extends BaseFragment implements OnItemChildClickLi
         String text = edit_send_msg.getText().toString();
         if (KeyEvent.KEYCODE_ENTER == keyCode && KeyEvent.ACTION_DOWN == event.getAction() && text.trim().length() > 0) {
             if (context instanceof BaseClassActivity) {
-                addMessage(MsgMediator.sendChatMsg(((BaseClassActivity) context).getLocal(), text));
-                edit_send_msg.setText("");
+                RetrofitManager.instance().getService(BuildConfig.API_BASE_URL, RoomService.class)
+                        .roomChat(EduApplication.getAppId(), ((BaseClassActivity) context).getRoomId(), new ChatReq(text, TEXT))
+                        .enqueue(new BaseCallback<>(data -> edit_send_msg.setText("")));
             }
             return true;
         }

@@ -7,7 +7,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 
 import io.agora.education.classroom.bean.channel.User;
-import io.agora.education.classroom.bean.msg.PeerMsg;
 
 public class RecordRes {
 
@@ -20,7 +19,7 @@ public class RecordRes {
     public int status;
     public List<RecordDetail> recordDetails;
 
-    @IntDef({PeerMsg.CoVideoMsg.Cmd.APPLY_CO_VIDEO, PeerMsg.CoVideoMsg.Cmd.REJECT_CO_VIDEO})
+    @IntDef({Status.RECORDING, Status.FINISHED, Status.DOWNLOADING, Status.CONVERTING, Status.UPLOADING})
     @Retention(RetentionPolicy.SOURCE)
     public @interface Status {
         int RECORDING = 1;

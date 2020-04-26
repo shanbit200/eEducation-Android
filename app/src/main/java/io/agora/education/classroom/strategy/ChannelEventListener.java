@@ -13,11 +13,9 @@ public interface ChannelEventListener {
 
     void onRoomChanged(Room room);
 
-    void onTeacherChanged(User teacher);
-
     void onLocalChanged(User local);
 
-    void onStudentsChanged(List<User> students);
+    void onCoVideoUsersChanged(List<User> users);
 
     void onChannelMsgReceived(ChannelMsg msg);
 

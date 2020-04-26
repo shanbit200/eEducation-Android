@@ -15,12 +15,14 @@ public class UserReq {
     @User.CoVideo
     public Integer coVideo;
 
-    public UserReq(User user) {
-        enableChat = user.enableChat;
-        enableVideo = user.enableVideo;
-        enableAudio = user.enableAudio;
-        grantBoard = user.grantBoard;
-        coVideo = user.coVideo;
+    public static UserReq fromUser(User user) {
+        return new UserReq() {{
+            enableChat = user.enableChat;
+            enableVideo = user.enableVideo;
+            enableAudio = user.enableAudio;
+            grantBoard = user.grantBoard;
+            coVideo = user.coVideo;
+        }};
     }
 
 }

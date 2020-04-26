@@ -50,8 +50,8 @@ public class MessageListAdapter extends BaseProviderMultiAdapter<ChannelMsg.Chat
 
         void convert(ChannelMsg.ChatMsg msg) {
             Resources resources = getContext().getResources();
-            tv_name.setText(msg.account);
-            tv_content.setText(msg.content);
+            tv_name.setText(msg.userName);
+            tv_content.setText(msg.message);
             if (msg instanceof ChannelMsg.ReplayMsg) {
                 tv_content.setTextColor(resources.getColor(R.color.blue_1F3DE8));
                 tv_content.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);

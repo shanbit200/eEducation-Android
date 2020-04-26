@@ -2,7 +2,6 @@ package io.agora.education.base;
 
 import android.text.TextUtils;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.Locale;
@@ -18,11 +17,13 @@ import io.agora.education.service.bean.ResponseBody;
 
 public class BaseCallback<T> extends RetrofitManager.Callback<ResponseBody<T>> {
 
-    public BaseCallback(@NonNull SuccessCallback<T> callback) {
+    public BaseCallback(@Nullable SuccessCallback<T> callback) {
         super(0, new Callback<ResponseBody<T>>() {
             @Override
             public void onSuccess(ResponseBody<T> res) {
-                callback.onSuccess(res.data);
+                if (callback != null) {
+                    callback.onSuccess(res.data);
+                }
             }
 
             @Override
@@ -32,11 +33,13 @@ public class BaseCallback<T> extends RetrofitManager.Callback<ResponseBody<T>> {
         });
     }
 
-    public BaseCallback(@NonNull SuccessCallback<T> success, @Nullable FailureCallback failure) {
+    public BaseCallback(@Nullable SuccessCallback<T> success, @Nullable FailureCallback failure) {
         super(0, new Callback<ResponseBody<T>>() {
             @Override
             public void onSuccess(ResponseBody<T> res) {
-                success.onSuccess(res.data);
+                if (success != null) {
+                    success.onSuccess(res.data);
+                }
             }
 
             @Override

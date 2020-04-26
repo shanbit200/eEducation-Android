@@ -58,16 +58,15 @@ public class RtmChannelStrategy extends ChannelStrategy<List<RtmChannelAttribute
     }
 
     @Override
-    public void queryOnlineStudentNum(@NonNull Callback<Integer> callback) {
-        List<User> students = getStudents();
-        Set<String> set = new HashSet<>();
-        for (User student : students) {
-            set.add(student.getUid());
-        }
-
-        if (students.size() == 0) {
+    public void queryOnlineUserNum(@NonNull Callback<Integer> callback) {
+        List<User> users = getAllUsers();
+        if (users.size() == 0) {
             callback.onSuccess(0);
         } else {
+            Set<String> set = new HashSet<>();
+            for (User user : users) {
+                set.add(user.getUid());
+            }
             RtmManager.instance().queryPeersOnlineStatus(set, new Callback<Map<String, Boolean>>() {
                 @Override
                 public void onSuccess(Map<String, Boolean> stringBooleanMap) {
@@ -108,32 +107,25 @@ public class RtmChannelStrategy extends ChannelStrategy<List<RtmChannelAttribute
 
     @Override
     public void parseChannelInfo(List<RtmChannelAttribute> data) {
-        List<User> students = new ArrayList<>();
-        boolean hasMyself = false;
+        List<User> users = new ArrayList<>();
         for (RtmChannelAttribute attribute : data) {
             String value = attribute.getValue();
             if (TextUtils.equals(attribute.getKey(), "room")) {
-                setRoom(Room.fromJson(value, Room.class));
+                updateRoom(Room.fromJson(value, Room.class));
             } else if (TextUtils.equals(attribute.getKey(), "teacher")) {
-                setTeacher(User.fromJson(value, User.class));
+                users.add(User.fromJson(value, User.class));
             } else if (TextUtils.equals(attribute.getKey(), getLocal().getUid())) {
-                hasMyself = true;
-                setLocal(User.fromJson(value, User.class));
+                users.add(User.fromJson(value, User.class));
             } else {
-                students.add(User.fromJson(value, User.class));
+                users.add(User.fromJson(value, User.class));
             }
         }
-        if (!hasMyself) {
-            User local = getLocal();
-            local.isGenerate = true;
-            setLocal(local);
-        }
-        setStudents(students);
+        updateCoVideoUsers(users);
     }
 
     @Override
     public void updateLocalAttribute(User local, @Nullable Callback<Void> callback) {
-        RtmChannelAttribute attribute = new RtmChannelAttribute(String.valueOf(local.uid), local.toJsonString());
+        RtmChannelAttribute attribute = new RtmChannelAttribute(local.getUid(), local.toJsonString());
         RtmManager.instance().addOrUpdateChannelAttributes(getChannelId(), Collections.singletonList(attribute), callback);
     }
 
