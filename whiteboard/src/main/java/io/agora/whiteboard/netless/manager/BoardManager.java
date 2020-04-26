@@ -141,6 +141,10 @@ public class BoardManager extends NetlessManager<Room> implements RoomCallbacks 
         disableCameraTransform = disabled;
     }
 
+    public boolean isDisableCameraTransform() {
+        return disableCameraTransform == null ? false : disableCameraTransform;
+    }
+
     public void setWritable(boolean writable) {
         if (t != null) {
             t.setWritable(writable, new Promise<Boolean>() {

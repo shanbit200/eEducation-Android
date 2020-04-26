@@ -92,7 +92,6 @@ public class WhiteBoardFragment extends BaseFragment implements RadioGroup.OnChe
     }
 
     public void disableDeviceInputs(boolean disabled) {
-        // TODO alert board permission
         if (disabled != boardManager.isDisableDeviceInputs()) {
             ToastManager.showShort(disabled ? R.string.revoke_board : R.string.authorize_board);
         }
@@ -103,6 +102,11 @@ public class WhiteBoardFragment extends BaseFragment implements RadioGroup.OnChe
     }
 
     public void disableCameraTransform(boolean disabled) {
+        if (disabled != boardManager.isDisableCameraTransform()) {
+            if (disabled) {
+                ToastManager.showShort(R.string.follow_tips);
+            }
+        }
         boardManager.disableCameraTransform(disabled);
     }
 
@@ -118,6 +122,9 @@ public class WhiteBoardFragment extends BaseFragment implements RadioGroup.OnChe
     boolean onTouch(View view, MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             white_board_view.requestFocus();
+            if (boardManager.isDisableCameraTransform() && !boardManager.isDisableDeviceInputs()) {
+                ToastManager.showShort(R.string.follow_tips);
+            }
         }
         return false;
     }
