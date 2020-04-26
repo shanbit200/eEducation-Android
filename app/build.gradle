@@ -17,6 +17,7 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
+        buildConfigField 'String', 'API_BASE_URL', '"https://solutions-api.sh.agoralab.co/"'
         buildConfigField 'String', 'POLICY_URL', '"https://www.agora.io/privacy-policy"'
     }
 
@@ -40,7 +41,6 @@ android {
             shrinkResources true
             signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField 'String', 'API_BASE_URL', '"https://solutions-api.sh.agoralab.co/"'
         }
     }
 
