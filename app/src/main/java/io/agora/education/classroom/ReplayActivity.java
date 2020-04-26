@@ -66,7 +66,7 @@ public class ReplayActivity extends BaseActivity {
     protected void onResumeFragments() {
         super.onResumeFragments();
         if (!isInit) {
-            RetrofitManager.instance().getService(getString(R.string.netless_board_host), RoomService.class)
+            RetrofitManager.instance().getService(EduApplication.getApiHost(), RoomService.class)
                     .roomBoard(EduApplication.getAppId(), roomId)
                     .enqueue(new BaseCallback<>(data -> {
                         replayBoardFragment.initReplayWithRoomToken(data.boardId, data.boardToken);
