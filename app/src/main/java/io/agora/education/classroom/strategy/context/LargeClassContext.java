@@ -14,6 +14,7 @@ import io.agora.education.BuildConfig;
 import io.agora.education.EduApplication;
 import io.agora.education.R;
 import io.agora.education.base.BaseCallback;
+import io.agora.education.classroom.bean.channel.Room;
 import io.agora.education.classroom.bean.channel.User;
 import io.agora.education.classroom.bean.msg.PeerMsg;
 import io.agora.education.classroom.strategy.ChannelStrategy;
@@ -44,6 +45,14 @@ public class LargeClassContext extends ClassContext {
         RtcManager.instance().setChannelProfile(Constants.CHANNEL_PROFILE_LIVE_BROADCASTING);
         RtcManager.instance().setClientRole(Constants.CLIENT_ROLE_AUDIENCE);
         RtcManager.instance().enableDualStreamMode(false);
+    }
+
+    @Override
+    public void onRoomChanged(Room room) {
+        super.onRoomChanged(room);
+        if (classEventListener instanceof LargeClassEventListener) {
+            runListener(() -> ((LargeClassEventListener) classEventListener).onUserCountChanged(room.onlineUsers));
+        }
     }
 
     @Override
@@ -80,14 +89,6 @@ public class LargeClassContext extends ClassContext {
                     ToastManager.showShort(R.string.accept_interactive);
                     break;
             }
-        }
-    }
-
-    @Override
-    public void onMemberCountUpdated(int count) {
-        super.onMemberCountUpdated(count);
-        if (classEventListener instanceof LargeClassEventListener) {
-            runListener(() -> ((LargeClassEventListener) classEventListener).onUserCountChanged(count));
         }
     }
 

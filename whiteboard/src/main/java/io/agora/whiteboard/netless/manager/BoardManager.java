@@ -130,6 +130,12 @@ public class BoardManager extends NetlessManager<Room> implements RoomCallbacks 
         disableDeviceInputs = disabled;
     }
 
+    public void disableDeviceInputsTemporary(boolean disabled) {
+        if (t != null) {
+            t.disableDeviceInputs(disabled);
+        }
+    }
+
     public boolean isDisableDeviceInputs() {
         return disableDeviceInputs == null ? false : disableDeviceInputs;
     }
