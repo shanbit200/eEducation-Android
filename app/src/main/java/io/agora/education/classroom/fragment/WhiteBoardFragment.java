@@ -105,6 +105,9 @@ public class WhiteBoardFragment extends BaseFragment implements RadioGroup.OnChe
         if (disabled != boardManager.isDisableCameraTransform()) {
             if (disabled) {
                 ToastManager.showShort(R.string.follow_tips);
+                boardManager.disableDeviceInputsTemporary(true);
+            } else {
+                boardManager.disableDeviceInputsTemporary(boardManager.isDisableDeviceInputs());
             }
         }
         boardManager.disableCameraTransform(disabled);
