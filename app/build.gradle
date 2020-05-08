@@ -42,11 +42,8 @@ android {
             signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
-        preRelease {
-            minifyEnabled true
-            shrinkResources true
-            signingConfig signingConfigs.release
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        releasePre {
+            matchingFallbacks = ['release']
             buildConfigField 'String', 'API_BASE_URL', '"https://api-test.agora.io"'
         }
     }
