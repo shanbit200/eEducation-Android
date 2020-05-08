@@ -34,7 +34,7 @@ android {
         debug {
             minifyEnabled false
             applicationIdSuffix ".debug"
-            buildConfigField 'String', 'API_BASE_URL', '"https://api-solutions-dev.sh.agoralab.co/"'
+            buildConfigField 'String', 'API_BASE_URL', '"https://api-solutions-dev.sh.agoralab.co"'
         }
         release {
             minifyEnabled true
@@ -44,6 +44,7 @@ android {
         }
         releasePre {
             matchingFallbacks = ['release']
+            signingConfig signingConfigs.release
             buildConfigField 'String', 'API_BASE_URL', '"https://api-test.agora.io"'
         }
     }
