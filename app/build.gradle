@@ -1,5 +1,9 @@
 apply plugin: 'com.android.application'
 
+Properties properties = new Properties()
+InputStream inputStream = project.rootProject.file('local.properties').newDataInputStream()
+properties.load(inputStream)
+
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
@@ -17,10 +21,26 @@ android {
         buildConfigField 'String', 'POLICY_URL', '"https://www.agora.io/privacy-policy"'
     }
 
+    signingConfigs {
+        releaseNormal {
+            storeFile file(properties.getProperty('storeFile'))
+            storePassword properties.getProperty('storePwd')
+            keyAlias properties.getProperty('keyAliasNormal')
+            keyPassword properties.getProperty('keyPwdNormal')
+        }
+        releaseWelfare {
+            storeFile file(properties.getProperty('storeFile'))
+            storePassword properties.getProperty('storePwd')
+            keyAlias properties.getProperty('keyAliasWelfare')
+            keyPassword properties.getProperty('keyPwdWelfare')
+        }
+    }
+
     buildTypes {
         debug {
             minifyEnabled false
             applicationIdSuffix ".debug"
+            signingConfig signingConfigs.debug
             buildConfigField 'String', 'API_BASE_URL', '"https://api-solutions-dev.sh.agoralab.co"'
         }
         release {
@@ -30,7 +50,6 @@ android {
         }
         releasePre {
             matchingFallbacks = ['release']
-            signingConfig signingConfigs.release
             buildConfigField 'String', 'API_BASE_URL', '"https://api-test.agora.io"'
         }
     }
@@ -42,12 +61,14 @@ android {
             applicationId "io.agora.education"
             buildConfigField 'String', 'CODE', '"edu-demo"'
             buildConfigField 'String', 'EXTRA', '"AgoraEducation"'
+            signingConfig signingConfigs.releaseNormal
         }
         welfare {
             dimension "app"
             applicationId "io.agora.education.welfare"
             buildConfigField 'String', 'CODE', '"edu-saas"'
             buildConfigField 'String', 'EXTRA', '"AgoraWelfare"'
+            signingConfig signingConfigs.releaseWelfare
         }
     }
 
