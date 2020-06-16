@@ -21,7 +21,8 @@ import io.agora.education.classroom.bean.channel.User;
 import io.agora.education.classroom.fragment.UserListFragment;
 import io.agora.education.classroom.strategy.context.SmallClassContext;
 
-public class SmallClassActivity extends BaseClassActivity implements SmallClassContext.SmallClassEventListener, TabLayout.OnTabSelectedListener {
+public class SmallClassActivity extends BaseClassActivity implements SmallClassContext.SmallClassEventListener, TabLayout.OnTabSelectedListener
+{
 
     @BindView(R.id.rcv_videos)
     protected RecyclerView rcv_videos;
@@ -34,26 +35,32 @@ public class SmallClassActivity extends BaseClassActivity implements SmallClassC
     private UserListFragment userListFragment;
 
     @Override
-    protected int getLayoutResId() {
+    protected int getLayoutResId()
+    {
         return R.layout.activity_small_class;
     }
 
     @Override
-    protected void initData() {
+    protected void initData()
+    {
         super.initData();
         adapter = new ClassVideoAdapter(getLocal().uid);
     }
 
     @Override
-    protected void initView() {
+    protected void initView()
+    {
         super.initView();
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         rcv_videos.setLayoutManager(layoutManager);
-        rcv_videos.addItemDecoration(new RecyclerView.ItemDecoration() {
+        rcv_videos.addItemDecoration(new RecyclerView.ItemDecoration()
+        {
             @Override
-            public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
+            public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, @NonNull RecyclerView parent, @NonNull RecyclerView.State state)
+            {
                 super.getItemOffsets(outRect, view, parent, state);
-                if (parent.getChildAdapterPosition(view) > 0) {
+                if (parent.getChildAdapterPosition(view) > 0)
+                {
                     outRect.left = getResources().getDimensionPixelSize(R.dimen.dp_2_5);
                 }
             }
@@ -70,46 +77,56 @@ public class SmallClassActivity extends BaseClassActivity implements SmallClassC
     }
 
     @Override
-    protected int getClassType() {
+    protected int getClassType()
+    {
         return Room.Type.SMALL;
     }
 
     @OnClick(R.id.iv_float)
-    public void onClick(View view) {
+    public void onClick(View view)
+    {
         boolean isSelected = view.isSelected();
         view.setSelected(!isSelected);
         layout_im.setVisibility(isSelected ? View.VISIBLE : View.GONE);
     }
 
     @Override
-    public void onUsersMediaChanged(List<User> users) {
+    public void onUsersMediaChanged(List<User> users)
+    {
         adapter.setDiffNewData(users);
         userListFragment.setUserList(users);
     }
 
     @Override
-    public void onGrantWhiteboard(boolean granted) {
+    public void onGrantWhiteboard(boolean granted)
+    {
         whiteboardFragment.disableDeviceInputs(!granted);
     }
 
     @Override
-    public void onTabSelected(TabLayout.Tab tab) {
+    public void onTabSelected(TabLayout.Tab tab)
+    {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        if (tab.getPosition() == 0) {
+        if (tab.getPosition() == 0)
+        {
             transaction.show(chatRoomFragment).hide(userListFragment);
-        } else {
+        }
+        else
+        {
             transaction.show(userListFragment).hide(chatRoomFragment);
         }
         transaction.commit();
     }
 
     @Override
-    public void onTabUnselected(TabLayout.Tab tab) {
+    public void onTabUnselected(TabLayout.Tab tab)
+    {
 
     }
 
     @Override
-    public void onTabReselected(TabLayout.Tab tab) {
+    public void onTabReselected(TabLayout.Tab tab)
+    {
 
     }
 

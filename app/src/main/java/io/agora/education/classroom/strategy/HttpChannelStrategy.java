@@ -42,18 +42,25 @@ public class HttpChannelStrategy extends ChannelStrategy<RoomRes> {
 
     @Override
     public void joinChannel() {
-        roomService.room(EduApplication.getAppId(), getChannelId()).enqueue(new BaseCallback<>(data -> {
-            Room room = data.room;
-            User user = data.user;
-            RtmManager.instance().joinChannel(new HashMap<String, String>() {{
-                put(SdkManager.CHANNEL_ID, room.channelName);
-            }});
-            RtcManager.instance().joinChannel(new HashMap<String, String>() {{
-                put(SdkManager.TOKEN, user.rtcToken);
-                put(SdkManager.CHANNEL_ID, room.channelName);
-                put(SdkManager.USER_ID, user.getUid());
-                put(SdkManager.USER_EXTRA, BuildConfig.EXTRA);
-            }});
+        roomService.room(EduApplication.getAppId(), getChannelId()).enqueue(new BaseCallback<>(new BaseCallback.SuccessCallback<RoomRes>()
+        {
+            @Override
+            public void onSuccess(RoomRes data)
+            {
+                Room room = data.room;
+                User user = data.user;
+                RtmManager.instance().joinChannel(new HashMap<String, String>()
+                {{
+                    put(SdkManager.CHANNEL_ID, room.channelName);
+                }});
+                RtcManager.instance().joinChannel(new HashMap<String, String>()
+                {{
+                    put(SdkManager.TOKEN, user.rtcToken);
+                    put(SdkManager.CHANNEL_ID, room.channelName);
+                    put(SdkManager.USER_ID, user.getUid());
+                    put(SdkManager.USER_EXTRA, BuildConfig.EXTRA);
+                }});
+            }
         }));
     }
 

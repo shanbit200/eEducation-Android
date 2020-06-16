@@ -11,12 +11,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import butterknife.ButterKnife;
 import io.agora.education.widget.EyeProtection;
 
-public abstract class BaseActivity extends AppCompatActivity {
+public abstract class BaseActivity extends AppCompatActivity
+{
 
     private EyeProtection.EyeProtectionView eyeProtectionView;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(getLayoutResId());
         ButterKnife.bind(this);
@@ -32,34 +34,45 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected abstract void initView();
 
     @Override
-    protected void onStart() {
+    protected void onStart()
+    {
         super.onStart();
-        if (EyeProtection.isNeedShow()) {
+        if (EyeProtection.isNeedShow())
+        {
             showEyeProtection();
-        } else {
+        }
+        else
+        {
             dismissEyeProtection();
         }
     }
 
-    protected void showEyeProtection() {
-        if (eyeProtectionView == null) {
+    protected void showEyeProtection()
+    {
+        if (eyeProtectionView == null)
+        {
             eyeProtectionView = new EyeProtection.EyeProtectionView(this);
         }
-        if (eyeProtectionView.getParent() == null) {
+        if (eyeProtectionView.getParent() == null)
+        {
             addContentView(eyeProtectionView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         }
         eyeProtectionView.setVisibility(View.VISIBLE);
     }
 
-    protected void dismissEyeProtection() {
-        if (eyeProtectionView != null) {
+    protected void dismissEyeProtection()
+    {
+        if (eyeProtectionView != null)
+        {
             eyeProtectionView.setVisibility(View.GONE);
         }
     }
 
-    protected void removeFromParent(View view) {
+    protected void removeFromParent(View view)
+    {
         ViewGroup viewGroup = (ViewGroup) view.getParent();
-        if (viewGroup != null) {
+        if (viewGroup != null)
+        {
             viewGroup.removeView(view);
         }
     }

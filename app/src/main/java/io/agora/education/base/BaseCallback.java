@@ -15,76 +15,98 @@ import io.agora.education.EduApplication;
 import io.agora.education.R;
 import io.agora.education.service.bean.ResponseBody;
 
-public class BaseCallback<T> extends RetrofitManager.Callback<ResponseBody<T>> {
+public class BaseCallback<T> extends RetrofitManager.Callback<ResponseBody<T>>
+{
 
-    public BaseCallback(@Nullable SuccessCallback<T> callback) {
-        super(0, new Callback<ResponseBody<T>>() {
+    public BaseCallback(@Nullable SuccessCallback<T> callback)
+    {
+        super(0, new Callback<ResponseBody<T>>()
+        {
             @Override
-            public void onSuccess(ResponseBody<T> res) {
-                if (callback != null) {
+            public void onSuccess(ResponseBody<T> res)
+            {
+                if (callback != null)
+                {
                     callback.onSuccess(res.data);
                 }
             }
 
             @Override
-            public void onFailure(Throwable throwable) {
+            public void onFailure(Throwable throwable)
+            {
                 checkError(throwable);
             }
         });
     }
 
-    public BaseCallback(@Nullable SuccessCallback<T> success, @Nullable FailureCallback failure) {
-        super(0, new Callback<ResponseBody<T>>() {
+    public BaseCallback(@Nullable SuccessCallback<T> success, @Nullable FailureCallback failure)
+    {
+        super(0, new Callback<ResponseBody<T>>()
+        {
             @Override
-            public void onSuccess(ResponseBody<T> res) {
-                if (success != null) {
+            public void onSuccess(ResponseBody<T> res)
+            {
+                if (success != null)
+                {
                     success.onSuccess(res.data);
                 }
             }
 
             @Override
-            public void onFailure(Throwable throwable) {
+            public void onFailure(Throwable throwable)
+            {
                 checkError(throwable);
-                if (failure != null) {
+                if (failure != null)
+                {
                     failure.onFailure(throwable);
                 }
             }
         });
     }
 
-    private static void checkError(Throwable throwable) {
+    private static void checkError(Throwable throwable)
+    {
         String message = throwable.getMessage();
-        if (throwable instanceof BusinessException) {
+        if (throwable instanceof BusinessException)
+        {
             int code = ((BusinessException) throwable).getCode();
             Map<String, Map<Integer, String>> languages = EduApplication.getMultiLanguage();
-            if (languages != null) {
+            if (languages != null)
+            {
                 Locale locale = Locale.getDefault();
-                if (!Locale.SIMPLIFIED_CHINESE.toString().equals(locale.toString())) {
+                if (!Locale.SIMPLIFIED_CHINESE.toString().equals(locale.toString()))
+                {
                     locale = Locale.US;
                 }
                 String key = String.format("%s-%s", locale.getLanguage(), locale.getCountry()).toLowerCase();
                 Map<Integer, String> stringMap = languages.get(key);
-                if (stringMap != null) {
+                if (stringMap != null)
+                {
                     String string = stringMap.get(code);
-                    if (!TextUtils.isEmpty(string)) {
+                    if (!TextUtils.isEmpty(string))
+                    {
                         message = string;
                     }
                 }
             }
-            if (TextUtils.isEmpty(message)) {
+            if (TextUtils.isEmpty(message))
+            {
                 message = EduApplication.instance.getString(R.string.request_error, code);
             }
         }
-        if (!TextUtils.isEmpty(message)) {
+        if (!TextUtils.isEmpty(message))
+        {
             ToastManager.showShort(message);
         }
     }
 
-    public interface SuccessCallback<T> {
+    public interface SuccessCallback<T>
+    {
         void onSuccess(T data);
     }
 
-    public interface FailureCallback {
+    public interface FailureCallback
+    {
         void onFailure(Throwable throwable);
     }
 

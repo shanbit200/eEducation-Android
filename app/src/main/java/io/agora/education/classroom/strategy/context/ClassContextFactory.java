@@ -7,17 +7,20 @@ import io.agora.education.classroom.bean.channel.User;
 import io.agora.education.classroom.strategy.ChannelStrategy;
 import io.agora.education.classroom.strategy.HttpChannelStrategy;
 
-public class ClassContextFactory {
-
+public class ClassContextFactory
+{
     private Context context;
 
-    public ClassContextFactory(Context context) {
+    public ClassContextFactory(Context context)
+    {
         this.context = context;
     }
 
-    public ClassContext getClassContext(@Room.Type int classType, String channelId, User local) {
+    public ClassContext getClassContext(@Room.Type int classType, String channelId, User local)
+    {
         ChannelStrategy strategy = new HttpChannelStrategy(channelId, local);
-        switch (classType) {
+        switch (classType)
+        {
             case Room.Type.ONE2ONE:
                 return new OneToOneClassContext(context, strategy);
             case Room.Type.SMALL:
