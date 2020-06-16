@@ -7,8 +7,8 @@ import androidx.annotation.NonNull;
 
 import java.util.List;
 
-import io.agora.base.Callback;
 import io.agora.base.ToastManager;
+import io.agora.base.callback.Callback;
 import io.agora.base.network.RetrofitManager;
 import io.agora.education.BuildConfig;
 import io.agora.education.EduApplication;

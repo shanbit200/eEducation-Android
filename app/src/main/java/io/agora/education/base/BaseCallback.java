@@ -7,8 +7,9 @@ import androidx.annotation.Nullable;
 import java.util.Locale;
 import java.util.Map;
 
-import io.agora.base.Callback;
+import io.agora.base.callback.Callback;
 import io.agora.base.ToastManager;
+import io.agora.base.callback.ThrowableCallback;
 import io.agora.base.network.BusinessException;
 import io.agora.base.network.RetrofitManager;
 import io.agora.education.EduApplication;
@@ -20,7 +21,7 @@ public class BaseCallback<T> extends RetrofitManager.Callback<ResponseBody<T>>
 
     public BaseCallback(@Nullable SuccessCallback<T> callback)
     {
-        super(0, new Callback<ResponseBody<T>>()
+        super(0, new ThrowableCallback<ResponseBody<T>>()
         {
             @Override
             public void onSuccess(ResponseBody<T> res)
@@ -41,7 +42,7 @@ public class BaseCallback<T> extends RetrofitManager.Callback<ResponseBody<T>>
 
     public BaseCallback(@Nullable SuccessCallback<T> success, @Nullable FailureCallback failure)
     {
-        super(0, new Callback<ResponseBody<T>>()
+        super(0, new ThrowableCallback<ResponseBody<T>>()
         {
             @Override
             public void onSuccess(ResponseBody<T> res)

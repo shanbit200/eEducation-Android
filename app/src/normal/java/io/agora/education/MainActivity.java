@@ -16,8 +16,9 @@ import androidx.cardview.widget.CardView;
 import butterknife.BindView;
 import butterknife.OnClick;
 import butterknife.OnTouch;
-import io.agora.base.Callback;
+import io.agora.base.callback.Callback;
 import io.agora.base.ToastManager;
+import io.agora.base.callback.ThrowableCallback;
 import io.agora.base.network.RetrofitManager;
 import io.agora.education.base.BaseActivity;
 import io.agora.education.base.BaseCallback;
@@ -238,7 +239,7 @@ public class MainActivity extends BaseActivity
         {
             User user = data.user;
             Room room = data.room;
-            RtmManager.instance().login(user.rtmToken, user.uid, new Callback<Void>()
+            RtmManager.instance().login(user.rtmToken, user.uid, new ThrowableCallback<Void>()
             {
                 @Override
                 public void onSuccess(Void res)
