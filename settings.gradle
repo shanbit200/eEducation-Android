@@ -1,2 +1,2 @@
-include ':app', ':whiteboard', ':base', ':log', ':sdk', ':timeline'
+include ':app'
 rootProject.name = 'AgoraEducation'
