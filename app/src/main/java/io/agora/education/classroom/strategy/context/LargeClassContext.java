@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.List;
 
@@ -61,15 +62,17 @@ public class LargeClassContext extends ClassContext {
         if (classEventListener instanceof LargeClassEventListener) {
             LargeClassEventListener listener = (LargeClassEventListener) classEventListener;
             runListener(() -> {
+                User teacher = null;
                 User linkUser = null;
                 for (User user : users) {
                     if (user.isTeacher()) {
-                        listener.onTeacherMediaChanged(user);
+                        teacher = user;
                     } else {
                         linkUser = user;
                         break;
                     }
                 }
+                listener.onTeacherMediaChanged(teacher);
                 listener.onLinkMediaChanged(linkUser);
             });
         }
@@ -107,9 +110,9 @@ public class LargeClassContext extends ClassContext {
     public interface LargeClassEventListener extends ClassEventListener {
         void onUserCountChanged(int count);
 
-        void onTeacherMediaChanged(User user);
+        void onTeacherMediaChanged(@Nullable User user);
 
-        void onLinkMediaChanged(User user);
+        void onLinkMediaChanged(@Nullable User user);
 
         void onHandUpCanceled();
     }
