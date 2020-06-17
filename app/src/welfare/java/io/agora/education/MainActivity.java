@@ -88,7 +88,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void checkVersion() {
-        commonService.appVersion(BuildConfig.CODE).enqueue(new BaseCallback<>(data -> {
+        commonService.appVersion().enqueue(new BaseCallback<>(data -> {
             if (data != null && data.forcedUpgrade != 0) {
                 showAppUpgradeDialog(data.upgradeUrl, data.forcedUpgrade == 2);
             }
