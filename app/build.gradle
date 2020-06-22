@@ -1,4 +1,4 @@
-def safeExtGet(prop, key) {
+def extGet(prop, key) {
     if (rootProject.ext.has(prop)) {
         def map = rootProject.ext.get(prop)
         if (map.containsKey(key)) {
@@ -74,15 +74,15 @@ dependencies {
     implementation project(':timeline')
     implementation project(':whiteboard')
 
-    testImplementation "junit:junit:${safeExtGet('dependencies', 'junit:junit')}"
-    androidTestImplementation "androidx.test.ext:junit:${safeExtGet('dependencies', 'androidx.test.ext:junit')}"
-    androidTestImplementation "androidx.test.espresso:espresso-core:${safeExtGet('dependencies', 'androidx.test.espresso:espresso-core')}"
+    testImplementation "junit:junit:${extGet('dependencies', 'junit:junit')}"
+    androidTestImplementation "androidx.test.ext:junit:${extGet('dependencies', 'androidx.test.ext:junit')}"
+    androidTestImplementation "androidx.test.espresso:espresso-core:${extGet('dependencies', 'androidx.test.espresso:espresso-core')}"
 
-    implementation "androidx.constraintlayout:constraintlayout:${safeExtGet('dependencies', 'androidx.constraintlayout:constraintlayout')}"
-    implementation "com.google.android.material:material:${safeExtGet('dependencies', 'com.google.android.material:material')}"
-    implementation "com.google.android.exoplayer:exoplayer:${safeExtGet('dependencies', 'com.google.android.exoplayer:exoplayer')}"
-    implementation "com.github.CymChad:BaseRecyclerViewAdapterHelper:${safeExtGet('dependencies', 'com.github.CymChad:BaseRecyclerViewAdapterHelper')}"
+    implementation "androidx.constraintlayout:constraintlayout:${extGet('dependencies', 'androidx.constraintlayout:constraintlayout')}"
+    implementation "com.google.android.material:material:${extGet('dependencies', 'com.google.android.material:material')}"
+    implementation "com.google.android.exoplayer:exoplayer:${extGet('dependencies', 'com.google.android.exoplayer:exoplayer')}"
+    implementation "com.github.CymChad:BaseRecyclerViewAdapterHelper:${extGet('dependencies', 'com.github.CymChad:BaseRecyclerViewAdapterHelper')}"
 
-    implementation "com.jakewharton:butterknife:${safeExtGet('dependencies', 'com.jakewharton:butterknife')}"
-    annotationProcessor "com.jakewharton:butterknife-compiler:${safeExtGet('dependencies', 'com.jakewharton:butterknife-compiler')}"
+    implementation "com.jakewharton:butterknife:${extGet('dependencies', 'com.jakewharton:butterknife')}"
+    annotationProcessor "com.jakewharton:butterknife-compiler:${extGet('dependencies', 'com.jakewharton:butterknife-compiler')}"
 }
