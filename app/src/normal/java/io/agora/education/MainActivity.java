@@ -16,7 +16,6 @@ import androidx.cardview.widget.CardView;
 import butterknife.BindView;
 import butterknife.OnClick;
 import butterknife.OnTouch;
-import io.agora.base.callback.Callback;
 import io.agora.base.ToastManager;
 import io.agora.base.callback.ThrowableCallback;
 import io.agora.base.network.RetrofitManager;
@@ -32,12 +31,12 @@ import io.agora.education.classroom.bean.channel.User;
 import io.agora.education.service.CommonService;
 import io.agora.education.service.RoomService;
 import io.agora.education.service.bean.request.RoomEntryReq;
-import io.agora.education.service.bean.response.RoomEntryRes;
 import io.agora.education.util.AppUtil;
 import io.agora.education.util.CryptoUtil;
 import io.agora.education.util.UUIDUtil;
 import io.agora.education.widget.ConfirmDialog;
 import io.agora.education.widget.PolicyDialog;
+import io.agora.rtc.video.VideoEncoderConfiguration;
 import io.agora.sdk.manager.RtcManager;
 import io.agora.sdk.manager.RtmManager;
 
@@ -76,8 +75,16 @@ public class MainActivity extends BaseActivity {
 
         String appId = getString(R.string.agora_app_id);
         EduApplication.setAppId(appId);
-        RtcManager.instance().init(getApplicationContext(), appId);
-        RtmManager.instance().init(getApplicationContext(), appId);
+        RtcManager.instance().init(getApplicationContext(), appId, (RtcManager sdk) -> {
+            if (sdk == null) return;
+            sdk.setVideoEncoderConfiguration(new VideoEncoderConfiguration(
+                    VideoEncoderConfiguration.VD_360x360,
+                    VideoEncoderConfiguration.FRAME_RATE.FRAME_RATE_FPS_15,
+                    VideoEncoderConfiguration.STANDARD_BITRATE,
+                    VideoEncoderConfiguration.ORIENTATION_MODE.ORIENTATION_MODE_ADAPTIVE
+            ));
+        });
+        RtmManager.instance().init(getApplicationContext(), appId, null);
 
         RetrofitManager.instance().addHeader("Authorization", CryptoUtil.getAuth(getString(R.string.agora_auth)));
         commonService = RetrofitManager.instance().getService(BuildConfig.API_BASE_URL, CommonService.class);
