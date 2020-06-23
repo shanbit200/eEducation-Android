@@ -17,6 +17,7 @@ import io.agora.education.base.BaseActivity;
 import io.agora.education.base.BaseCallback;
 import io.agora.education.classroom.fragment.ReplayBoardFragment;
 import io.agora.education.service.RoomService;
+import io.agora.education.service.bean.response.RoomBoardRes;
 
 public class ReplayActivity extends BaseActivity {
 
@@ -69,8 +70,7 @@ public class ReplayActivity extends BaseActivity {
         if (!isInit) {
             RetrofitManager.instance().getService(BuildConfig.API_BASE_URL, RoomService.class)
                     .roomBoard(EduApplication.getAppId(), roomId)
-                    .enqueue(new BaseCallback<>(data ->
-                    {
+                    .enqueue(new BaseCallback<>(data -> {
                         replayBoardFragment.initReplayWithRoomToken(data.boardId, data.boardToken);
                         replayBoardFragment.setPlayer(video_view, url);
                         isInit = true;

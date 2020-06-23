@@ -121,13 +121,11 @@ public class HttpChannelStrategy extends ChannelStrategy<RoomRes> {
         UserReq req = UserReq.fromUser(getLocal());
         req.coVideo = User.CoVideo.DISABLE;
         roomService.user(EduApplication.getAppId(), getChannelId(), getLocal().userId, req)
-                .enqueue(new BaseCallback<>(data ->
-                {
+                .enqueue(new BaseCallback<>(data -> {
                     if (callback != null) {
                         callback.onSuccess(null);
                     }
-                }, throwable ->
-                {
+                }, throwable -> {
                     if (callback instanceof ThrowableCallback) {
                         ((ThrowableCallback<Void>) callback).onFailure(throwable);
                     }

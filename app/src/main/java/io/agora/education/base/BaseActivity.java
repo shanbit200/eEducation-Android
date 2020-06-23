@@ -36,8 +36,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         super.onStart();
         if (EyeProtection.isNeedShow()) {
             showEyeProtection();
-        }
-        else {
+        } else {
             dismissEyeProtection();
         }
     }

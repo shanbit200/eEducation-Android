@@ -104,8 +104,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void checkVersion() {
-        commonService.appVersion().enqueue(new BaseCallback<>(data ->
-        {
+        commonService.appVersion().enqueue(new BaseCallback<>(data -> {
             if (data != null && data.forcedUpgrade != 0) {
                 showAppUpgradeDialog(data.upgradeUrl, data.forcedUpgrade == 2);
             }
@@ -115,8 +114,7 @@ public class MainActivity extends BaseActivity {
     private void showAppUpgradeDialog(String url, boolean isForce) {
         this.url = url;
         String content = getString(R.string.app_upgrade);
-        ConfirmDialog.DialogClickListener listener = confirm ->
-        {
+        ConfirmDialog.DialogClickListener listener = confirm -> {
             if (confirm) {
                 if (AppUtil.checkAndRequestAppPermission(MainActivity.this, new String[]{
                         Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -182,7 +180,9 @@ public class MainActivity extends BaseActivity {
     }
 
     private void roomEntry(String yourNameStr, String roomNameStr, @Room.Type int classType) {
-        if (isJoining) return;
+        if (isJoining) {
+            return;
+        }
         isJoining = true;
         roomService.roomEntry(EduApplication.getAppId(), new RoomEntryReq() {{
             userName = yourNameStr;
@@ -197,8 +197,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void room(String roomId) {
-        roomService.room(EduApplication.getAppId(), roomId).enqueue(new BaseCallback<>(data ->
-        {
+        roomService.room(EduApplication.getAppId(), roomId).enqueue(new BaseCallback<>(data -> {
             User user = data.user;
             Room room = data.room;
             RtmManager.instance().login(user.rtmToken, user.uid, new ThrowableCallback<Void>() {
@@ -249,6 +248,8 @@ public class MainActivity extends BaseActivity {
             case REQUEST_CODE_RTC:
                 joinRoom();
                 break;
+            default:
+                break;
         }
     }
 
@@ -278,6 +279,8 @@ public class MainActivity extends BaseActivity {
             case R.id.tv_large_class:
                 et_room_type.setText(R.string.large_class);
                 card_room_type.setVisibility(View.GONE);
+                break;
+            default:
                 break;
         }
     }

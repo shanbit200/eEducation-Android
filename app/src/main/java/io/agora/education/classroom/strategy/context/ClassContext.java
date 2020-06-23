@@ -98,8 +98,7 @@ public abstract class ClassContext implements ChannelEventListener {
 
     @Override
     public void onRoomChanged(Room room) {
-        runListener(() ->
-        {
+        runListener(() -> {
             classEventListener.onClassStateChanged(room.isCourseBegin(), System.currentTimeMillis() - room.startTime);
             // TODO load white board
             RetrofitManager.instance().getService(BuildConfig.API_BASE_URL, RoomService.class)
@@ -141,6 +140,8 @@ public abstract class ClassContext implements ChannelEventListener {
             case REPLAY:
                 ChannelMsg.ReplayMsg replayMsg = msg.getMsg(ChannelMsg.ReplayMsg.class);
                 runListener(() -> classEventListener.onChatMsgReceived(replayMsg));
+                break;
+            default:
                 break;
         }
     }

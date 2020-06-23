@@ -50,8 +50,7 @@ public class LargeClassActivity extends BaseClassActivity implements LargeClassC
         if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
             return R.layout.activity_large_class_portrait;
-        }
-        else {
+        } else {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
             return R.layout.activity_large_class_landscape;
         }
@@ -70,14 +69,12 @@ public class LargeClassActivity extends BaseClassActivity implements LargeClassC
         if (video_student == null) {
             video_student = new RtcVideoView(this);
             video_student.init(R.layout.layout_video_small_class, true);
-            video_student.setOnClickAudioListener(v ->
-            {
+            video_student.setOnClickAudioListener(v -> {
                 if (isMineLink()) {
                     muteLocalAudio(!video_student.isAudioMuted());
                 }
             });
-            video_student.setOnClickVideoListener(v ->
-            {
+            video_student.setOnClickVideoListener(v -> {
                 if (isMineLink()) {
                     muteLocalVideo(!video_student.isVideoMuted());
                 }
@@ -119,8 +116,7 @@ public class LargeClassActivity extends BaseClassActivity implements LargeClassC
         boolean isSelected = view.isSelected();
         if (isSelected) {
             ((LargeClassContext) classContext).cancel();
-        }
-        else {
+        } else {
             ((LargeClassContext) classContext).apply();
         }
     }
@@ -145,13 +141,11 @@ public class LargeClassActivity extends BaseClassActivity implements LargeClassC
         if (user == null) {
             video_student.setVisibility(View.GONE);
             video_student.setSurfaceView(null);
-        }
-        else {
+        } else {
             video_student.setName(user.userName);
             if (user.uid == getLocal().uid) {
                 video_student.showLocal();
-            }
-            else {
+            } else {
                 video_student.showRemote(user.uid);
             }
             // make sure the student video always on the top
@@ -175,8 +169,7 @@ public class LargeClassActivity extends BaseClassActivity implements LargeClassC
         if (isMineLink()) {
             layout_hand_up.setEnabled(true);
             layout_hand_up.setSelected(true);
-        }
-        else {
+        } else {
             layout_hand_up.setEnabled(linkUser == null);
             layout_hand_up.setSelected(false);
         }
