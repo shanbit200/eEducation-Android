@@ -127,7 +127,8 @@ public class LargeClassActivity extends BaseClassActivity implements LargeClassC
     }
 
     @Override
-    public void onTeacherMediaChanged(User user) {
+    public void onTeacherMediaChanged(@Nullable User user) {
+        if (user == null) return;
         video_teacher.setName(user.userName);
         video_teacher.showRemote(user.uid);
         video_teacher.muteVideo(!user.isVideoEnable());
@@ -135,7 +136,7 @@ public class LargeClassActivity extends BaseClassActivity implements LargeClassC
     }
 
     @Override
-    public void onLinkMediaChanged(User user) {
+    public void onLinkMediaChanged(@Nullable User user) {
         linkUser = user;
         resetHandState();
         if (user == null) {

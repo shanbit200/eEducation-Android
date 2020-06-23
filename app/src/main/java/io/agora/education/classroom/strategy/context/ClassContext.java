@@ -3,6 +3,7 @@ package io.agora.education.classroom.strategy.context;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -127,6 +128,7 @@ public abstract class ClassContext implements ChannelEventListener {
         switch (msg.cmd) {
             case CHAT:
                 ChannelMsg.ChatMsg chatMsg = msg.getMsg(ChannelMsg.ChatMsg.class);
+                chatMsg.isMe = TextUtils.equals(chatMsg.userId, channelStrategy.getLocal().userId);
                 runListener(() -> classEventListener.onChatMsgReceived(chatMsg));
                 break;
             case ROOM:
