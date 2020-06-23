@@ -29,7 +29,9 @@ public class EduApplication extends Application {
 
     @Nullable
     public static String getAppId() {
-        if (instance.config == null) return null;
+        if (instance.config == null) {
+            return null;
+        }
         return instance.config.appId;
     }
 
@@ -42,7 +44,9 @@ public class EduApplication extends Application {
 
     @Nullable
     public static Map<String, Map<Integer, String>> getMultiLanguage() {
-        if (instance.config == null) return null;
+        if (instance.config == null) {
+            return null;
+        }
         return instance.config.multiLanguage;
     }
 
