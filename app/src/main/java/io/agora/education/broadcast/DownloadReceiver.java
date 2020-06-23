@@ -42,7 +42,8 @@ public class DownloadReceiver extends BroadcastReceiver {
         DownloadManager.Request request;
         try {
             request = new DownloadManager.Request(Uri.parse(url));
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
             return;
         }

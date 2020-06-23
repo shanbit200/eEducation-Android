@@ -97,8 +97,7 @@ public class SmallClassActivity extends BaseClassActivity implements SmallClassC
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         if (tab.getPosition() == 0) {
             transaction.show(chatRoomFragment).hide(userListFragment);
-        }
-        else {
+        } else {
             transaction.show(userListFragment).hide(chatRoomFragment);
         }
         transaction.commit();

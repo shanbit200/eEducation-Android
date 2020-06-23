@@ -63,8 +63,7 @@ public class RtmChannelStrategy extends ChannelStrategy<List<RtmChannelAttribute
         List<User> users = getAllUsers();
         if (users.size() == 0) {
             callback.onSuccess(0);
-        }
-        else {
+        } else {
             Set<String> set = new HashSet<>();
             for (User user : users) {
                 set.add(user.getUid());
@@ -120,14 +119,11 @@ public class RtmChannelStrategy extends ChannelStrategy<List<RtmChannelAttribute
             String value = attribute.getValue();
             if (TextUtils.equals(attribute.getKey(), "room")) {
                 updateRoom(Room.fromJson(value, Room.class));
-            }
-            else if (TextUtils.equals(attribute.getKey(), "teacher")) {
+            } else if (TextUtils.equals(attribute.getKey(), "teacher")) {
                 users.add(User.fromJson(value, User.class));
-            }
-            else if (TextUtils.equals(attribute.getKey(), getLocal().getUid())) {
+            } else if (TextUtils.equals(attribute.getKey(), getLocal().getUid())) {
                 users.add(User.fromJson(value, User.class));
-            }
-            else {
+            } else {
                 users.add(User.fromJson(value, User.class));
             }
         }

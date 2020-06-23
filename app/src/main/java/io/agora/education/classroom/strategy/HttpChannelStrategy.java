@@ -88,7 +88,7 @@ public class HttpChannelStrategy extends ChannelStrategy<RoomRes> {
                         callback.onSuccess(null);
                     }
                 }, throwable -> {
-                    if (callback instanceof ThrowableCallback){
+                    if (callback instanceof ThrowableCallback) {
                         ((ThrowableCallback<Void>) callback).onFailure(throwable);
                     }
                 }));
