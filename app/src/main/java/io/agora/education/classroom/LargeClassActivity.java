@@ -23,8 +23,7 @@ import io.agora.education.classroom.bean.channel.User;
 import io.agora.education.classroom.strategy.context.LargeClassContext;
 import io.agora.education.classroom.widget.RtcVideoView;
 
-public class LargeClassActivity extends BaseClassActivity implements LargeClassContext.LargeClassEventListener, TabLayout.OnTabSelectedListener
-{
+public class LargeClassActivity extends BaseClassActivity implements LargeClassContext.LargeClassEventListener, TabLayout.OnTabSelectedListener {
 
     @BindView(R.id.layout_video_teacher)
     protected FrameLayout layout_video_teacher;
@@ -46,48 +45,40 @@ public class LargeClassActivity extends BaseClassActivity implements LargeClassC
     private User linkUser;
 
     @Override
-    protected int getLayoutResId()
-    {
+    protected int getLayoutResId() {
         Configuration configuration = getResources().getConfiguration();
-        if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT)
-        {
+        if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
             return R.layout.activity_large_class_portrait;
         }
-        else
-        {
+        else {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
             return R.layout.activity_large_class_landscape;
         }
     }
 
     @Override
-    protected void initView()
-    {
+    protected void initView() {
         super.initView();
-        if (video_teacher == null)
-        {
+        if (video_teacher == null) {
             video_teacher = new RtcVideoView(this);
             video_teacher.init(R.layout.layout_video_large_class, false);
         }
         removeFromParent(video_teacher);
         layout_video_teacher.addView(video_teacher, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
-        if (video_student == null)
-        {
+        if (video_student == null) {
             video_student = new RtcVideoView(this);
             video_student.init(R.layout.layout_video_small_class, true);
             video_student.setOnClickAudioListener(v ->
             {
-                if (isMineLink())
-                {
+                if (isMineLink()) {
                     muteLocalAudio(!video_student.isAudioMuted());
                 }
             });
             video_student.setOnClickVideoListener(v ->
             {
-                if (isMineLink())
-                {
+                if (isMineLink()) {
                     muteLocalVideo(!video_student.isVideoMuted());
                 }
             });
@@ -102,8 +93,7 @@ public class LargeClassActivity extends BaseClassActivity implements LargeClassC
         whiteboardFragment.disableDeviceInputs(true);
         whiteboardFragment.setWritable(false);
 
-        if (surface_share_video != null)
-        {
+        if (surface_share_video != null) {
             removeFromParent(surface_share_video);
             layout_share_video.addView(surface_share_video, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         }
@@ -112,14 +102,12 @@ public class LargeClassActivity extends BaseClassActivity implements LargeClassC
     }
 
     @Override
-    protected int getClassType()
-    {
+    protected int getClassType() {
         return Room.Type.LARGE;
     }
 
     @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig)
-    {
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         setContentView(getLayoutResId());
         ButterKnife.bind(this);
@@ -127,28 +115,23 @@ public class LargeClassActivity extends BaseClassActivity implements LargeClassC
     }
 
     @OnClick(R.id.layout_hand_up)
-    public void onClick(View view)
-    {
+    public void onClick(View view) {
         boolean isSelected = view.isSelected();
-        if (isSelected)
-        {
+        if (isSelected) {
             ((LargeClassContext) classContext).cancel();
         }
-        else
-        {
+        else {
             ((LargeClassContext) classContext).apply();
         }
     }
 
     @Override
-    public void onUserCountChanged(int count)
-    {
+    public void onUserCountChanged(int count) {
         title_view.setTitle(String.format(Locale.getDefault(), "%s(%d)", getRoomName(), count));
     }
 
     @Override
-    public void onTeacherMediaChanged(User user)
-    {
+    public void onTeacherMediaChanged(User user) {
         video_teacher.setName(user.userName);
         video_teacher.showRemote(user.uid);
         video_teacher.muteVideo(!user.isVideoEnable());
@@ -156,24 +139,19 @@ public class LargeClassActivity extends BaseClassActivity implements LargeClassC
     }
 
     @Override
-    public void onLinkMediaChanged(User user)
-    {
+    public void onLinkMediaChanged(User user) {
         linkUser = user;
         resetHandState();
-        if (user == null)
-        {
+        if (user == null) {
             video_student.setVisibility(View.GONE);
             video_student.setSurfaceView(null);
         }
-        else
-        {
+        else {
             video_student.setName(user.userName);
-            if (user.uid == getLocal().uid)
-            {
+            if (user.uid == getLocal().uid) {
                 video_student.showLocal();
             }
-            else
-            {
+            else {
                 video_student.showRemote(user.uid);
             }
             // make sure the student video always on the top
@@ -184,34 +162,28 @@ public class LargeClassActivity extends BaseClassActivity implements LargeClassC
         }
     }
 
-    private boolean isMineLink()
-    {
+    private boolean isMineLink() {
         return linkUser != null && linkUser.uid == getLocal().uid;
     }
 
     @Override
-    public void onHandUpCanceled()
-    {
+    public void onHandUpCanceled() {
         layout_hand_up.setSelected(false);
     }
 
-    private void resetHandState()
-    {
-        if (isMineLink())
-        {
+    private void resetHandState() {
+        if (isMineLink()) {
             layout_hand_up.setEnabled(true);
             layout_hand_up.setSelected(true);
         }
-        else
-        {
+        else {
             layout_hand_up.setEnabled(linkUser == null);
             layout_hand_up.setSelected(false);
         }
     }
 
     @Override
-    public void onTabSelected(TabLayout.Tab tab)
-    {
+    public void onTabSelected(TabLayout.Tab tab) {
         if (layout_materials == null)
             return;
         boolean showMaterials = tab.getPosition() == 0;
@@ -220,14 +192,12 @@ public class LargeClassActivity extends BaseClassActivity implements LargeClassC
     }
 
     @Override
-    public void onTabUnselected(TabLayout.Tab tab)
-    {
+    public void onTabUnselected(TabLayout.Tab tab) {
 
     }
 
     @Override
-    public void onTabReselected(TabLayout.Tab tab)
-    {
+    public void onTabReselected(TabLayout.Tab tab) {
 
     }
 

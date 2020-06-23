@@ -41,8 +41,7 @@ import io.agora.education.widget.PolicyDialog;
 import io.agora.sdk.manager.RtcManager;
 import io.agora.sdk.manager.RtmManager;
 
-public class MainActivity extends BaseActivity
-{
+public class MainActivity extends BaseActivity {
 
     private final int REQUEST_CODE_DOWNLOAD = 100;
     private final int REQUEST_CODE_RTC = 101;
@@ -63,14 +62,12 @@ public class MainActivity extends BaseActivity
     private boolean isJoining;
 
     @Override
-    protected int getLayoutResId()
-    {
+    protected int getLayoutResId() {
         return R.layout.activity_main;
     }
 
     @Override
-    protected void initData()
-    {
+    protected void initData() {
         receiver = new DownloadReceiver();
         IntentFilter filter = new IntentFilter();
         filter.addAction(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
@@ -90,11 +87,9 @@ public class MainActivity extends BaseActivity
     }
 
     @Override
-    protected void initView()
-    {
+    protected void initView() {
         new PolicyDialog().show(getSupportFragmentManager(), null);
-        if (BuildConfig.DEBUG)
-        {
+        if (BuildConfig.DEBUG) {
             et_room_name.setText("123");
             et_room_name.setSelection(et_room_name.length());
             et_your_name.setText("123");
@@ -102,83 +97,69 @@ public class MainActivity extends BaseActivity
     }
 
     @Override
-    protected void onDestroy()
-    {
+    protected void onDestroy() {
         unregisterReceiver(receiver);
         RtmManager.instance().reset();
         super.onDestroy();
     }
 
-    private void checkVersion()
-    {
+    private void checkVersion() {
         commonService.appVersion().enqueue(new BaseCallback<>(data ->
         {
-            if (data != null && data.forcedUpgrade != 0)
-            {
+            if (data != null && data.forcedUpgrade != 0) {
                 showAppUpgradeDialog(data.upgradeUrl, data.forcedUpgrade == 2);
             }
         }));
     }
 
-    private void showAppUpgradeDialog(String url, boolean isForce)
-    {
+    private void showAppUpgradeDialog(String url, boolean isForce) {
         this.url = url;
         String content = getString(R.string.app_upgrade);
         ConfirmDialog.DialogClickListener listener = confirm ->
         {
-            if (confirm)
-            {
+            if (confirm) {
                 if (AppUtil.checkAndRequestAppPermission(MainActivity.this, new String[]{
                         Manifest.permission.WRITE_EXTERNAL_STORAGE
-                }, REQUEST_CODE_DOWNLOAD))
-                {
+                }, REQUEST_CODE_DOWNLOAD)) {
                     receiver.downloadApk(MainActivity.this, url);
                 }
             }
         };
         ConfirmDialog dialog;
-        if (isForce)
-        {
+        if (isForce) {
             dialog = ConfirmDialog.singleWithButton(content, getString(R.string.upgrade), listener);
             dialog.setCancelable(false);
         }
-        else
-        {
+        else {
             dialog = ConfirmDialog.normalWithButton(content, getString(R.string.later), getString(R.string.upgrade), listener);
         }
         dialog.show(getSupportFragmentManager(), null);
     }
 
-    private void getConfig()
-    {
+    private void getConfig() {
         commonService.language().enqueue(new BaseCallback<>(EduApplication::setMultiLanguage));
     }
 
-    private void joinRoom()
-    {
+    private void joinRoom() {
         String roomNameStr = et_room_name.getText().toString();
-        if (TextUtils.isEmpty(roomNameStr))
-        {
+        if (TextUtils.isEmpty(roomNameStr)) {
             ToastManager.showShort(R.string.room_name_should_not_be_empty);
             return;
         }
 
         String yourNameStr = et_your_name.getText().toString();
-        if (TextUtils.isEmpty(yourNameStr))
-        {
+        if (TextUtils.isEmpty(yourNameStr)) {
             ToastManager.showShort(R.string.your_name_should_not_be_empty);
             return;
         }
 
         String roomTypeStr = et_room_type.getText().toString();
-        if (TextUtils.isEmpty(roomTypeStr))
-        {
+        if (TextUtils.isEmpty(roomTypeStr)) {
             ToastManager.showShort(R.string.room_type_should_not_be_empty);
             return;
         }
 
-        if (EduApplication.getMultiLanguage() == null)
-        {
+        if (EduApplication.getMultiLanguage() == null) {
             ToastManager.showShort(R.string.configuration_load_failed);
             getConfig();
             return;
@@ -188,69 +169,55 @@ public class MainActivity extends BaseActivity
     }
 
     @Room.Type
-    private int getClassType(String roomTypeStr)
-    {
-        if (roomTypeStr.equals(getString(R.string.one2one_class)))
-        {
+    private int getClassType(String roomTypeStr) {
+        if (roomTypeStr.equals(getString(R.string.one2one_class))) {
             return Room.Type.ONE2ONE;
         }
-        else if (roomTypeStr.equals(getString(R.string.small_class)))
-        {
+        else if (roomTypeStr.equals(getString(R.string.small_class))) {
             return Room.Type.SMALL;
         }
-        else
-        {
+        else {
             return Room.Type.LARGE;
         }
     }
 
-    private void roomEntry(String yourNameStr, String roomNameStr, @Room.Type int classType)
-    {
+    private void roomEntry(String yourNameStr, String roomNameStr, @Room.Type int classType) {
         if (isJoining) return;
         isJoining = true;
-        roomService.roomEntry(EduApplication.getAppId(), new RoomEntryReq()
-        {{
+        roomService.roomEntry(EduApplication.getAppId(), new RoomEntryReq() {{
             userName = yourNameStr;
             userUuid = UUIDUtil.getUUID();
             roomName = roomNameStr;
             roomUuid = roomNameStr;
             type = classType;
-        }}).enqueue(new BaseCallback<>(new BaseCallback.SuccessCallback<RoomEntryRes>()
-        {
+        }}).enqueue(new BaseCallback<>(new BaseCallback.SuccessCallback<RoomEntryRes>() {
             @Override
-            public void onSuccess(RoomEntryRes data)
-            {
+            public void onSuccess(RoomEntryRes data) {
                 RetrofitManager.instance().addHeader("token", data.userToken);
                 MainActivity.this.room(data.roomId);
             }
-        }, new BaseCallback.FailureCallback()
-        {
+        }, new BaseCallback.FailureCallback() {
             @Override
-            public void onFailure(Throwable throwable)
-            {
+            public void onFailure(Throwable throwable) {
                 isJoining = false;
             }
         }));
     }
 
-    private void room(String roomId)
-    {
+    private void room(String roomId) {
         roomService.room(EduApplication.getAppId(), roomId).enqueue(new BaseCallback<>(data ->
         {
             User user = data.user;
             Room room = data.room;
-            RtmManager.instance().login(user.rtmToken, user.uid, new ThrowableCallback<Void>()
-            {
+            RtmManager.instance().login(user.rtmToken, user.uid, new ThrowableCallback<Void>() {
                 @Override
-                public void onSuccess(Void res)
-                {
+                public void onSuccess(Void res) {
                     startActivity(createIntent(room, user));
                     isJoining = false;
                 }
 
                 @Override
-                public void onFailure(Throwable throwable)
-                {
+                public void onFailure(Throwable throwable) {
                     ToastManager.showShort(throwable.getMessage());
                     isJoining = false;
                 }
@@ -258,19 +225,15 @@ public class MainActivity extends BaseActivity
         }, throwable -> isJoining = false));
     }
 
-    private Intent createIntent(Room room, User user)
-    {
+    private Intent createIntent(Room room, User user) {
         Intent intent = new Intent();
-        if (room.type == Room.Type.ONE2ONE)
-        {
+        if (room.type == Room.Type.ONE2ONE) {
             intent.setClass(this, OneToOneClassActivity.class);
         }
-        else if (room.type == Room.Type.SMALL)
-        {
+        else if (room.type == Room.Type.SMALL) {
             intent.setClass(this, SmallClassActivity.class);
         }
-        else
-        {
+        else {
             intent.setClass(this, LargeClassActivity.class);
         }
         intent.putExtra(BaseClassActivity.ROOM, room)
@@ -279,19 +242,15 @@ public class MainActivity extends BaseActivity
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
-    {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        for (int result : grantResults)
-        {
-            if (result != PackageManager.PERMISSION_GRANTED)
-            {
+        for (int result : grantResults) {
+            if (result != PackageManager.PERMISSION_GRANTED) {
                 ToastManager.showShort(R.string.no_enough_permissions);
                 return;
             }
         }
-        switch (requestCode)
-        {
+        switch (requestCode) {
             case REQUEST_CODE_DOWNLOAD:
                 receiver.downloadApk(this, url);
                 break;
@@ -302,10 +261,8 @@ public class MainActivity extends BaseActivity
     }
 
     @OnClick({R.id.iv_setting, R.id.et_room_type, R.id.btn_join, R.id.tv_one2one, R.id.tv_small_class, R.id.tv_large_class})
-    public void onClick(View view)
-    {
-        switch (view.getId())
-        {
+    public void onClick(View view) {
+        switch (view.getId()) {
             case R.id.iv_setting:
                 startActivity(new Intent(this, SettingActivity.class));
                 break;
@@ -314,8 +271,7 @@ public class MainActivity extends BaseActivity
                         Manifest.permission.RECORD_AUDIO,
                         Manifest.permission.CAMERA,
                         Manifest.permission.WRITE_EXTERNAL_STORAGE
-                }, REQUEST_CODE_RTC))
-                {
+                }, REQUEST_CODE_RTC)) {
                     joinRoom();
                 }
                 break;
@@ -335,16 +291,12 @@ public class MainActivity extends BaseActivity
     }
 
     @OnTouch(R.id.et_room_type)
-    public void onTouch(View view, MotionEvent event)
-    {
-        if (event.getAction() == MotionEvent.ACTION_UP)
-        {
-            if (card_room_type.getVisibility() == View.GONE)
-            {
+    public void onTouch(View view, MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            if (card_room_type.getVisibility() == View.GONE) {
                 card_room_type.setVisibility(View.VISIBLE);
             }
-            else
-            {
+            else {
                 card_room_type.setVisibility(View.GONE);
             }
         }

@@ -18,8 +18,7 @@ import io.agora.education.base.BaseCallback;
 import io.agora.education.classroom.fragment.ReplayBoardFragment;
 import io.agora.education.service.RoomService;
 
-public class ReplayActivity extends BaseActivity
-{
+public class ReplayActivity extends BaseActivity {
 
     public static final String WHITEBOARD_ROOM_ID = "whiteboardRoomId";
     public static final String WHITEBOARD_START_TIME = "whiteboardStartTime";
@@ -35,14 +34,12 @@ public class ReplayActivity extends BaseActivity
     private boolean isInit;
 
     @Override
-    protected int getLayoutResId()
-    {
+    protected int getLayoutResId() {
         return R.layout.activity_replay;
     }
 
     @Override
-    protected void initData()
-    {
+    protected void initData() {
         Intent intent = getIntent();
         url = intent.getStringExtra(WHITEBOARD_URL);
         roomId = intent.getStringExtra(WHITEBOARD_ROOM_ID);
@@ -51,8 +48,7 @@ public class ReplayActivity extends BaseActivity
     }
 
     @Override
-    protected void initView()
-    {
+    protected void initView() {
         video_view.setUseController(false);
         video_view.setVisibility(!TextUtils.isEmpty(url) ? View.VISIBLE : View.GONE);
         findViewById(R.id.iv_temp).setVisibility(TextUtils.isEmpty(url) ? View.VISIBLE : View.GONE);
@@ -68,11 +64,9 @@ public class ReplayActivity extends BaseActivity
     }
 
     @Override
-    protected void onResumeFragments()
-    {
+    protected void onResumeFragments() {
         super.onResumeFragments();
-        if (!isInit)
-        {
+        if (!isInit) {
             RetrofitManager.instance().getService(BuildConfig.API_BASE_URL, RoomService.class)
                     .roomBoard(EduApplication.getAppId(), roomId)
                     .enqueue(new BaseCallback<>(data ->
@@ -85,15 +79,13 @@ public class ReplayActivity extends BaseActivity
     }
 
     @Override
-    protected void onDestroy()
-    {
+    protected void onDestroy() {
         replayBoardFragment.releaseReplay();
         super.onDestroy();
     }
 
     @OnClick(R.id.iv_back)
-    public void onClick(View view)
-    {
+    public void onClick(View view) {
         finish();
     }
 

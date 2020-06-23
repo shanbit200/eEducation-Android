@@ -27,41 +27,33 @@ import io.agora.sdk.manager.RtcManager;
 import io.agora.sdk.manager.RtmManager;
 import io.agora.sdk.manager.SdkManager;
 
-public class HttpChannelStrategy extends ChannelStrategy<RoomRes>
-{
+public class HttpChannelStrategy extends ChannelStrategy<RoomRes> {
 
     private RoomService roomService;
 
-    public HttpChannelStrategy(String channelId, User local)
-    {
+    public HttpChannelStrategy(String channelId, User local) {
         super(channelId, local);
         roomService = RetrofitManager.instance().getService(BuildConfig.API_BASE_URL, RoomService.class);
         RtmManager.instance().registerListener(rtmEventListener);
     }
 
     @Override
-    public void release()
-    {
+    public void release() {
         super.release();
         RtmManager.instance().unregisterListener(rtmEventListener);
     }
 
     @Override
-    public void joinChannel()
-    {
-        roomService.room(EduApplication.getAppId(), getChannelId()).enqueue(new BaseCallback<>(new BaseCallback.SuccessCallback<RoomRes>()
-        {
+    public void joinChannel() {
+        roomService.room(EduApplication.getAppId(), getChannelId()).enqueue(new BaseCallback<>(new BaseCallback.SuccessCallback<RoomRes>() {
             @Override
-            public void onSuccess(RoomRes data)
-            {
+            public void onSuccess(RoomRes data) {
                 Room room = data.room;
                 User user = data.user;
-                RtmManager.instance().joinChannel(new HashMap<String, String>()
-                {{
+                RtmManager.instance().joinChannel(new HashMap<String, String>() {{
                     put(SdkManager.CHANNEL_ID, room.channelName);
                 }});
-                RtcManager.instance().joinChannel(new HashMap<String, String>()
-                {{
+                RtcManager.instance().joinChannel(new HashMap<String, String>() {{
                     put(SdkManager.TOKEN, user.rtcToken);
                     put(SdkManager.CHANNEL_ID, room.channelName);
                     put(SdkManager.USER_ID, user.getUid());
@@ -72,35 +64,27 @@ public class HttpChannelStrategy extends ChannelStrategy<RoomRes>
     }
 
     @Override
-    public void leaveChannel()
-    {
+    public void leaveChannel() {
         roomService.roomExit(EduApplication.getAppId(), getChannelId());
         RtmManager.instance().leaveChannel();
         RtcManager.instance().leaveChannel();
     }
 
     @Override
-    public void queryOnlineUserNum(@NonNull Callback<Integer> callback)
-    {
+    public void queryOnlineUserNum(@NonNull Callback<Integer> callback) {
         roomService.room(EduApplication.getAppId(), getChannelId()).enqueue(new BaseCallback<>(
-                new BaseCallback.SuccessCallback<RoomRes>()
-                {
+                new BaseCallback.SuccessCallback<RoomRes>() {
                     @Override
-                    public void onSuccess(RoomRes data)
-                    {
-                        if (callback != null)
-                        {
+                    public void onSuccess(RoomRes data) {
+                        if (callback != null) {
                             callback.onSuccess(data.room.onlineUsers);
                         }
                     }
                 },
-                new BaseCallback.FailureCallback()
-                {
+                new BaseCallback.FailureCallback() {
                     @Override
-                    public void onFailure(Throwable throwable)
-                    {
-                        if (callback != null && callback instanceof ThrowableCallback)
-                        {
+                    public void onFailure(Throwable throwable) {
+                        if (callback != null && callback instanceof ThrowableCallback) {
                             ((ThrowableCallback<Integer>) callback).onFailure(throwable);
                         }
                     }
@@ -109,27 +93,20 @@ public class HttpChannelStrategy extends ChannelStrategy<RoomRes>
     }
 
     @Override
-    public void queryChannelInfo(@Nullable Callback<Void> callback)
-    {
+    public void queryChannelInfo(@Nullable Callback<Void> callback) {
         roomService.room(EduApplication.getAppId(), getChannelId())
-                .enqueue(new BaseCallback<>(new BaseCallback.SuccessCallback<RoomRes>()
-                {
+                .enqueue(new BaseCallback<>(new BaseCallback.SuccessCallback<RoomRes>() {
                     @Override
-                    public void onSuccess(RoomRes data)
-                    {
+                    public void onSuccess(RoomRes data) {
                         HttpChannelStrategy.this.parseChannelInfo(data);
-                        if (callback != null)
-                        {
+                        if (callback != null) {
                             callback.onSuccess(null);
                         }
                     }
-                }, new BaseCallback.FailureCallback()
-                {
+                }, new BaseCallback.FailureCallback() {
                     @Override
-                    public void onFailure(Throwable throwable)
-                    {
-                        if (callback != null && callback instanceof ThrowableCallback)
-                        {
+                    public void onFailure(Throwable throwable) {
+                        if (callback != null && callback instanceof ThrowableCallback) {
                             ((ThrowableCallback<Void>) callback).onFailure(throwable);
                         }
                     }
@@ -137,35 +114,27 @@ public class HttpChannelStrategy extends ChannelStrategy<RoomRes>
     }
 
     @Override
-    public void parseChannelInfo(RoomRes data)
-    {
+    public void parseChannelInfo(RoomRes data) {
         Room room = data.room;
         updateRoom(room);
         updateCoVideoUsers(room.coVideoUsers);
     }
 
     @Override
-    public void updateLocalAttribute(User local, @Nullable Callback<Void> callback)
-    {
+    public void updateLocalAttribute(User local, @Nullable Callback<Void> callback) {
         roomService.user(EduApplication.getAppId(), getChannelId(), local.userId, UserReq.fromUser(local))
-                .enqueue(new BaseCallback<>(new BaseCallback.SuccessCallback<Boolean>()
-                {
+                .enqueue(new BaseCallback<>(new BaseCallback.SuccessCallback<Boolean>() {
                     @Override
-                    public void onSuccess(Boolean data)
-                    {
-                        if (callback != null)
-                        {
+                    public void onSuccess(Boolean data) {
+                        if (callback != null) {
                             callback.onSuccess(null);
                         }
                         HttpChannelStrategy.this.queryChannelInfo(null);
                     }
-                }, new BaseCallback.FailureCallback()
-                {
+                }, new BaseCallback.FailureCallback() {
                     @Override
-                    public void onFailure(Throwable throwable)
-                    {
-                        if (callback != null && callback instanceof ThrowableCallback)
-                        {
+                    public void onFailure(Throwable throwable) {
+                        if (callback != null && callback instanceof ThrowableCallback) {
                             ((ThrowableCallback<Void>) callback).onFailure(throwable);
                         }
                     }
@@ -173,74 +142,59 @@ public class HttpChannelStrategy extends ChannelStrategy<RoomRes>
     }
 
     @Override
-    public void clearLocalAttribute(@Nullable Callback<Void> callback)
-    {
+    public void clearLocalAttribute(@Nullable Callback<Void> callback) {
         UserReq req = UserReq.fromUser(getLocal());
         req.coVideo = User.CoVideo.DISABLE;
         roomService.user(EduApplication.getAppId(), getChannelId(), getLocal().userId, req)
                 .enqueue(new BaseCallback<>(data ->
                 {
-                    if (callback != null)
-                    {
+                    if (callback != null) {
                         callback.onSuccess(null);
                     }
                 }, throwable ->
                 {
-                    if (callback != null && callback instanceof ThrowableCallback)
-                    {
+                    if (callback != null && callback instanceof ThrowableCallback) {
                         ((ThrowableCallback<Void>) callback).onFailure(throwable);
                     }
                 }));
     }
 
-    private RtmEventListener rtmEventListener = new RtmEventListener()
-    {
+    private RtmEventListener rtmEventListener = new RtmEventListener() {
         @Override
-        public void onJoinChannelSuccess(String channel)
-        {
-            queryChannelInfo(new ThrowableCallback<Void>()
-            {
+        public void onJoinChannelSuccess(String channel) {
+            queryChannelInfo(new ThrowableCallback<Void>() {
                 @Override
-                public void onSuccess(Void aVoid)
-                {
-                    if (channelEventListener != null)
-                    {
+                public void onSuccess(Void aVoid) {
+                    if (channelEventListener != null) {
                         channelEventListener.onChannelInfoInit();
                     }
                 }
 
                 @Override
-                public void onFailure(Throwable throwable)
-                {
+                public void onFailure(Throwable throwable) {
                 }
             });
         }
 
         @Override
-        public void onMessageReceived(RtmMessage rtmMessage, RtmChannelMember rtmChannelMember)
-        {
-            if (channelEventListener != null)
-            {
+        public void onMessageReceived(RtmMessage rtmMessage, RtmChannelMember rtmChannelMember) {
+            if (channelEventListener != null) {
                 ChannelMsg msg = ChannelMsg.fromJson(rtmMessage.getText(), ChannelMsg.class);
                 channelEventListener.onChannelMsgReceived(msg);
             }
         }
 
         @Override
-        public void onMessageReceived(RtmMessage rtmMessage, String s)
-        {
-            if (channelEventListener != null)
-            {
+        public void onMessageReceived(RtmMessage rtmMessage, String s) {
+            if (channelEventListener != null) {
                 PeerMsg msg = PeerMsg.fromJson(rtmMessage.getText(), PeerMsg.class);
                 channelEventListener.onPeerMsgReceived(msg);
             }
         }
 
         @Override
-        public void onMemberCountUpdated(int count)
-        {
-            if (channelEventListener != null)
-            {
+        public void onMemberCountUpdated(int count) {
+            if (channelEventListener != null) {
                 channelEventListener.onMemberCountUpdated(count);
             }
         }

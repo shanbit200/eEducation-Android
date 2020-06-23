@@ -32,8 +32,7 @@ import static io.agora.education.classroom.bean.msg.ChannelMsg.Cmd.REPLAY;
 import static io.agora.education.classroom.bean.msg.ChannelMsg.Cmd.ROOM;
 import static io.agora.education.classroom.bean.msg.ChannelMsg.Cmd.USER;
 
-public abstract class ClassContext implements ChannelEventListener
-{
+public abstract class ClassContext implements ChannelEventListener {
 
     private Context context;
 
@@ -41,83 +40,69 @@ public abstract class ClassContext implements ChannelEventListener
     ChannelStrategy channelStrategy;
     ClassEventListener classEventListener;
 
-    ClassContext(Context context, @NonNull ChannelStrategy strategy)
-    {
+    ClassContext(Context context, @NonNull ChannelStrategy strategy) {
         this.context = context;
         channelStrategy = strategy;
         channelStrategy.setChannelEventListener(this);
         RtcManager.instance().registerListener(rtcEventListener);
     }
 
-    public final void setClassEventListener(@Nullable ClassEventListener listener)
-    {
+    public final void setClassEventListener(@Nullable ClassEventListener listener) {
         classEventListener = listener;
     }
 
     @Deprecated
     public abstract void checkChannelEnterable(@NonNull Callback<Boolean> callback);
 
-    public final void joinChannel()
-    {
+    public final void joinChannel() {
         preConfig();
         channelStrategy.joinChannel();
     }
 
-    public final void leaveChannel()
-    {
+    public final void leaveChannel() {
         channelStrategy.leaveChannel();
     }
 
     abstract void preConfig();
 
-    public final void muteLocalAudio(boolean isMute)
-    {
+    public final void muteLocalAudio(boolean isMute) {
         User local = channelStrategy.getLocal().copy();
         local.disableAudio(isMute);
         channelStrategy.updateLocalAttribute(local, null);
     }
 
-    public final void muteLocalVideo(boolean isMute)
-    {
+    public final void muteLocalVideo(boolean isMute) {
         User local = channelStrategy.getLocal().copy();
         local.disableVideo(isMute);
         channelStrategy.updateLocalAttribute(local, null);
     }
 
-    public final void release()
-    {
+    public final void release() {
         channelStrategy.release();
         RtcManager.instance().unregisterListener(rtcEventListener);
         leaveChannel();
     }
 
-    void runListener(Runnable runnable)
-    {
-        if (classEventListener != null)
-        {
-            if (context instanceof Activity)
-            {
+    void runListener(Runnable runnable) {
+        if (classEventListener != null) {
+            if (context instanceof Activity) {
                 ((Activity) context).runOnUiThread(runnable);
             }
         }
     }
 
     @Override
-    public void onChannelInfoInit()
-    {
-        runListener(new Runnable()
-        {
+    public void onChannelInfoInit() {
+        runListener(new Runnable() {
             @Override
-            public void run()
-            {
+            public void run() {
                 classEventListener.onTeacherInit(channelStrategy.getTeacher());
             }
         });
     }
 
     @Override
-    public void onRoomChanged(Room room)
-    {
+    public void onRoomChanged(Room room) {
         runListener(() ->
         {
             classEventListener.onClassStateChanged(room.isCourseBegin(), new Date().getTime() - room.startTime);
@@ -131,8 +116,7 @@ public abstract class ClassContext implements ChannelEventListener
     }
 
     @Override
-    public void onLocalChanged(User local)
-    {
+    public void onLocalChanged(User local) {
         RtcManager.instance().setClientRole(local.isCoVideoEnable() ? Constants.CLIENT_ROLE_BROADCASTER : Constants.CLIENT_ROLE_AUDIENCE);
         RtcManager.instance().muteLocalVideoStream(!local.isVideoEnable());
         RtcManager.instance().muteLocalAudioStream(!local.isAudioEnable());
@@ -140,16 +124,13 @@ public abstract class ClassContext implements ChannelEventListener
     }
 
     @Override
-    public void onCoVideoUsersChanged(List<User> users)
-    {
+    public void onCoVideoUsersChanged(List<User> users) {
     }
 
     @Override
     @SuppressLint("SwitchIntDef")
-    public void onChannelMsgReceived(ChannelMsg msg)
-    {
-        switch (msg.cmd)
-        {
+    public void onChannelMsgReceived(ChannelMsg msg) {
+        switch (msg.cmd) {
             case CHAT:
                 ChannelMsg.ChatMsg chatMsg = msg.getMsg(ChannelMsg.ChatMsg.class);
                 runListener(() -> classEventListener.onChatMsgReceived(chatMsg));
@@ -170,47 +151,36 @@ public abstract class ClassContext implements ChannelEventListener
     }
 
     @Override
-    public void onPeerMsgReceived(PeerMsg msg)
-    {
+    public void onPeerMsgReceived(PeerMsg msg) {
     }
 
     @Override
-    public void onMemberCountUpdated(int count)
-    {
+    public void onMemberCountUpdated(int count) {
     }
 
-    private RtcEventListener rtcEventListener = new RtcEventListener()
-    {
+    private RtcEventListener rtcEventListener = new RtcEventListener() {
         @Override
-        public void onNetworkQuality(int uid, int txQuality, int rxQuality)
-        {
-            if (uid == 0)
-            {
+        public void onNetworkQuality(int uid, int txQuality, int rxQuality) {
+            if (uid == 0) {
                 runListener(() -> classEventListener.onNetworkQualityChanged(Math.max(txQuality, rxQuality)));
             }
         }
 
         @Override
-        public void onUserJoined(int uid, int elapsed)
-        {
+        public void onUserJoined(int uid, int elapsed) {
             User teacher = channelStrategy.getTeacher();
-            if (teacher != null)
-            {
-                if (uid == teacher.screenId)
-                {
+            if (teacher != null) {
+                if (uid == teacher.screenId) {
                     runListener(() -> classEventListener.onScreenShareJoined(uid));
                 }
             }
         }
 
         @Override
-        public void onUserOffline(int uid, int reason)
-        {
+        public void onUserOffline(int uid, int reason) {
             User teacher = channelStrategy.getTeacher();
-            if (teacher != null)
-            {
-                if (uid == teacher.screenId)
-                {
+            if (teacher != null) {
+                if (uid == teacher.screenId) {
                     runListener(() -> classEventListener.onScreenShareOffline(uid));
                 }
             }

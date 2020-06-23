@@ -23,8 +23,7 @@ import io.agora.rtc.video.VideoCanvas;
 import io.agora.sdk.annotation.NetworkQuality;
 import io.agora.sdk.manager.RtcManager;
 
-public abstract class BaseClassActivity extends BaseActivity implements ClassEventListener
-{
+public abstract class BaseClassActivity extends BaseActivity implements ClassEventListener {
 
     public static final String ROOM = "room";
     public static final String USER = "user";
@@ -44,14 +43,12 @@ public abstract class BaseClassActivity extends BaseActivity implements ClassEve
     protected ClassContext classContext;
 
     @Override
-    protected void initData()
-    {
+    protected void initData() {
         initStrategy();
     }
 
     @Override
-    protected void initView()
-    {
+    protected void initView() {
         title_view.setTitle(getRoomName());
 
         getSupportFragmentManager().beginTransaction()
@@ -65,25 +62,21 @@ public abstract class BaseClassActivity extends BaseActivity implements ClassEve
                 .commit();
     }
 
-    protected final void initStrategy()
-    {
+    protected final void initStrategy() {
         classContext = new ClassContextFactory(this).getClassContext(getClassType(), getRoomId(), getLocal());
         classContext.setClassEventListener(this);
         classContext.joinChannel();
     }
 
-    public final void muteLocalAudio(boolean isMute)
-    {
+    public final void muteLocalAudio(boolean isMute) {
         classContext.muteLocalAudio(isMute);
     }
 
-    public final void muteLocalVideo(boolean isMute)
-    {
+    public final void muteLocalVideo(boolean isMute) {
         classContext.muteLocalVideo(isMute);
     }
 
-    public final User getLocal()
-    {
+    public final User getLocal() {
         return getUserFromIntent();
     }
 
@@ -91,110 +84,89 @@ public abstract class BaseClassActivity extends BaseActivity implements ClassEve
     protected abstract int getClassType();
 
     @Override
-    protected void onDestroy()
-    {
+    protected void onDestroy() {
         classContext.release();
         whiteboardFragment.releaseBoard();
         super.onDestroy();
     }
 
     @Override
-    public void onBackPressed()
-    {
+    public void onBackPressed() {
         showLeaveDialog();
     }
 
-    public final void showLeaveDialog()
-    {
-        ConfirmDialog.normal(getString(R.string.confirm_leave_room_content), new ConfirmDialog.DialogClickListener()
-        {
+    public final void showLeaveDialog() {
+        ConfirmDialog.normal(getString(R.string.confirm_leave_room_content), new ConfirmDialog.DialogClickListener() {
             @Override
-            public void onClick(boolean confirm)
-            {
-                if (confirm)
-                {
+            public void onClick(boolean confirm) {
+                if (confirm) {
                     BaseClassActivity.this.finish();
                 }
             }
         }).show(getSupportFragmentManager(), null);
     }
 
-    private Room getRoomFromIntent()
-    {
+    private Room getRoomFromIntent() {
         return (Room) getIntent().getSerializableExtra(ROOM);
     }
 
-    public final String getRoomId()
-    {
+    public final String getRoomId() {
         return getRoomFromIntent().roomId;
     }
 
-    public final String getRoomName()
-    {
+    public final String getRoomName() {
         return getRoomFromIntent().roomName;
     }
 
-    private User getUserFromIntent()
-    {
+    private User getUserFromIntent() {
         return (User) getIntent().getSerializableExtra(USER);
     }
 
     @Override
-    public void onTeacherInit(User teacher)
-    {
-        if (teacher == null)
-        {
+    public void onTeacherInit(User teacher) {
+        if (teacher == null) {
             ToastManager.showShort(R.string.there_is_no_teacher_in_this_classroom);
         }
     }
 
     @Override
-    public void onNetworkQualityChanged(@NetworkQuality int quality)
-    {
+    public void onNetworkQualityChanged(@NetworkQuality int quality) {
         title_view.setNetworkQuality(quality);
     }
 
     @Override
-    public void onClassStateChanged(boolean isBegin, long time)
-    {
+    public void onClassStateChanged(boolean isBegin, long time) {
         title_view.setTimeState(isBegin, time);
     }
 
     @Override
-    public void onWhiteboardChanged(String uuid, String roomToken)
-    {
+    public void onWhiteboardChanged(String uuid, String roomToken) {
         whiteboardFragment.initBoardWithRoomToken(uuid, roomToken);
     }
 
     @Override
-    public void onLockWhiteboard(boolean locked)
-    {
+    public void onLockWhiteboard(boolean locked) {
         whiteboardFragment.disableCameraTransform(locked);
     }
 
     @Override
-    public void onMuteLocalChat(boolean muted)
-    {
+    public void onMuteLocalChat(boolean muted) {
         chatRoomFragment.setMuteLocal(muted);
     }
 
     @Override
-    public void onMuteAllChat(boolean muted)
-    {
+    public void onMuteAllChat(boolean muted) {
         chatRoomFragment.setMuteAll(muted);
     }
 
     @Override
-    public void onChatMsgReceived(ChannelMsg.ChatMsg msg)
-    {
+    public void onChatMsgReceived(ChannelMsg.ChatMsg msg) {
         chatRoomFragment.addMessage(msg);
     }
 
     @Override
-    public void onScreenShareJoined(int uid)
-    {
-        if (surface_share_video == null)
-        {
+    public void onScreenShareJoined(int uid) {
+        if (surface_share_video == null) {
             surface_share_video = RtcManager.instance().createRendererView(this);
         }
         layout_whiteboard.setVisibility(View.GONE);
@@ -207,13 +179,10 @@ public abstract class BaseClassActivity extends BaseActivity implements ClassEve
     }
 
     @Override
-    public void onScreenShareOffline(int uid)
-    {
+    public void onScreenShareOffline(int uid) {
         Object tag = surface_share_video.getTag();
-        if (tag instanceof Integer)
-        {
-            if ((int) tag == uid)
-            {
+        if (tag instanceof Integer) {
+            if ((int) tag == uid) {
                 layout_whiteboard.setVisibility(View.VISIBLE);
                 layout_share_video.setVisibility(View.GONE);
 
