@@ -30,14 +30,12 @@ public class OneToOneClassContext extends ClassContext {
                 channelStrategy.queryOnlineUserNum(new ThrowableCallback<Integer>() {
                     @Override
                     public void onSuccess(Integer integer) {
-                        if (callback != null) {
-                            callback.onSuccess(integer < MAX_USER_NUM);
-                        }
+                        callback.onSuccess(integer < MAX_USER_NUM);
                     }
 
                     @Override
                     public void onFailure(Throwable throwable) {
-                        if (callback != null && callback instanceof ThrowableCallback) {
+                        if (callback instanceof ThrowableCallback) {
                             ((ThrowableCallback) callback).onFailure(throwable);
                         }
                     }
@@ -46,7 +44,7 @@ public class OneToOneClassContext extends ClassContext {
 
             @Override
             public void onFailure(Throwable throwable) {
-                if (callback != null && callback instanceof ThrowableCallback) {
+                if (callback instanceof ThrowableCallback) {
                     ((ThrowableCallback) callback).onFailure(throwable);
                 }
             }
@@ -64,12 +62,7 @@ public class OneToOneClassContext extends ClassContext {
     public void onLocalChanged(User local) {
         super.onLocalChanged(local);
         if (classEventListener instanceof OneToOneClassEventListener) {
-            runListener(new Runnable() {
-                @Override
-                public void run() {
-                    ((OneToOneClassEventListener) classEventListener).onLocalMediaChanged(local);
-                }
-            });
+            runListener(() -> ((OneToOneClassEventListener) classEventListener).onLocalMediaChanged(local));
         }
     }
 
@@ -79,12 +72,7 @@ public class OneToOneClassContext extends ClassContext {
         if (classEventListener instanceof OneToOneClassEventListener) {
             for (User user : users) {
                 if (user.isTeacher()) {
-                    runListener(new Runnable() {
-                        @Override
-                        public void run() {
-                            ((OneToOneClassEventListener) classEventListener).onTeacherMediaChanged(user);
-                        }
-                    });
+                    runListener(() -> ((OneToOneClassEventListener) classEventListener).onTeacherMediaChanged(user));
                     return;
                 }
             }

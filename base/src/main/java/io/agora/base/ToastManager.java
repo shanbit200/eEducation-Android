@@ -30,8 +30,9 @@ public class ToastManager {
     }
 
     private static Context getContext() throws IllegalStateException {
-        if (sContext == null)
+        if (sContext == null) {
             throw new IllegalStateException("ToastManager is not initialized. Please call init() before use!");
+        }
         return sContext;
     }
 }

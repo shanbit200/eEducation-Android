@@ -35,7 +35,7 @@ public class SmallClassContext extends ClassContext {
 
                     @Override
                     public void onFailure(Throwable throwable) {
-                        if (callback != null && callback instanceof ThrowableCallback) {
+                        if (callback instanceof ThrowableCallback) {
                             ((ThrowableCallback) callback).onFailure(throwable);
                         }
                     }
@@ -44,7 +44,7 @@ public class SmallClassContext extends ClassContext {
 
             @Override
             public void onFailure(Throwable throwable) {
-                if (callback != null && callback instanceof ThrowableCallback) {
+                if (callback instanceof ThrowableCallback) {
                     ((ThrowableCallback) callback).onFailure(throwable);
                 }
             }

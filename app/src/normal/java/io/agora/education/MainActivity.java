@@ -127,8 +127,7 @@ public class MainActivity extends BaseActivity {
         if (isForce) {
             dialog = ConfirmDialog.singleWithButton(content, getString(R.string.upgrade), listener);
             dialog.setCancelable(false);
-        }
-        else {
+        } else {
             dialog = ConfirmDialog.normalWithButton(content, getString(R.string.later), getString(R.string.upgrade), listener);
         }
         dialog.show(getSupportFragmentManager(), null);
@@ -170,11 +169,9 @@ public class MainActivity extends BaseActivity {
     private int getClassType(String roomTypeStr) {
         if (roomTypeStr.equals(getString(R.string.one2one_class))) {
             return Room.Type.ONE2ONE;
-        }
-        else if (roomTypeStr.equals(getString(R.string.small_class))) {
+        } else if (roomTypeStr.equals(getString(R.string.small_class))) {
             return Room.Type.SMALL;
-        }
-        else {
+        } else {
             return Room.Type.LARGE;
         }
     }
@@ -220,11 +217,9 @@ public class MainActivity extends BaseActivity {
         Intent intent = new Intent();
         if (room.type == Room.Type.ONE2ONE) {
             intent.setClass(this, OneToOneClassActivity.class);
-        }
-        else if (room.type == Room.Type.SMALL) {
+        } else if (room.type == Room.Type.SMALL) {
             intent.setClass(this, SmallClassActivity.class);
-        }
-        else {
+        } else {
             intent.setClass(this, LargeClassActivity.class);
         }
         intent.putExtra(BaseClassActivity.ROOM, room)
@@ -290,8 +285,7 @@ public class MainActivity extends BaseActivity {
         if (event.getAction() == MotionEvent.ACTION_UP) {
             if (card_room_type.getVisibility() == View.GONE) {
                 card_room_type.setVisibility(View.VISIBLE);
-            }
-            else {
+            } else {
                 card_room_type.setVisibility(View.GONE);
             }
         }
