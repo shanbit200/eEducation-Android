@@ -93,19 +93,14 @@ public abstract class ClassContext implements ChannelEventListener {
 
     @Override
     public void onChannelInfoInit() {
-        runListener(new Runnable() {
-            @Override
-            public void run() {
-                classEventListener.onTeacherInit(channelStrategy.getTeacher());
-            }
-        });
+        runListener(() -> classEventListener.onTeacherInit(channelStrategy.getTeacher()));
     }
 
     @Override
     public void onRoomChanged(Room room) {
         runListener(() ->
         {
-            classEventListener.onClassStateChanged(room.isCourseBegin(), new Date().getTime() - room.startTime);
+            classEventListener.onClassStateChanged(room.isCourseBegin(), System.currentTimeMillis() - room.startTime);
             // TODO load white board
             RetrofitManager.instance().getService(BuildConfig.API_BASE_URL, RoomService.class)
                     .roomBoard(EduApplication.getAppId(), room.roomId)

@@ -190,18 +190,10 @@ public class MainActivity extends BaseActivity {
             roomName = roomNameStr;
             roomUuid = roomNameStr;
             type = classType;
-        }}).enqueue(new BaseCallback<>(new BaseCallback.SuccessCallback<RoomEntryRes>() {
-            @Override
-            public void onSuccess(RoomEntryRes data) {
-                RetrofitManager.instance().addHeader("token", data.userToken);
-                MainActivity.this.room(data.roomId);
-            }
-        }, new BaseCallback.FailureCallback() {
-            @Override
-            public void onFailure(Throwable throwable) {
-                isJoining = false;
-            }
-        }));
+        }}).enqueue(new BaseCallback<>(data -> {
+            RetrofitManager.instance().addHeader("token", data.userToken);
+            MainActivity.this.room(data.roomId);
+        }, throwable -> isJoining = false));
     }
 
     private void room(String roomId) {
