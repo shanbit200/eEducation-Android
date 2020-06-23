@@ -13,7 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import io.agora.base.Callback;
+import io.agora.base.callback.Callback;
+import io.agora.base.callback.ThrowableCallback;
 import io.agora.education.classroom.bean.channel.Room;
 import io.agora.education.classroom.bean.channel.User;
 import io.agora.education.classroom.bean.msg.ChannelMsg;
@@ -67,7 +68,7 @@ public class RtmChannelStrategy extends ChannelStrategy<List<RtmChannelAttribute
             for (User user : users) {
                 set.add(user.getUid());
             }
-            RtmManager.instance().queryPeersOnlineStatus(set, new Callback<Map<String, Boolean>>() {
+            RtmManager.instance().queryPeersOnlineStatus(set, new ThrowableCallback<Map<String, Boolean>>() {
                 @Override
                 public void onSuccess(Map<String, Boolean> stringBooleanMap) {
                     int num = 0;
@@ -76,12 +77,16 @@ public class RtmChannelStrategy extends ChannelStrategy<List<RtmChannelAttribute
                             num++;
                         }
                     }
-                    callback.onSuccess(num);
+                    if (callback != null) {
+                        callback.onSuccess(num);
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable throwable) {
-                    callback.onFailure(throwable);
+                    if (callback != null && callback instanceof ThrowableCallback) {
+                        ((ThrowableCallback) callback).onFailure(throwable);
+                    }
                 }
             });
         }
@@ -89,18 +94,20 @@ public class RtmChannelStrategy extends ChannelStrategy<List<RtmChannelAttribute
 
     @Override
     public void queryChannelInfo(@Nullable Callback<Void> callback) {
-        RtmManager.instance().getChannelAttributes(getChannelId(), new Callback<List<RtmChannelAttribute>>() {
+        RtmManager.instance().getChannelAttributes(getChannelId(), new ThrowableCallback<List<RtmChannelAttribute>>() {
             @Override
             public void onSuccess(List<RtmChannelAttribute> rtmChannelAttributes) {
                 parseChannelInfo(rtmChannelAttributes);
-                if (callback != null)
+                if (callback != null) {
                     callback.onSuccess(null);
+                }
             }
 
             @Override
             public void onFailure(Throwable throwable) {
-                if (callback != null)
-                    callback.onFailure(throwable);
+                if (callback != null && callback instanceof ThrowableCallback) {
+                    ((ThrowableCallback) callback).onFailure(throwable);
+                }
             }
         });
     }
@@ -138,7 +145,7 @@ public class RtmChannelStrategy extends ChannelStrategy<List<RtmChannelAttribute
     private RtmEventListener rtmEventListener = new RtmEventListener() {
         @Override
         public void onJoinChannelSuccess(String channel) {
-            queryChannelInfo(new Callback<Void>() {
+            queryChannelInfo(new ThrowableCallback<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
                     if (channelEventListener != null) {

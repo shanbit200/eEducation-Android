@@ -7,7 +7,10 @@ import java.lang.annotation.RetentionPolicy;
 
 import io.agora.rtc.Constants;
 
-@IntDef({Constants.VIDEO_STREAM_HIGH, Constants.VIDEO_STREAM_LOW})
+@IntDef({
+        Constants.VIDEO_STREAM_HIGH,
+        Constants.VIDEO_STREAM_LOW,
+})
 @Retention(RetentionPolicy.SOURCE)
 public @interface StreamType {
 

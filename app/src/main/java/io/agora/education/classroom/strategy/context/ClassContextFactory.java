@@ -8,7 +8,6 @@ import io.agora.education.classroom.strategy.ChannelStrategy;
 import io.agora.education.classroom.strategy.HttpChannelStrategy;
 
 public class ClassContextFactory {
-
     private Context context;
 
     public ClassContextFactory(Context context) {

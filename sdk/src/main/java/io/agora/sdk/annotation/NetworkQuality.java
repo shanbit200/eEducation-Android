@@ -16,7 +16,7 @@ import io.agora.rtc.Constants;
         Constants.QUALITY_VBAD,
         Constants.QUALITY_DOWN,
         Constants.QUALITY_UNSUPPORTED,
-        Constants.QUALITY_DETECTING
+        Constants.QUALITY_DETECTING,
 })
 @Retention(RetentionPolicy.SOURCE)
 public @interface NetworkQuality {

@@ -8,13 +8,12 @@ import java.util.Map;
  * Agora SDK manager template
  */
 public abstract class SdkManager<Sdk> {
-
     public static final String TOKEN = "token";
     public static final String CHANNEL_ID = "channelId";
     public static final String USER_ID = "userId";
     public static final String USER_EXTRA = "userExtra";
 
-    protected Sdk sdk;
+    private Sdk sdk;
 
     public final void init(Context context, String appId) {
         try {
@@ -42,4 +41,9 @@ public abstract class SdkManager<Sdk> {
         sdk = null;
     }
 
+    protected Sdk getSdk() {
+        if (sdk == null)
+            throw new IllegalStateException(getClass().getSimpleName() + " is not initialized. Please call init() before use!");
+        return sdk;
+    }
 }

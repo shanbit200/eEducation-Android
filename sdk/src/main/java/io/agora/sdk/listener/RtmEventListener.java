@@ -10,8 +10,11 @@ import io.agora.rtm.RtmClientListener;
 import io.agora.rtm.RtmMessage;
 
 public abstract class RtmEventListener implements RtmClientListener, RtmChannelListener {
-
     public void onJoinChannelSuccess(String channel) {
+
+    }
+
+    public void onReJoinChannelSuccess(String channel) {
 
     }
 
@@ -59,5 +62,4 @@ public abstract class RtmEventListener implements RtmClientListener, RtmChannelL
     public void onPeersOnlineStatusChanged(Map<String, Integer> map) {
 
     }
-
 }

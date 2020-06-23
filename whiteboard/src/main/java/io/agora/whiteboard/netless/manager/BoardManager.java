@@ -19,7 +19,6 @@ import io.agora.whiteboard.netless.annotation.Appliance;
 import io.agora.whiteboard.netless.listener.BoardEventListener;
 
 public class BoardManager extends NetlessManager<Room> implements RoomCallbacks {
-
     private final LogManager log = new LogManager(this.getClass().getSimpleName());
 
     private String appliance;
@@ -69,7 +68,7 @@ public class BoardManager extends NetlessManager<Room> implements RoomCallbacks 
 
     public int[] getStrokeColor() {
         if (t != null) {
-            t.getMemberState().getStrokeColor();
+            return t.getMemberState().getStrokeColor();
         }
         return null;
     }
@@ -240,5 +239,4 @@ public class BoardManager extends NetlessManager<Room> implements RoomCallbacks 
     void onFail(SDKError error) {
         log.e("onFail %s", error.toString());
     }
-
 }
