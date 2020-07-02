@@ -5,20 +5,9 @@ enum class UserRole(val value: Int) {
     STUDENT(2)
 }
 
-enum class NetworkQuality {
-    UNKNOWN,
-    GOOD,
-    POOR,
-    BAD
-}
-
-open class User {
-    lateinit var userId: String
-        internal set
-    lateinit var userName: String
-        internal set
-    lateinit var role: UserRole
-        internal set
-    lateinit var userUuid: String
-        internal set
-}
+data class User internal constructor(
+        val userId: String,
+        val userName: String,
+        val role: UserRole,
+        val userUuid: String
+)

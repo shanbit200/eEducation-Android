@@ -1,24 +1,35 @@
 package io.agora.education
 
+import android.content.Context
 import io.agora.base.callback.Callback
 import io.agora.education.classroom.ClassroomManager
-import io.agora.education.classroom.CreateRoomConfig
-import io.agora.education.classroom.CreateRoomParams
+import io.agora.education.classroom.RoomConfig
+import io.agora.education.impl.EduManagerImpl
 import io.agora.education.user.LocalUserService
 import java.util.logging.Level
 
-abstract class EduManager(
-        protected val appId: String,
-        protected val authorization: String
+data class EduSdkConfig(
+        var appId: String,
+        var authorization: String
+)
+
+abstract class EduManager internal constructor(
+        protected val context: Context,
+        protected val config: EduSdkConfig
 ) {
     companion object {
         @JvmStatic
-        fun init(appId: String, authorization: String): EduManager {
-            return EduManagerImpl(appId, authorization)
+        fun init(context: Context, config: EduSdkConfig): EduManager {
+            return EduManagerImpl(context, config)
+        }
+
+        @JvmStatic
+        fun getSdkVersion(): String {
+            return ""
         }
     }
 
-    abstract fun <T : LocalUserService> createClassroom(params: CreateRoomParams, config: CreateRoomConfig, callback: Callback<ClassroomManager<T>>)
+    abstract fun <T : LocalUserService> createClassroom(config: RoomConfig, callback: Callback<ClassroomManager<T>>)
 
     abstract fun enableDebugMode(enable: Boolean)
 
