@@ -1,8 +1,8 @@
 package io.agora.education.classroom
 
 import io.agora.education.message.TextMessage
-import io.agora.education.stream.Stream
-import io.agora.education.user.NetworkQuality
+import io.agora.education.statistics.NetworkQuality
+import io.agora.education.stream.RemoteStream
 import io.agora.education.user.User
 
 interface ClassroomEventHandler {
@@ -10,9 +10,9 @@ interface ClassroomEventHandler {
 
     fun onUserOffline(user: User, fromRoom: Classroom)
 
-    fun onStreamAdded(stream: Stream, fromRoom: Classroom)
+    fun onStreamAdded(stream: RemoteStream, fromRoom: Classroom)
 
-    fun onStreamRemoved(stream: Stream, fromRoom: Classroom)
+    fun onStreamRemoved(stream: RemoteStream, fromRoom: Classroom)
 
     fun onReceivedRoomMessage(message: TextMessage, fromRoom: Classroom)
 

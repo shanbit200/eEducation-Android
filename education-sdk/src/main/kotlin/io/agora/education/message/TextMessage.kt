@@ -1,5 +1,9 @@
 package io.agora.education.message
 
-class TextMessage : Message() {
-    lateinit var text: String
-}
+import io.agora.education.user.User
+
+class TextMessage internal constructor(
+        val text: String,
+        timestamp: Long,
+        fromUser: User
+) : Message(timestamp, fromUser)
