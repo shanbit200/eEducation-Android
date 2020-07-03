@@ -9,7 +9,7 @@ class RoomConfigFactory {
             when (scene) {
                 Scene.ONE_ON_ONE -> RoomConfig(teacherLimit = 1, studentLimit = 1)
                 Scene.SMALL_CLASS -> RoomConfig(teacherLimit = 1, studentLimit = 16)
-                Scene.LARGE_CLASS -> RoomConfig(teacherLimit = 1, studentLimit = -1)
+                Scene.LARGE_CLASS -> RoomConfig(teacherLimit = 1, studentLimit = null)
             }
             throw IllegalArgumentException()
         }

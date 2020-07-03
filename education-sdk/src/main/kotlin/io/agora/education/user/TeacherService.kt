@@ -1,23 +1,19 @@
 package io.agora.education.user
 
-import io.agora.education.stream.LocalStream
+import io.agora.education.classroom.CourseState
+import io.agora.education.media.LocalMediaStream
+import io.agora.education.media.RemoteMediaStream
 
 interface TeacherService : LocalUserService {
-    fun updateCourseState()
+    fun updateCourseState(state: CourseState)
 
-    fun enableAllStudentChat(enable: Boolean)
+    fun forbiddenRoomMessage(isForbidden: Boolean)
 
-    fun enableStudentChat(enable: Boolean, user: User)
+    fun forbiddenRoomMessage(user: User, isForbidden: Boolean)
 
-    fun startShareScreen(streamId: String): LocalStream
+    fun startShareScreen(): LocalMediaStream
 
-    fun stopShareScreen(stream: LocalStream)
+    fun controlRemoteVideoStream(stream: RemoteMediaStream, enable: Boolean)
 
-    fun startCamera(user: User)
-
-    fun stopCamera(user: User)
-
-    fun startMicrophone(user: User)
-
-    fun stopMicrophone(user: User)
+    fun controlRemoteAudioStream(stream: RemoteMediaStream, enable: Boolean)
 }

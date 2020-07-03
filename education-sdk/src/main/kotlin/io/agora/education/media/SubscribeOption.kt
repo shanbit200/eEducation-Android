@@ -1,4 +1,4 @@
-package io.agora.education.stream
+package io.agora.education.media
 
 data class SubscribeOption(
         var subscribeAudio: Boolean = true,
