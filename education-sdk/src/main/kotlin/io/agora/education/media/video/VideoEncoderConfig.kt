@@ -1,4 +1,4 @@
-package io.agora.education.stream.video
+package io.agora.education.media.video
 
 import io.agora.rtc.video.VideoEncoderConfiguration
 

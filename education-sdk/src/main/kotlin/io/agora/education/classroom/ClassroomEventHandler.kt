@@ -1,26 +1,24 @@
 package io.agora.education.classroom
 
+import io.agora.education.media.RemoteMediaStream
 import io.agora.education.message.TextMessage
 import io.agora.education.statistics.NetworkQuality
-import io.agora.education.stream.RemoteStream
 import io.agora.education.user.User
 
 interface ClassroomEventHandler {
-    fun onUserOnline(user: User, fromRoom: Classroom)
+    fun onRoomStatusUpdated(roomStatus: RoomStatus, fromRoom: RoomInfo)
 
-    fun onUserOffline(user: User, fromRoom: Classroom)
+    fun onUserOnline(user: User, fromRoom: RoomInfo)
 
-    fun onStreamAdded(stream: RemoteStream, fromRoom: Classroom)
+    fun onUserOffline(user: User, fromRoom: RoomInfo)
 
-    fun onStreamRemoved(stream: RemoteStream, fromRoom: Classroom)
+    fun onRemoteMediaStreamAdded(stream: RemoteMediaStream, fromRoom: RoomInfo)
 
-    fun onReceivedRoomMessage(message: TextMessage, fromRoom: Classroom)
+    fun onRemoteMediaStreamStateUpdated(stream: RemoteMediaStream, fromRoom: RoomInfo)
 
-    fun onReceivedPeerMessage(message: TextMessage, fromRoom: Classroom)
+    fun onRemoteMediaStreamRemoved(stream: RemoteMediaStream, fromRoom: RoomInfo)
 
-    fun onRoomStatusUpdated(classroom: Classroom)
+    fun onReceivedRoomMessage(message: TextMessage, fromRoom: RoomInfo)
 
-    fun onConnectionStateChanged(state: ConnectionState, fromRoom: Classroom)
-
-    fun onNetworkQualityChanged(quality: NetworkQuality, user: User, fromRoom: Classroom)
+    fun onUserNetworkQualityChanged(quality: NetworkQuality, user: User, fromRoom: RoomInfo)
 }

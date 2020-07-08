@@ -1,42 +1,38 @@
 package io.agora.education.impl
 
 import android.view.ViewGroup
-import io.agora.education.stream.LocalStream
-import io.agora.education.stream.RemoteStream
-import io.agora.education.stream.Stream
-import io.agora.education.stream.SubscribeOption
-import io.agora.education.stream.audio.AudioSource
-import io.agora.education.stream.audio.AudioSourceType
-import io.agora.education.stream.video.VideoRenderConfig
-import io.agora.education.stream.video.VideoSource
-import io.agora.education.stream.video.VideoSourceType
+import io.agora.education.media.LocalMediaStream
+import io.agora.education.media.MediaStream
+import io.agora.education.media.RemoteMediaStream
+import io.agora.education.media.SubscribeOption
+import io.agora.education.media.video.VideoRenderConfig
+import io.agora.education.user.LocalUserEventHandler
 import io.agora.education.user.LocalUserService
 import io.agora.education.user.User
 
 open class LocalUserServiceImpl internal constructor(
         override val localUser: User
 ) : LocalUserService {
-    override val defaultLocalStream: LocalStream by lazy {
-        LocalStream(
-                videoSource = VideoSource(VideoSourceType.CAMERA, true),
-                audioSource = AudioSource(AudioSourceType.MICROPHONE, true),
-                fromUser = localUser
-        )
+    override val localMediaStreams: MutableList<LocalMediaStream> by lazy {
+        mutableListOf<LocalMediaStream>()
     }
+    override var eventHandler: LocalUserEventHandler? = null
 
-    override fun subscribe(stream: RemoteStream, option: SubscribeOption) {
+    override fun subscribe(stream: RemoteMediaStream, option: SubscribeOption) {
         TODO("Not yet implemented")
     }
 
-    override fun unSubscribe(stream: RemoteStream, option: SubscribeOption) {
+    override fun unSubscribe(stream: RemoteMediaStream, option: SubscribeOption) {
         TODO("Not yet implemented")
     }
 
-    override fun publish(stream: LocalStream) {
+    override fun publish(stream: LocalMediaStream) {
+        localMediaStreams.add(stream)
         TODO("Not yet implemented")
     }
 
-    override fun unPublish(stream: LocalStream) {
+    override fun unPublish(stream: LocalMediaStream) {
+        localMediaStreams.remove(stream)
         TODO("Not yet implemented")
     }
 
@@ -48,7 +44,7 @@ open class LocalUserServiceImpl internal constructor(
         TODO("Not yet implemented")
     }
 
-    override fun setView(container: ViewGroup, stream: Stream, config: VideoRenderConfig) {
+    override fun setView(container: ViewGroup?, mediaStream: MediaStream, config: VideoRenderConfig) {
         TODO("Not yet implemented")
     }
 }

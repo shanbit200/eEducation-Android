@@ -1,19 +1,14 @@
 package io.agora.education.classroom
 
-enum class ConnectionState {
-    DISCONNECTED,
-    CONNECTING,
-    CONNECTED,
-    RECONNECTING,
-    ABORTED
+enum class CourseState {
+    IDLE,
+    BEGAN,
+    ENDED
 }
 
 data class RoomStatus internal constructor(
-        val courseState: Int,
-        val startTime: Long,
-        val muteAllChat: Int,
-        val isRecording: Boolean,
-        val recordId: String? = null,
-        val recordingTime: Long? = null,
+        val courseState: CourseState,
+        val realBeginTimestamp: Long,
+        val forbiddenRoomMessage: Boolean,
         val onlineUserCount: Int
 )

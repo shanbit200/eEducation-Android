@@ -1,27 +1,28 @@
 package io.agora.education.user
 
 import android.view.ViewGroup
-import io.agora.education.stream.LocalStream
-import io.agora.education.stream.RemoteStream
-import io.agora.education.stream.Stream
-import io.agora.education.stream.SubscribeOption
-import io.agora.education.stream.video.VideoRenderConfig
+import io.agora.education.media.LocalMediaStream
+import io.agora.education.media.MediaStream
+import io.agora.education.media.RemoteMediaStream
+import io.agora.education.media.SubscribeOption
+import io.agora.education.media.video.VideoRenderConfig
 
 interface LocalUserService {
     val localUser: User
-    val defaultLocalStream: LocalStream
+    val localMediaStreams: List<LocalMediaStream>
+    var eventHandler: LocalUserEventHandler?
 
-    fun subscribe(stream: RemoteStream, option: SubscribeOption)
+    fun subscribe(stream: RemoteMediaStream, option: SubscribeOption)
 
-    fun unSubscribe(stream: RemoteStream, option: SubscribeOption)
+    fun unSubscribe(stream: RemoteMediaStream, option: SubscribeOption)
 
-    fun publish(stream: LocalStream)
+    fun publish(stream: LocalMediaStream)
 
-    fun unPublish(stream: LocalStream)
+    fun unPublish(stream: LocalMediaStream)
 
     fun sendRoomMessage(message: String)
 
     fun sendPeerMessage(message: String, user: User)
 
-    fun setView(container: ViewGroup, stream: Stream, config: VideoRenderConfig)
+    fun setView(container: ViewGroup?, mediaStream: MediaStream, config: VideoRenderConfig)
 }
