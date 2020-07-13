@@ -1,3 +1,4 @@
 include ':education-sdk'
 include ':app', ':base', ':log', ':sdk', ':timeline', ':whiteboard'
 rootProject.name = 'AgoraEducation'
+include ':record'
