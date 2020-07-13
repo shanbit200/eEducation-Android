@@ -1,10 +1,11 @@
 package io.agora.education.edumanager
 
 import io.agora.base.callback.Callback
-import io.agora.education.room.EduClassroomConfig
+import io.agora.education.edumanager.bean.EduSdkConfig
+import io.agora.education.edumanager.enums.DebugItem
+import io.agora.education.edumanager.enums.LogLevel
+import io.agora.education.room.bean.EduClassroomConfig
 import io.agora.education.room.EduClassroomManager
-import io.agora.education.statistics.DebugItem
-import io.agora.education.statistics.LogLevel
 
 internal class EduManagerImpl internal constructor(
         config: EduSdkConfig

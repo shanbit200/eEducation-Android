@@ -1,7 +1,5 @@
 package io.agora.education.record
 
-import io.agora.education.statistics.RecordState
-
 class EduRecordInfo constructor() {
     lateinit var appId: String
     lateinit var roomId: String

@@ -1,9 +1,11 @@
 package io.agora.education.room
 
 import io.agora.education.board.EduBoardService
-import io.agora.education.edumanager.EduStream
-import io.agora.education.edumanager.EduUser
+import io.agora.education.edumanager.bean.EduStream
+import io.agora.education.edumanager.bean.EduUser
 import io.agora.education.record.EduRecordService
+import io.agora.education.room.bean.EduClassroom
+import io.agora.education.room.bean.EduClassroomJoinOptions
 import io.agora.education.user.EduStudentService
 import io.agora.education.user.EduTeacherService
 
@@ -16,7 +18,7 @@ abstract class EduClassroomManager constructor() {
     }
     lateinit var boardService: EduBoardService
     lateinit var recordService: EduRecordService
-    lateinit var delegate: EduClassroomDelegate
+    lateinit var eventListener: EduClassroomEventListener
 
     abstract fun getLocalUser(success: (user: EduUser) -> Unit,
                               failure: (throwable: Throwable) -> Unit)

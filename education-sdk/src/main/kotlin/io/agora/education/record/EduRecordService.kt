@@ -1,7 +1,7 @@
 package io.agora.education.record
 
 abstract class EduRecordService constructor() {
-    lateinit var delegate: EduRecordDelegate
+    lateinit var eventListener: EduRecordEventListener
 
     abstract fun getRecordInfo(): EduRecordInfo
 

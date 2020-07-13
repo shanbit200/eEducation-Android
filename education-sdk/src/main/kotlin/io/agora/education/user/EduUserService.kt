@@ -1,10 +1,13 @@
 package io.agora.education.user
 
-import android.view.SurfaceView
 import android.view.View
-import io.agora.education.edumanager.EduStream
-import io.agora.education.edumanager.EduTextMessage
-import io.agora.education.edumanager.EduUser
+import io.agora.education.edumanager.bean.EduStream
+import io.agora.education.edumanager.bean.EduTextMessage
+import io.agora.education.edumanager.bean.EduUser
+import io.agora.education.user.bean.EduRenderConfig
+import io.agora.education.user.bean.EduStreamConfig
+import io.agora.education.user.bean.EduSubscribeOptions
+import io.agora.education.user.bean.EduVideoConfig
 
 abstract class EduUserService constructor() {
     lateinit var eduVideoConfig: EduVideoConfig

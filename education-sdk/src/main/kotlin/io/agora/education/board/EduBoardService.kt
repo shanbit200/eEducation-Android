@@ -1,9 +1,11 @@
 package io.agora.education.board
 
-import io.agora.education.edumanager.EduUser
+import io.agora.education.board.bean.EduBoardRoom
+import io.agora.education.board.bean.WhiteInfoModel
+import io.agora.education.edumanager.bean.EduUser
 
 abstract class EduBoardService constructor() {
-    lateinit var delegate: EduBoardDelegate
+    lateinit var eventListener: EduBoardEventListener
 
     abstract fun getBoardRoom(): EduBoardRoom
 

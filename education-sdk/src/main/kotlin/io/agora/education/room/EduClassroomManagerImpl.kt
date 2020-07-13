@@ -1,7 +1,9 @@
 package io.agora.education.room
 
-import io.agora.education.edumanager.EduStream
-import io.agora.education.edumanager.EduUser
+import io.agora.education.edumanager.bean.EduStream
+import io.agora.education.edumanager.bean.EduUser
+import io.agora.education.room.bean.EduClassroom
+import io.agora.education.room.bean.EduClassroomJoinOptions
 import io.agora.education.user.EduStudentService
 import io.agora.education.user.EduTeacherService
 
