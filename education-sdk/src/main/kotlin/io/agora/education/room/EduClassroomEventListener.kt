@@ -17,9 +17,9 @@ interface EduClassroomEventListener {
     fun onRemoteUsersLeft(user: EduUser, count: Int, fromClassRoom: EduClassroom): Void
 
     /**message*/
-    fun onRoomMessageReceived(textMessage: EduTextMessage, fromClassRoom: EduClassroom): Void
+    fun onRoomMessageReceived(eduTextMessage: EduTextMessage, fromClassRoom: EduClassroom): Void
 
-    fun onUserMessageReceived(textMessage: EduTextMessage, fromClassRoom: EduClassroom): Void
+    fun onUserMessageReceived(eduTextMessage: EduTextMessage, fromClassRoom: EduClassroom): Void
 
     /**stream*/
     fun onRemoteStreamsInitAdded(stream: EduStream, count: Int, fromClassRoom: EduClassroom): Void
