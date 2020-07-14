@@ -24,7 +24,7 @@ internal class EduManagerImpl internal constructor(
         TODO("Not yet implemented")
     }
 
-    override fun uploadLog(debugItem: DebugItem, callback: Callback<String>) {
+    override fun uploadLog(debugItem: DebugItem, success: (uploadSerialNumber: String) -> Unit) {
         TODO("Not yet implemented")
     }
 }

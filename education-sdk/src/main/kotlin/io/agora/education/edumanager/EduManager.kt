@@ -25,5 +25,5 @@ abstract class EduManager internal constructor(
 
     abstract fun log(log: String, logLevel: LogLevel)
 
-    abstract fun uploadLog(debugItem: DebugItem, callback: Callback<String>)
+    abstract fun uploadLog(debugItem: DebugItem, success: (uploadSerialNumber: String) -> Unit)
 }

@@ -28,7 +28,7 @@ interface RoomClient {
             @Path("roomId") roomId: String,
             @Body                 eduUser: EduUser
     ): Call<ResponseBody<EduClassRoomEntryRes>>
-3
+
     /**@param role 角色 1老师 2学生 可传多个；非必须参数
      * @param nextId 本次查询起始userId；非必须参数
      * @param count 返回条数	*/

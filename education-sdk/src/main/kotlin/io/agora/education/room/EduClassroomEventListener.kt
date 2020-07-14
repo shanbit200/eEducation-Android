@@ -10,7 +10,7 @@ import io.agora.education.statistics.NetworkQuality
 
 interface EduClassroomEventListener {
     /**user in or out*/
-    fun onRemoteUsersInitJoined(stream: EduStream, count: Int, fromClassRoom: EduClassroom): Void
+    fun onRemoteUsersInitJoined(user: EduUser, count: Int, fromClassRoom: EduClassroom): Void
 
     fun onRemoteUsersJoined(user: EduUser, count: Int, fromClassRoom: EduClassroom): Void
 
