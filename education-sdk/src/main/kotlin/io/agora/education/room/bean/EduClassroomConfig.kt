@@ -1,8 +1,8 @@
 package io.agora.education.room.bean
 
-import io.agora.education.room.EduClassroomManager.Companion.kStreamLimit
-import io.agora.education.room.EduClassroomManager.Companion.kStudentLimit
-import io.agora.education.room.EduClassroomManager.Companion.kTeacherLimit
+import io.agora.education.room.EduClassroomManager.Companion.KEYLIMITS
+import io.agora.education.room.bean.request.EduClassroomConfigReq
+import io.agora.education.room.bean.request.RoomLimitConfig
 import io.agora.education.room.enums.EduClassroomType
 
 class EduClassroomConfig constructor() {
@@ -22,11 +22,11 @@ class EduClassroomConfig constructor() {
         roomProperty = arrayOfNulls(propertyCount)
 
         var streamLimitValue: Int = 17
-        var streamLimitProperty: RoomProperty = RoomProperty(kStreamLimit, streamLimitValue)
+        var streamLimitProperty: RoomProperty = RoomProperty(KEYLIMITS[0], streamLimitValue)
         roomProperty[0] = streamLimitProperty
 
         var teacherLimitValue: Int = 1
-        var teacherLimitProperty: RoomProperty = RoomProperty(kTeacherLimit, teacherLimitValue)
+        var teacherLimitProperty: RoomProperty = RoomProperty(KEYLIMITS[1], teacherLimitValue)
         roomProperty[1] = teacherLimitProperty
 
         var studentLimitValue: Int = -1
@@ -43,14 +43,8 @@ class EduClassroomConfig constructor() {
 
             }
         }
-        var studentLimitProperty: RoomProperty = RoomProperty(kStudentLimit, studentLimitValue)
+        var studentLimitProperty: RoomProperty = RoomProperty(KEYLIMITS[2], studentLimitValue)
         roomProperty[2] = studentLimitProperty
-    }
-
-    constructor(roomId: String, roomName: String, roomUuid: String): this() {
-        this.roomId = roomId
-        this.roomName = roomName
-        this.roomUuid = roomUuid
     }
 
     constructor(roomId: String, roomName: String, roomUuid: String, classType: EduClassroomType,
@@ -61,5 +55,14 @@ class EduClassroomConfig constructor() {
         this.classType = classType
         this.roomProperty = roomProperty
         this.propertyCount = propertyCount
+    }
+
+    fun covertToRoomConfigReq(): EduClassroomConfigReq {
+        var streamLimit = roomProperty.get(0)?.value as Int
+        var teacherLimit = roomProperty.get(1)?.value as Int
+        var studentLimit = roomProperty.get(2)?.value as Int
+        var roomConfig =  RoomLimitConfig(teacherLimit, streamLimit, studentLimit)
+        var roomConfigReq = EduClassroomConfigReq(roomUuid, roomName, roomConfig)
+        return roomConfigReq
     }
 }

@@ -32,11 +32,11 @@ class EduClassroomManagerImpl constructor() : EduClassroomManager() {
         TODO("Not yet implemented")
     }
 
-    override fun getFullUserList(success: (count: Int, users: Array<EduUser>) -> Unit, failure: (throwable: Throwable) -> Unit) {
+    override fun getFullUserList(success: (count: Int, users: ArrayList<EduUser>) -> Unit, failure: (throwable: Throwable) -> Unit) {
         TODO("Not yet implemented")
     }
 
-    override fun getFullStreamList(success: (count: Int, streams: Array<EduStream>) -> Unit, failure: (throwable: Throwable) -> Unit) {
+    override fun getFullStreamList(success: (count: Int, streams: ArrayList<EduStream>) -> Unit, failure: (throwable: Throwable) -> Unit) {
         TODO("Not yet implemented")
     }
 

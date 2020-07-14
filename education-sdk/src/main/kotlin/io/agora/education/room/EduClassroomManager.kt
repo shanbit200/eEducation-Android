@@ -12,9 +12,10 @@ import io.agora.education.user.EduTeacherService
 abstract class EduClassroomManager constructor() {
 
     companion object {
-        const val kStreamLimit: String = "StreamLimit"
-        const val kTeacherLimit: String = "TeacherLimit"
-        const val kStudentLimit: String = "StudentLimit"
+        val KEYLIMITS: Array<String> = arrayOf("StreamLimit", "TeacherLimit", "StudentLimit")
+//        const val kStreamLimit: String = "StreamLimit"
+//        const val kTeacherLimit: String = "TeacherLimit"
+//        const val kStudentLimit: String = "StudentLimit"
     }
     lateinit var boardService: EduBoardService
     lateinit var recordService: EduRecordService
@@ -39,10 +40,10 @@ abstract class EduClassroomManager constructor() {
                                 success: (count: Int, users: Array<EduUser>) -> Unit,
                                 failure: (throwable: Throwable) -> Unit)
 
-    abstract fun getFullUserList(success: (count: Int, users: Array<EduUser>) -> Unit,
+    abstract fun getFullUserList(success: (count: Int, users: ArrayList<EduUser>) -> Unit,
                                  failure: (throwable: Throwable) -> Unit)
 
-    abstract fun getFullStreamList(success: (count: Int, streams: Array<EduStream>) -> Unit,
+    abstract fun getFullStreamList(success: (count: Int, streams: ArrayList<EduStream>) -> Unit,
                                    failure: (throwable: Throwable) -> Unit)
 
     abstract fun joinClassroomAsTeacher(classroomJoinOptions: EduClassroomJoinOptions,

@@ -3,12 +3,13 @@ package io.agora.education.edumanager.bean
 import io.agora.education.user.enums.EduRoleType
 
 class EduUser constructor() {
-    /**原来的userId内部隐藏，不暴露给客户*/
+    private lateinit var userId: String
     lateinit var userUuid: String
     lateinit var userName: String
     lateinit var role: EduRoleType
 
-    constructor(userUuid: String, userName: String, role: EduRoleType) : this() {
+    constructor(userId: String, userUuid: String, userName: String, role: EduRoleType) : this() {
+        this.userId = userId
         this.userUuid = userUuid
         this.userName = userName
         this.role = role
