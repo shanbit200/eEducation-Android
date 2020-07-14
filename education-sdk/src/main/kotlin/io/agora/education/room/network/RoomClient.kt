@@ -28,7 +28,7 @@ interface RoomClient {
             @Path("roomId") roomId: String,
             @Body                 eduUser: EduUser
     ): Call<ResponseBody<EduClassRoomEntryRes>>
-
+3
     /**@param role 角色 1老师 2学生 可传多个；非必须参数
      * @param nextId 本次查询起始userId；非必须参数
      * @param count 返回条数	*/
@@ -40,7 +40,7 @@ interface RoomClient {
             @Field("role")       role: Int,
             @Field("nextId")     nextId: String,
             @Field("count")      count: Int
-    ): Call<ResponseBody<EduUserListRes>>
+    ): Call<ResponseBody<Page>>
 
     /**@param role 角色 1老师 2学生 可传多个；非必须参数
      * @param isPublish 1发布 0不发布；非必须参数
@@ -55,7 +55,7 @@ interface RoomClient {
             @Field("isPublish")  isPublish: Int,
             @Field("nextId")     nextId: String,
             @Field("count")      count: Int
-    ): Call<ResponseBody<EduStreamListRes>>
+    ): Call<ResponseBody<Page>>
 
     /**调用此接口需要添加header->userToken*/
     @POST("/scenario/education/apps/{appId}/v1/rooms/{roomId}/exit")

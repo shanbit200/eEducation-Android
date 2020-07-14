@@ -10,9 +10,10 @@ class EduStreamListRes constructor(var count: Int,
                                    var list: ArrayList<EduStreamRes>) {
 }
 
-class EduStreamRes constructor(private var streamId: String,
+class EduStreamRes constructor(var streamId: String,
                                var streamUuid: String, var streamName: String,
                                var videoSourceType: EduVideoSourceType,
                                var audioSourceType: EduAudioSourceType,
-                               var isPublish: Boolean, fromUser: EduUser) {
+                               var hasVideo: Boolean, var hasAudio: Boolean,
+                               var isPublish: Boolean, var fromUser: EduUser) {
 }

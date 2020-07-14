@@ -1,4 +1,4 @@
-package io.agora.education.room.bean.response
+package io.agora.education.user.bean.response
 
 import io.agora.base.network.ResponseBody
 

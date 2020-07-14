@@ -5,10 +5,11 @@ import io.agora.education.room.bean.EduClassroomInfo
 import io.agora.education.room.bean.EduClassroomStatus
 import io.agora.education.room.enums.EduCourseState
 
-class EduClassRoomRes constructor(var eduClassroomInfo: EduClassroomInfo,
+class EduClassRoomRes constructor(var eduClassroomInfoRes: EduClassroomInfoRes,
                                   var eduClassroomStatusRes: EduClassroomStatusRes) {
 
     fun convertToEduClassroom(): EduClassroom {
+        var eduClassroom = EduClassroom()
         var eduClassroomStatus = EduClassroomStatus()
         eduClassroomStatus.courseState = eduClassroomStatusRes.courseState
         eduClassroomStatus.startTime = eduClassroomStatusRes.startTime
@@ -16,9 +17,11 @@ class EduClassRoomRes constructor(var eduClassroomInfo: EduClassroomInfo,
         eduClassroomStatus.isStudentAudioAllowed = eduClassroomStatusRes.muteAllAudio
         eduClassroomStatus.isStudentVideoAllowed = eduClassroomStatusRes.muteAllVideo
         eduClassroomStatus.onlineUsersCount = eduClassroomStatusRes.onlineUsers
-        var eduClassroom = EduClassroom()
-        eduClassroom.eduClassroomInfo = eduClassroomInfo
         eduClassroom.eduClassroomStatus = eduClassroomStatus
+        var eduClassroomInfo = EduClassroomInfo(eduClassroomInfoRes.roomId,
+                                                eduClassroomInfoRes.roomUuid,
+                                                eduClassroomInfoRes.roomName)
+        eduClassroom.eduClassroomInfo = eduClassroomInfo
         return eduClassroom
     }
 }
@@ -41,5 +44,17 @@ class EduClassroomStatusRes constructor() {
         this.muteAllAudio = muteAllAudio
         this.muteAllVideo = muteAllVideo
         this.onlineUsers = onlineUsers
+    }
+}
+
+class EduClassroomInfoRes constructor() {
+    lateinit var roomId: String
+    lateinit var roomUuid: String
+    lateinit var roomName: String
+
+    constructor(roomId: String, roomUuid: String, roomName: String) : this() {
+        this.roomId = roomId
+        this.roomUuid = roomUuid
+        this.roomName = roomName
     }
 }

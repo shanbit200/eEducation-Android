@@ -13,6 +13,7 @@ abstract class EduUserService constructor() {
     lateinit var eduVideoConfig: EduVideoConfig
 
     /**media*/
+    /**开启或者update本地摄像头数据流(只是开启或者update，并不推流)*/
     abstract fun startOrUpdateLocalStream(streamConfig: EduStreamConfig,
                                           successCallback: (stream: EduStream) -> Unit,
                                           failureCallback: (throwable: Throwable) -> Unit): Void

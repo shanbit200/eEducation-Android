@@ -6,6 +6,11 @@ class EduStreamConfig constructor() {
     var enableCamera: Boolean = true
     var enableMicrophone: Boolean = true
 
+    constructor(streamUuid: String, streamName: String) : this() {
+        this.streamUuid = streamUuid
+        this.streamName = streamName
+    }
+
     constructor(streamUuid: String, streamName: String, enableCamera: Boolean, enableMicrophone: Boolean):
             this() {
         this.streamUuid = streamUuid

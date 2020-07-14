@@ -1,6 +1,6 @@
 package io.agora.education.room.bean.response
 
-import io.agora.education.edumanager.bean.EduUser
+import io.agora.education.user.enums.EduRoleType
 
 /**@param count 本次返回的条数
  * @param total 数据总量
@@ -9,5 +9,15 @@ import io.agora.education.edumanager.bean.EduUser
 class EduUserListRes constructor(var count: Int,
                                  var total: Int,
                                  var nextId: String,
-                                 var list: ArrayList<EduUser>) {
+                                 var list: ArrayList<EduUserRes>) {
+
+
+}
+
+class EduUserRes constructor(var userId: String,
+                             var userUuid: String,
+                             var userName: String,
+                             var role: EduRoleType
+) {
+
 }
