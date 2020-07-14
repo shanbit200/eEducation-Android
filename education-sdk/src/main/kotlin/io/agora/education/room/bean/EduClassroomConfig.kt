@@ -6,13 +6,15 @@ import io.agora.education.room.EduClassroomManager.Companion.kTeacherLimit
 import io.agora.education.room.enums.EduClassroomType
 
 class EduClassroomConfig constructor() {
+    private lateinit var roomId: String
     lateinit var roomName: String
     lateinit var roomUuid: String
     lateinit var classType: EduClassroomType
     lateinit var roomProperty: Array<RoomProperty?>
     var propertyCount: Int = 0
 
-    constructor(roomName: String, roomUuid: String, classType: EduClassroomType) : this() {
+    constructor(roomId: String, roomName: String, roomUuid: String, classType: EduClassroomType) : this() {
+        this.roomId = roomId
         this.roomName = roomName
         this.roomUuid = roomUuid
         this.classType = classType
@@ -45,8 +47,15 @@ class EduClassroomConfig constructor() {
         roomProperty[2] = studentLimitProperty
     }
 
-    constructor(roomName: String, roomUuid: String, classType: EduClassroomType,
+    constructor(roomId: String, roomName: String, roomUuid: String): this() {
+        this.roomId = roomId
+        this.roomName = roomName
+        this.roomUuid = roomUuid
+    }
+
+    constructor(roomId: String, roomName: String, roomUuid: String, classType: EduClassroomType,
                 roomProperty: Array<RoomProperty?>, propertyCount: Int): this() {
+        this.roomId = roomId
         this.roomName = roomName
         this.roomUuid = roomUuid
         this.classType = classType
