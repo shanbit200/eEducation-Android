@@ -7,19 +7,22 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import io.agora.base.callback.ThrowableCallback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.internal.platform.Platform;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitManager {
-
     private static RetrofitManager instance;
 
     private OkHttpClient client;
     private Map<String, String> headers = new HashMap<>();
+    private HttpLoggingInterceptor.Logger logger;
 
     private RetrofitManager() {
         OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder();
@@ -36,6 +39,13 @@ public class RetrofitManager {
             }
             return chain.proceed(requestBuilder.build());
         });
+        clientBuilder.addInterceptor(new HttpLoggingInterceptor(s -> {
+            if (logger == null) {
+                Platform.get().log(s, Platform.INFO, null);
+            } else {
+                logger.log(s);
+            }
+        }).setLevel(HttpLoggingInterceptor.Level.BODY));
         client = clientBuilder.build();
     }
 
@@ -50,11 +60,15 @@ public class RetrofitManager {
         return instance;
     }
 
-    public void addHeader(String key, String value) {
+    public void addHeader(@NonNull String key, @NonNull String value) {
         headers.put(key, value);
     }
 
-    public <T> T getService(String baseUrl, Class<T> tClass) {
+    public void setLogger(@NonNull HttpLoggingInterceptor.Logger logger) {
+        this.logger = logger;
+    }
+
+    public <T> T getService(@NonNull String baseUrl, @NonNull Class<T> tClass) {
         Retrofit retrofit = new Retrofit.Builder()
                 .client(client)
                 .baseUrl(baseUrl)
@@ -63,11 +77,11 @@ public class RetrofitManager {
         return retrofit.create(tClass);
     }
 
-    public static class Callback<T extends ResponseBody> implements retrofit2.Callback<T> {
+    public static class Callback<T extends ResponseBody<?>> implements retrofit2.Callback<T> {
         private int code;
-        private io.agora.base.Callback<T> callback;
+        private io.agora.base.callback.Callback<T> callback;
 
-        public Callback(int code, @NonNull io.agora.base.Callback<T> callback) {
+        public Callback(int code, @NonNull io.agora.base.callback.Callback<T> callback) {
             this.code = code;
             this.callback = callback;
         }
@@ -76,17 +90,17 @@ public class RetrofitManager {
         public void onResponse(@NonNull Call<T> call, @NonNull Response<T> response) {
             if (response.errorBody() != null) {
                 try {
-                    callback.onFailure(new Throwable(response.errorBody().string()));
+                    throwableCallback(new Throwable(response.errorBody().string()));
                 } catch (IOException e) {
-                    callback.onFailure(e);
+                    throwableCallback(e);
                 }
             } else {
                 T body = response.body();
                 if (body == null) {
-                    callback.onFailure(new Throwable("response body is null"));
+                    throwableCallback(new Throwable("response body is null"));
                 } else {
                     if (body.code != code) {
-                        callback.onFailure(new BusinessException(body.code, body.msg.toString()));
+                        throwableCallback(new BusinessException(body.code, body.msg.toString()));
                     } else {
                         callback.onSuccess(body);
                     }
@@ -96,8 +110,13 @@ public class RetrofitManager {
 
         @Override
         public void onFailure(@NonNull Call<T> call, @NonNull Throwable t) {
-            callback.onFailure(t);
+            throwableCallback(t);
+        }
+
+        private void throwableCallback(Throwable throwable) {
+            if (callback instanceof ThrowableCallback) {
+                ((ThrowableCallback<T>) callback).onFailure(throwable);
+            }
         }
     }
-
 }

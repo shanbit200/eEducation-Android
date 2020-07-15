@@ -18,7 +18,6 @@ import io.agora.base.ToastManager;
 import io.agora.whiteboard.netless.listener.ReplayEventListener;
 
 public class ReplayManager extends NetlessManager<Player> implements PlayerEventListener {
-
     private Handler handler = new Handler(Looper.getMainLooper());
     private ReplayEventListener listener;
 
@@ -123,5 +122,4 @@ public class ReplayManager extends NetlessManager<Player> implements PlayerEvent
     void onFail(SDKError error) {
         ToastManager.showShort(error.toString());
     }
-
 }

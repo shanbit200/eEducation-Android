@@ -16,8 +16,8 @@ import androidx.cardview.widget.CardView;
 import butterknife.BindView;
 import butterknife.OnClick;
 import butterknife.OnTouch;
-import io.agora.base.Callback;
 import io.agora.base.ToastManager;
+import io.agora.base.callback.ThrowableCallback;
 import io.agora.base.network.RetrofitManager;
 import io.agora.education.base.BaseActivity;
 import io.agora.education.base.BaseCallback;
@@ -36,6 +36,7 @@ import io.agora.education.util.CryptoUtil;
 import io.agora.education.util.UUIDUtil;
 import io.agora.education.widget.ConfirmDialog;
 import io.agora.education.widget.PolicyDialog;
+import io.agora.rtc.video.VideoEncoderConfiguration;
 import io.agora.sdk.manager.RtcManager;
 import io.agora.sdk.manager.RtmManager;
 
@@ -74,8 +75,16 @@ public class MainActivity extends BaseActivity {
 
         String appId = getString(R.string.agora_app_id);
         EduApplication.setAppId(appId);
-        RtcManager.instance().init(getApplicationContext(), appId);
-        RtmManager.instance().init(getApplicationContext(), appId);
+        RtcManager.instance().init(getApplicationContext(), appId, (RtcManager sdk) -> {
+            if (sdk == null) return;
+            sdk.setVideoEncoderConfiguration(new VideoEncoderConfiguration(
+                    VideoEncoderConfiguration.VD_360x360,
+                    VideoEncoderConfiguration.FRAME_RATE.FRAME_RATE_FPS_15,
+                    VideoEncoderConfiguration.STANDARD_BITRATE,
+                    VideoEncoderConfiguration.ORIENTATION_MODE.ORIENTATION_MODE_ADAPTIVE
+            ));
+        });
+        RtmManager.instance().init(getApplicationContext(), appId, null);
 
         RetrofitManager.instance().addHeader("Authorization", CryptoUtil.getAuth(getString(R.string.agora_auth)));
         commonService = RetrofitManager.instance().getService(BuildConfig.API_BASE_URL, CommonService.class);
@@ -89,6 +98,7 @@ public class MainActivity extends BaseActivity {
         new PolicyDialog().show(getSupportFragmentManager(), null);
         if (BuildConfig.DEBUG) {
             et_room_name.setText("123");
+            et_room_name.setSelection(et_room_name.length());
             et_your_name.setText("123");
         }
     }
@@ -174,7 +184,9 @@ public class MainActivity extends BaseActivity {
     }
 
     private void roomEntry(String yourNameStr, String roomNameStr, @Room.Type int classType) {
-        if (isJoining) return;
+        if (isJoining) {
+            return;
+        }
         isJoining = true;
         roomService.roomEntry(EduApplication.getAppId(), new RoomEntryReq() {{
             userName = yourNameStr;
@@ -184,7 +196,7 @@ public class MainActivity extends BaseActivity {
             type = classType;
         }}).enqueue(new BaseCallback<>(data -> {
             RetrofitManager.instance().addHeader("token", data.userToken);
-            room(data.roomId);
+            MainActivity.this.room(data.roomId);
         }, throwable -> isJoining = false));
     }
 
@@ -192,7 +204,7 @@ public class MainActivity extends BaseActivity {
         roomService.room(EduApplication.getAppId(), roomId).enqueue(new BaseCallback<>(data -> {
             User user = data.user;
             Room room = data.room;
-            RtmManager.instance().login(user.rtmToken, user.uid, new Callback<Void>() {
+            RtmManager.instance().login(user.rtmToken, user.uid, new ThrowableCallback<Void>() {
                 @Override
                 public void onSuccess(Void res) {
                     startActivity(createIntent(room, user));
@@ -238,6 +250,8 @@ public class MainActivity extends BaseActivity {
             case REQUEST_CODE_RTC:
                 joinRoom();
                 break;
+            default:
+                break;
         }
     }
 
@@ -267,6 +281,8 @@ public class MainActivity extends BaseActivity {
             case R.id.tv_large_class:
                 et_room_type.setText(R.string.large_class);
                 card_room_type.setVisibility(View.GONE);
+                break;
+            default:
                 break;
         }
     }

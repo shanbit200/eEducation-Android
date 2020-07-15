@@ -22,5 +22,4 @@ public class VideoMediator {
         }
         manager.setupRemoteVideo(item.getSurfaceView(), VideoCanvas.RENDER_MODE_HIDDEN, uid);
     }
-
 }

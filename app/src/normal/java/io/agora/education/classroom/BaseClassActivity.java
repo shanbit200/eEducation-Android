@@ -102,7 +102,9 @@ public abstract class BaseClassActivity extends BaseActivity implements ClassEve
 
     public final void showLeaveDialog() {
         ConfirmDialog.normal(getString(R.string.confirm_leave_room_content), confirm -> {
-            if (confirm) finish();
+            if (confirm) {
+                BaseClassActivity.this.finish();
+            }
         }).show(getSupportFragmentManager(), null);
     }
 

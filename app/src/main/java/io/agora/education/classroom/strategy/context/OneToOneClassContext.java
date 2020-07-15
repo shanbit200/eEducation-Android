@@ -6,7 +6,8 @@ import androidx.annotation.NonNull;
 
 import java.util.List;
 
-import io.agora.base.Callback;
+import io.agora.base.callback.Callback;
+import io.agora.base.callback.ThrowableCallback;
 import io.agora.education.classroom.bean.channel.User;
 import io.agora.education.classroom.strategy.ChannelStrategy;
 import io.agora.rtc.Constants;
@@ -23,10 +24,10 @@ public class OneToOneClassContext extends ClassContext {
     @Override
     @Deprecated
     public void checkChannelEnterable(@NonNull Callback<Boolean> callback) {
-        channelStrategy.queryChannelInfo(new Callback<Void>() {
+        channelStrategy.queryChannelInfo(new ThrowableCallback<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                channelStrategy.queryOnlineUserNum(new Callback<Integer>() {
+                channelStrategy.queryOnlineUserNum(new ThrowableCallback<Integer>() {
                     @Override
                     public void onSuccess(Integer integer) {
                         callback.onSuccess(integer < MAX_USER_NUM);
@@ -34,14 +35,18 @@ public class OneToOneClassContext extends ClassContext {
 
                     @Override
                     public void onFailure(Throwable throwable) {
-                        callback.onFailure(throwable);
+                        if (callback instanceof ThrowableCallback) {
+                            ((ThrowableCallback) callback).onFailure(throwable);
+                        }
                     }
                 });
             }
 
             @Override
             public void onFailure(Throwable throwable) {
-                callback.onFailure(throwable);
+                if (callback instanceof ThrowableCallback) {
+                    ((ThrowableCallback) callback).onFailure(throwable);
+                }
             }
         });
     }

@@ -12,7 +12,7 @@ import io.agora.rtm.RtmStatusCode;
         RtmStatusCode.ConnectionState.CONNECTION_STATE_CONNECTING,
         RtmStatusCode.ConnectionState.CONNECTION_STATE_CONNECTED,
         RtmStatusCode.ConnectionState.CONNECTION_STATE_RECONNECTING,
-        RtmStatusCode.ConnectionState.CONNECTION_STATE_ABORTED
+        RtmStatusCode.ConnectionState.CONNECTION_STATE_ABORTED,
 })
 @Retention(RetentionPolicy.SOURCE)
 public @interface ConnectionState {

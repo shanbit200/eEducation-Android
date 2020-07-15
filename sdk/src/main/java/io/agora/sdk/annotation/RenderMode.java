@@ -7,7 +7,10 @@ import java.lang.annotation.RetentionPolicy;
 
 import io.agora.rtc.video.VideoCanvas;
 
-@IntDef({VideoCanvas.RENDER_MODE_HIDDEN, VideoCanvas.RENDER_MODE_FIT})
+@IntDef({
+        VideoCanvas.RENDER_MODE_HIDDEN,
+        VideoCanvas.RENDER_MODE_FIT,
+})
 @Retention(RetentionPolicy.SOURCE)
 public @interface RenderMode {
 

@@ -11,7 +11,8 @@ import androidx.annotation.Nullable;
 import java.util.Date;
 import java.util.List;
 
-import io.agora.base.Callback;
+import io.agora.base.callback.Callback;
+import io.agora.base.callback.ThrowableCallback;
 import io.agora.base.network.RetrofitManager;
 import io.agora.education.BuildConfig;
 import io.agora.education.EduApplication;
@@ -99,7 +100,7 @@ public abstract class ClassContext implements ChannelEventListener {
     @Override
     public void onRoomChanged(Room room) {
         runListener(() -> {
-            classEventListener.onClassStateChanged(room.isCourseBegin(), new Date().getTime() - room.startTime);
+            classEventListener.onClassStateChanged(room.isCourseBegin(), System.currentTimeMillis() - room.startTime);
             // TODO load white board
             RetrofitManager.instance().getService(BuildConfig.API_BASE_URL, RoomService.class)
                     .roomBoard(EduApplication.getAppId(), room.roomId)
@@ -141,6 +142,8 @@ public abstract class ClassContext implements ChannelEventListener {
             case REPLAY:
                 ChannelMsg.ReplayMsg replayMsg = msg.getMsg(ChannelMsg.ReplayMsg.class);
                 runListener(() -> classEventListener.onChatMsgReceived(replayMsg));
+                break;
+            default:
                 break;
         }
     }
