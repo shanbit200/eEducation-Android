@@ -5,9 +5,8 @@ enum class EduUserRole(value: Int) {
     STUDENT(2)
 }
 
-data class EduUserInfo internal constructor(
+open class EduUserInfo(
         val userUuid: String,
         val userName: String,
-        private val userId: String,
         val role: EduUserRole
 )

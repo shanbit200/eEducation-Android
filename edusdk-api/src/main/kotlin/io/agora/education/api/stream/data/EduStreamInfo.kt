@@ -7,10 +7,9 @@ enum class VideoSourceType {
     SCREEN
 }
 
-data class EduStreamInfo(
+open class EduStreamInfo(
         var streamUuid: String,
         var streamName: String,
-        private var streamId: Int,
         val videoSourceType: VideoSourceType,
         var hasVideo: Boolean,
         var hasAudio: Boolean,

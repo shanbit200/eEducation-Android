@@ -10,12 +10,14 @@ import io.agora.education.api.room.listener.EduRoomEventListener
 import io.agora.education.api.user.EduStudent
 import io.agora.education.api.user.EduTeacher
 import io.agora.education.api.user.EduUser
+import io.agora.education.api.user.data.EduUserInfo
 
 abstract class EduRoom(
         val roomInfo: EduRoomInfo,
         var roomStatus: EduRoomStatus,
-        var localUser: EduUser
+        var localUserInfo: EduUserInfo
 ) {
+    lateinit var localUser: EduUser
     lateinit var board: EduBoard
     lateinit var record: EduRecord
 
