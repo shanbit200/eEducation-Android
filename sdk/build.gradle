@@ -28,7 +28,7 @@ android {
 }
 
 dependencies {
-    implementation project(':base')
+    api project(':base')
     implementation project(':log')
 
     api "io.agora.rtc:full-sdk:${safeExtGet('dependencies', 'io.agora.rtc:full-sdk', '2.9.0.104')}"
