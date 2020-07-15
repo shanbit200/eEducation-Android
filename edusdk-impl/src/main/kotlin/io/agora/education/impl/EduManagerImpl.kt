@@ -6,11 +6,14 @@ import io.agora.education.api.logger.DebugItem
 import io.agora.education.api.logger.LogLevel
 import io.agora.education.api.room.EduRoom
 import io.agora.education.api.room.data.RoomCreateOptions
-import io.agora.education.impl.room.EduRoomImpl
+import io.agora.sdk.manager.RtmManager
+import io.agora.sdk.manager.SdkManager
 
 internal class EduManagerImpl : EduManager() {
     override fun createClassroom(config: RoomCreateOptions, callback: EduCallback<EduRoom>) {
-        callback.onSuccess(EduRoomImpl())
+        RtmManager.instance().joinChannel(mutableMapOf(
+                SdkManager.CHANNEL_ID to config.roomId
+        ))
         TODO("Not yet implemented")
     }
 

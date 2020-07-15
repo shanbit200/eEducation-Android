@@ -1,7 +1,5 @@
 package io.agora.education.classroom.strategy;
 
-import android.telecom.Call;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
