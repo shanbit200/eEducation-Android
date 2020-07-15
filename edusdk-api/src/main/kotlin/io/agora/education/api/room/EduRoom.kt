@@ -14,6 +14,7 @@ import io.agora.education.api.user.EduUser
 abstract class EduRoom {
     lateinit var roomInfo: EduRoomInfo
     lateinit var roomStatus: EduRoomStatus
+
     lateinit var localUser: EduUser
     lateinit var board: EduBoard
     lateinit var record: EduRecord

@@ -32,9 +32,9 @@ android {
 }
 
 dependencies {
-    implementation project(':base')
-    implementation project(':log')
-    implementation project(':sdk')
+    api project(':base')
+    api project(':log')
+    api project(':sdk')
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'androidx.core:core-ktx:1.3.0'

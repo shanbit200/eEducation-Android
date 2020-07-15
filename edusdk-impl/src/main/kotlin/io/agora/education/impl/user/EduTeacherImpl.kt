@@ -13,7 +13,11 @@ internal class EduTeacherImpl : EduUserImpl(), EduTeacher {
         this.eventListener = eventListener
     }
 
-    override fun updateCourseState(courseState: EduRoomState, callback: EduCallback<Unit>) {
+    override fun beginClass(callback: EduCallback<Unit>) {
+        TODO("Not yet implemented")
+    }
+
+    override fun endClass(callback: EduCallback<Unit>) {
         TODO("Not yet implemented")
     }
 

@@ -2,7 +2,7 @@ package io.agora.education.impl.user
 
 import android.view.View
 import io.agora.education.api.EduCallback
-import io.agora.education.api.message.TextMessage
+import io.agora.education.api.message.EduTextMessage
 import io.agora.education.api.stream.data.*
 import io.agora.education.api.user.EduUser
 import io.agora.education.api.user.data.EduUserInfo
@@ -37,11 +37,11 @@ internal open class EduUserImpl : EduUser {
         TODO("Not yet implemented")
     }
 
-    override fun sendRoomMessage(message: String, callback: EduCallback<TextMessage>) {
+    override fun sendRoomMessage(message: String, callback: EduCallback<EduTextMessage>) {
         TODO("Not yet implemented")
     }
 
-    override fun sendUserMessage(message: String, toRemoteUserInfo: EduUserInfo, callback: EduCallback<TextMessage>) {
+    override fun sendUserMessage(message: String, toRemoteUserInfo: EduUserInfo, callback: EduCallback<EduTextMessage>) {
         TODO("Not yet implemented")
     }
 
