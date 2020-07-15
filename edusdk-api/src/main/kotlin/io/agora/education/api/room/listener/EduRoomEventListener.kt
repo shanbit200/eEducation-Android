@@ -32,5 +32,5 @@ interface EduRoomEventListener {
 
     fun onConnectionStateChanged(state: ConnectionState, reason: ConnectionStateChangeReason, fromClassRoom: EduRoom)
 
-    fun onNetworkQualityChanged(quality: NetworkQuality, userInfo: EduUserInfo, fromClassRoom: EduRoom)
+    fun onNetworkQualityChanged(quality: NetworkQuality, user: EduUserInfo, fromClassRoom: EduRoom)
 }

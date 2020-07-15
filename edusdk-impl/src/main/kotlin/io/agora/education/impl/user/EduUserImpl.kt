@@ -9,9 +9,9 @@ import io.agora.education.api.user.data.EduUserInfo
 import io.agora.education.api.user.listener.EduUserEventListener
 
 internal open class EduUserImpl : EduUser {
-    override lateinit var userInfo: EduUserInfo
-    override var eventListener: EduUserEventListener? = null
     override var videoEncoderConfig: VideoEncoderConfig = VideoEncoderConfig()
+
+    override var eventListener: EduUserEventListener? = null
 
     override fun initOrUpdateLocalStream(options: LocalStreamInitOptions, callback: EduCallback<EduStreamInfo>) {
         TODO("Not yet implemented")
@@ -41,7 +41,7 @@ internal open class EduUserImpl : EduUser {
         TODO("Not yet implemented")
     }
 
-    override fun sendUserMessage(message: String, toRemoteUserInfo: EduUserInfo, callback: EduCallback<TextMessage>) {
+    override fun sendUserMessage(message: String, user: EduUserInfo, callback: EduCallback<TextMessage>) {
         TODO("Not yet implemented")
     }
 

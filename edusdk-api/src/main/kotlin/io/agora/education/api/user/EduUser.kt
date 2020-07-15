@@ -8,9 +8,9 @@ import io.agora.education.api.user.data.EduUserInfo
 import io.agora.education.api.user.listener.EduUserEventListener
 
 interface EduUser {
-    var userInfo: EduUserInfo
-    var eventListener: EduUserEventListener?
     var videoEncoderConfig: VideoEncoderConfig
+
+    var eventListener: EduUserEventListener?
 
     fun initOrUpdateLocalStream(options: LocalStreamInitOptions, callback: EduCallback<EduStreamInfo>)
 
@@ -26,7 +26,7 @@ interface EduUser {
 
     fun sendRoomMessage(message: String, callback: EduCallback<TextMessage>)
 
-    fun sendUserMessage(message: String, toRemoteUserInfo: EduUserInfo, callback: EduCallback<TextMessage>)
+    fun sendUserMessage(message: String, user: EduUserInfo, callback: EduCallback<TextMessage>)
 
     fun setStreamView(stream: EduStreamInfo, view: View, config: VideoRenderConfig = VideoRenderConfig())
 }

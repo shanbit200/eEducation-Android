@@ -7,7 +7,6 @@ import androidx.annotation.Nullable;
 import java.util.Locale;
 import java.util.Map;
 
-import io.agora.base.callback.Callback;
 import io.agora.base.ToastManager;
 import io.agora.base.callback.ThrowableCallback;
 import io.agora.base.network.BusinessException;

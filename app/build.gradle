@@ -73,7 +73,6 @@ dependencies {
     implementation project(':sdk')
     implementation project(':timeline')
     implementation project(':whiteboard')
-    implementation project(':edusdk-api')
 
     testImplementation "junit:junit:${extGet('dependencies', 'junit:junit')}"
     androidTestImplementation "androidx.test.ext:junit:${extGet('dependencies', 'androidx.test.ext:junit')}"

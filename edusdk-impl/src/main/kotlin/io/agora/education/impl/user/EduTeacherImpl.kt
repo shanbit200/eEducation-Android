@@ -1,9 +1,8 @@
 package io.agora.education.impl.user
 
 import io.agora.education.api.EduCallback
-import io.agora.education.api.room.data.EduRoomState
-import io.agora.education.api.stream.data.ScreenStreamInitOptions
 import io.agora.education.api.stream.data.EduStreamInfo
+import io.agora.education.api.stream.data.ScreenStreamInitOptions
 import io.agora.education.api.user.EduTeacher
 import io.agora.education.api.user.data.EduUserInfo
 import io.agora.education.api.user.listener.EduTeacherEventListener
@@ -13,15 +12,19 @@ internal class EduTeacherImpl : EduUserImpl(), EduTeacher {
         this.eventListener = eventListener
     }
 
-    override fun updateCourseState(courseState: EduRoomState, callback: EduCallback<Unit>) {
+    override fun beginClass(callback: EduCallback<Unit>) {
         TODO("Not yet implemented")
     }
 
-    override fun allowStudentChat(enable: Boolean, callback: EduCallback<Unit>) {
+    override fun endClass(callback: EduCallback<Unit>) {
         TODO("Not yet implemented")
     }
 
-    override fun allowStudentChat(enable: Boolean, student: EduUserInfo, callback: EduCallback<Unit>) {
+    override fun allowStudentChat(isAllow: Boolean, callback: EduCallback<Unit>) {
+        TODO("Not yet implemented")
+    }
+
+    override fun allowStudentChat(isAllow: Boolean, user: EduUserInfo, callback: EduCallback<Unit>) {
         TODO("Not yet implemented")
     }
 

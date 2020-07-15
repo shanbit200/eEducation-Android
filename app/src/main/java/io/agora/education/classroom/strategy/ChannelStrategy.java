@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.agora.base.callback.Callback;
-import io.agora.base.callback.ThrowableCallback;
 import io.agora.education.classroom.bean.channel.ChannelInfo;
 import io.agora.education.classroom.bean.channel.Room;
 import io.agora.education.classroom.bean.channel.User;

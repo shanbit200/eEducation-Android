@@ -4,17 +4,18 @@ import io.agora.education.api.EduCallback
 import io.agora.education.api.board.EduBoard
 import io.agora.education.api.record.EduRecord
 import io.agora.education.api.room.data.EduRoomInfo
-import io.agora.education.api.room.data.RoomJoinOptions
 import io.agora.education.api.room.data.EduRoomStatus
+import io.agora.education.api.room.data.RoomJoinOptions
 import io.agora.education.api.room.listener.EduRoomEventListener
 import io.agora.education.api.user.EduStudent
 import io.agora.education.api.user.EduTeacher
 import io.agora.education.api.user.EduUser
 
-abstract class EduRoom {
-    lateinit var roomInfo: EduRoomInfo
-    lateinit var roomStatus: EduRoomStatus
-    lateinit var localUser: EduUser
+abstract class EduRoom(
+        val roomInfo: EduRoomInfo,
+        var roomStatus: EduRoomStatus,
+        var localUser: EduUser
+) {
     lateinit var board: EduBoard
     lateinit var record: EduRecord
 
