@@ -97,7 +97,7 @@ public abstract class BaseClassActivity extends BaseActivity implements ClassEve
     }
 
     public final void uploadLog() {
-        LogUtil.upload(this);
+        LogUtil.upload(this, getRoomId());
     }
 
     public final void showLeaveDialog() {

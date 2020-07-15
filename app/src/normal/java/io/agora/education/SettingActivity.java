@@ -43,7 +43,7 @@ public class SettingActivity extends BaseActivity {
                 startActivity(intent);
                 break;
             case R.id.layout_log:
-                LogUtil.upload(this);
+                LogUtil.upload(this, null);
                 break;
         }
     }
