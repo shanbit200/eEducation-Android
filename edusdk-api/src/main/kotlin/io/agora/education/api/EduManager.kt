@@ -5,15 +5,14 @@ import io.agora.education.api.logger.LogLevel
 import io.agora.education.api.room.EduRoom
 import io.agora.education.api.room.data.RoomCreateOptions
 
-abstract class EduManager {
-    lateinit var options: EduManagerOptions
-
+abstract class EduManager(
+        val options: EduManagerOptions
+) {
     companion object {
         @JvmStatic
         fun init(options: EduManagerOptions): EduManager {
-            val eduManager = Class.forName("io.agora.education.impl.EduManagerImpl").getConstructor().newInstance() as EduManager
-            eduManager.options = options
-            return eduManager
+            return Class.forName("io.agora.education.impl.EduManagerImpl")
+                    .getConstructor(EduManagerOptions::class.java).newInstance(options) as EduManager
         }
     }
 

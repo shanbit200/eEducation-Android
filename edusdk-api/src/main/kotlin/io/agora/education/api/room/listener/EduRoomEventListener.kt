@@ -16,9 +16,9 @@ interface EduRoomEventListener {
 
     fun onRemoteUsersLeft(users: List<EduUserInfo>, fromClassRoom: EduRoom)
 
-    fun onRoomMessageReceived(messageEdu: EduTextMessage, fromClassRoom: EduRoom)
+    fun onRoomMessageReceived(message: EduTextMessage, fromClassRoom: EduRoom)
 
-    fun onUserMessageReceived(messageEdu: EduTextMessage, fromClassRoom: EduRoom)
+    fun onUserMessageReceived(message: EduTextMessage, fromClassRoom: EduRoom)
 
     fun onRemoteStreamsInitialized(streams: List<EduStreamInfo>, fromClassRoom: EduRoom)
 

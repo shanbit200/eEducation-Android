@@ -1,7 +1,6 @@
 package io.agora.education.api.room.data
 
-data class EduRoomInfo(
+open class EduRoomInfo(
         val roomUuid: String,
-        val roomName: String,
-        internal val roomId: String
+        val roomName: String
 )

@@ -2,18 +2,22 @@ package io.agora.education.impl
 
 import io.agora.education.api.EduCallback
 import io.agora.education.api.EduManager
+import io.agora.education.api.EduManagerOptions
 import io.agora.education.api.logger.DebugItem
 import io.agora.education.api.logger.LogLevel
 import io.agora.education.api.room.EduRoom
 import io.agora.education.api.room.data.RoomCreateOptions
-import io.agora.sdk.manager.RtmManager
-import io.agora.sdk.manager.SdkManager
+import io.agora.rte.RteEngineImpl
 
-internal class EduManagerImpl : EduManager() {
+internal class EduManagerImpl(
+        options: EduManagerOptions
+) : EduManager(options) {
+    init {
+        RteEngineImpl.init(options.context, options.appId)
+    }
+
     override fun createClassroom(config: RoomCreateOptions, callback: EduCallback<EduRoom>) {
-        RtmManager.instance().joinChannel(mutableMapOf(
-                SdkManager.CHANNEL_ID to config.roomId
-        ))
+        RteEngineImpl.createChannel(config.roomId)
         TODO("Not yet implemented")
     }
 

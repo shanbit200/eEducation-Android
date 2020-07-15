@@ -2,21 +2,15 @@ package io.agora.education.api.stream.data
 
 import io.agora.education.api.user.data.EduUserInfo
 
-enum class EduVideoSourceType(value: Int) {
-    CAMERA(1),
-    SCREEN(2)
+enum class VideoSourceType {
+    CAMERA,
+    SCREEN
 }
 
-enum class EduAudioSourceType(value: Int) {
-    Microphone(1)
-}
-
-data class EduStreamInfo(
+open class EduStreamInfo(
         var streamUuid: String,
         var streamName: String,
-        private var streamId: Int,
-        val eduVideoSourceType: EduVideoSourceType,
-        val eduAudioSourceType: EduAudioSourceType,
+        val videoSourceType: VideoSourceType,
         var hasVideo: Boolean,
         var hasAudio: Boolean,
 
