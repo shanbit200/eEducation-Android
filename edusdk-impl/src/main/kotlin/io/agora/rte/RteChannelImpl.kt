@@ -203,7 +203,7 @@ internal class RteChannelImpl(
             }
         })
         rtcChannel.joinChannel(token, null, uid, ChannelMediaOptions().apply {
-            autoSubscribeAudio = mediaOptions.autoSubscribeAudio
+            this.autoSubscribeAudio = mediaOptions.autoSubscribeAudio
             autoSubscribeVideo = mediaOptions.autoSubscribeVideo
         })
     }

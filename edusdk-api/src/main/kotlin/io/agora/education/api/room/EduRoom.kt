@@ -15,7 +15,7 @@ import io.agora.education.api.user.data.EduUserInfo
 abstract class EduRoom(
         val roomInfo: EduRoomInfo,
         var roomStatus: EduRoomStatus,
-        var localUserInfo: EduUserInfo
+        var localUserInfo: EduUserInfo?
 ) {
     lateinit var localUser: EduUser
     lateinit var board: EduBoard

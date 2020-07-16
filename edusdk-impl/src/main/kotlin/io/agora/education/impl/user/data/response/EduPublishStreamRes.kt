@@ -1,4 +1,4 @@
-package io.agora.education.impl.user.response
+package io.agora.education.impl.user.data.response
 
 /**
  * @param streamId 流id

@@ -8,13 +8,13 @@ import io.agora.education.room.bean.response.ResponseBody
 import retrofit2.Call
 import retrofit2.http.*
 
-interface RoomClient {
+interface RoomService {
 
     /**@return 房间id(roomId)*/
     @POST("/scenario/education/apps/{appId}/v1/rooms")
     fun createClassroom(
             @Path("appId") appId: String,
-            @Body                roomCreateOptionsReq: RoomCreateOptionsReq
+            @Body roomCreateOptionsReq: RoomCreateOptionsReq
     ): Call<ResponseBody<Int>>
 
     @POST("/scenario/education/apps/{appId}/v1/rooms/{roomId}/entry")

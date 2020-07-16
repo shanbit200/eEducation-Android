@@ -16,8 +16,9 @@ import io.agora.rte.RteEngineImpl
 internal class EduRoomImpl(
         roomInfo: EduRoomInfo,
         roomStatus: EduRoomStatus,
-        localUser: EduUserInfo
+        localUser: EduUserInfo?
 ) : EduRoom(roomInfo, roomStatus, localUser) {
+
     override fun joinAsTeacher(options: RoomJoinOptions, callback: EduCallback<EduTeacher>) {
         callback.onSuccess(EduTeacherImpl())
         TODO("Not yet implemented")

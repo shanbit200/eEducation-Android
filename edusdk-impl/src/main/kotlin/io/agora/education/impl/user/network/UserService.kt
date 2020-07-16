@@ -1,10 +1,10 @@
 package io.agora.education.impl.user.network
 
-import io.agora.education.impl.user.request.EduPublishStreamReq
-import io.agora.education.impl.user.request.EduRoomMsgReq
-import io.agora.education.impl.user.request.EduUserMsgReq
-import io.agora.education.impl.user.response.EduPublishStreamRes
-import io.agora.education.impl.user.response.ResponseBody
+import io.agora.education.impl.user.data.request.EduPublishStreamReq
+import io.agora.education.impl.user.data.request.EduRoomMsgReq
+import io.agora.education.impl.user.data.request.EduUserMsgReq
+import io.agora.education.impl.user.data.response.EduPublishStreamRes
+import io.agora.education.impl.user.data.response.ResponseBody
 import retrofit2.Call
 import retrofit2.http.*
 
