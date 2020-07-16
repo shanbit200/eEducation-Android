@@ -7,7 +7,9 @@ import io.agora.education.api.user.EduTeacher
 import io.agora.education.api.user.data.EduUserInfo
 import io.agora.education.api.user.listener.EduTeacherEventListener
 
-internal class EduTeacherImpl : EduUserImpl(), EduTeacher {
+internal class EduTeacherImpl(
+        userInfo: EduUserInfo
+) : EduUserImpl(userInfo), EduTeacher {
     override fun setEventListener(eventListener: EduTeacherEventListener) {
         this.eventListener = eventListener
     }

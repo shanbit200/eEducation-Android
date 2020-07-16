@@ -8,7 +8,9 @@ import io.agora.education.api.user.EduUser
 import io.agora.education.api.user.data.EduUserInfo
 import io.agora.education.api.user.listener.EduUserEventListener
 
-internal open class EduUserImpl : EduUser {
+internal open class EduUserImpl(
+        override var userInfo: EduUserInfo
+) : EduUser {
     override var videoEncoderConfig: VideoEncoderConfig = VideoEncoderConfig()
 
     override var eventListener: EduUserEventListener? = null

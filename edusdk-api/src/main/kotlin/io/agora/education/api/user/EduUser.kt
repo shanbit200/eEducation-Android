@@ -8,6 +8,7 @@ import io.agora.education.api.user.data.EduUserInfo
 import io.agora.education.api.user.listener.EduUserEventListener
 
 interface EduUser {
+    var userInfo: EduUserInfo
     var videoEncoderConfig: VideoEncoderConfig
 
     var eventListener: EduUserEventListener?
